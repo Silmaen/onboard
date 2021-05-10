@@ -1,10 +1,10 @@
 
-#include <Arduino.h>
+#include "obd_system.h"
 
 void setup() {
-    // write your initialization code here
+    obd::system.init();
 }
 
 void loop() {
-    // write your code here
+    obd::system.update();
 }
