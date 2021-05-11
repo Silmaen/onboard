@@ -2,9 +2,9 @@
 #include "obd_system.h"
 
 void setup() {
-    obd::system.init();
+    obd::hardware.init();
 }
 
 void loop() {
-    obd::system.update();
+    obd::hardware.update();
 }
