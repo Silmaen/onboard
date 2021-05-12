@@ -88,7 +88,7 @@ public:
 
 private:
     source from = source::NONE;            ///< the source of the command
-    char cmdline[commandBufferLength];///< le string of the command line
+    char cmdline[commandBufferLength];     ///< le string of the command line
     uint8_t curr_ptr = 0;                  ///< current pointer
 };
 
