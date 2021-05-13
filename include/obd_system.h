@@ -5,6 +5,7 @@
 #pragma once
 #include <queue>
 #include <obd_system_cmd.h>
+#include "odb_multistream.h"
 
 /**
  * @brief base namespace of the project
@@ -34,23 +35,13 @@ private :
      * @brief print the kernel information in the given stream
      * @param output the stream onto write
      */
-    static void printKernelInfo(Stream *output);
+    void printKernelInfo();
 
     /**
      * @brief print the system information
      * @param output the stream onto write
      */
-    static void printSystemInfo(Stream *output);
-
-    /**
-     * @brief load config from filesystem
-     */
-    bool loadConfig();
-
-    /**
-     * @brief save config to filesystem
-     */
-    bool saveConfig();
+    void printSystemInfo();
 
     /**
      * @brief treat the command queue
@@ -60,7 +51,7 @@ private :
     /**
      * @brief list of output streams
      */
-    std::vector<Stream*> currStreams;
+    MultiPrint outputs;
     /**
      * @brief queue of the commands
      */

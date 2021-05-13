@@ -4,6 +4,6 @@
     <option name="baudRate" value="115200" />
     <option name="immediateSend" value="false" />
     <option name="logSentText" value="false" />
-    <option name="port" value="COM6" />
+    <option name="port" value="COM12" />
   </component>
 </project>

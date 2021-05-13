@@ -20,7 +20,7 @@ bool system::command::isCmd(const char *cmp) {
     return (l1 == size()) || ((l1 < size()) && (cmdline[l1] == ' '));
 }
 
-void command::printCmd(Stream &st) {
+void command::printCmd(Print &st) {
     switch(from){
         case source::NONE:
             st.print(" none   > ");
@@ -36,6 +36,14 @@ void command::printCmd(Stream &st) {
             break;
     }
     st.println(cmdline);
+}
+
+const char *command::getParams() const {
+    for(size_t i=1;i<size();++i){
+        if ((cmdline[i-1] == ' ') && (cmdline[i] != ' '))
+            return &(cmdline[i]);
+    }
+    return nullptr;
 }
 
 } // namespace system
