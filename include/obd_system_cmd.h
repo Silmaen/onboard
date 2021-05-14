@@ -84,11 +84,16 @@ public:
      * @brief print in the given output
      * @param st the output
      */
-    void printCmd(Stream &st);
+    void printCmd(Print &st);
 
+    /**
+     * @brief get the parameter string
+     * @return the parameter string may be null string
+     */
+    const char* getParams()const;
 private:
     source from = source::NONE;            ///< the source of the command
-    char cmdline[commandBufferLength];///< le string of the command line
+    char cmdline[commandBufferLength];     ///< le string of the command line
     uint8_t curr_ptr = 0;                  ///< current pointer
 };
 

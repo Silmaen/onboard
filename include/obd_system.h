@@ -3,9 +3,9 @@
 //
 
 #pragma once
-#include <Arduino.h>
 #include <queue>
 #include <obd_system_cmd.h>
+#include "odb_multistream.h"
 
 /**
  * @brief base namespace of the project
@@ -29,18 +29,29 @@ public:
      * @brief update the system
      */
     void update();
+
 private :
     /**
-     * @brief print the system information in the given device
-     * @param output the device onto write
+     * @brief print the kernel information in the given stream
+     * @param output the stream onto write
      */
-    static void printSystemInfo(Stream &output);
+    void printKernelInfo();
+
+    /**
+     * @brief print the system information
+     * @param output the stream onto write
+     */
+    void printSystemInfo();
 
     /**
      * @brief treat the command queue
      */
     void treatCommands();
 
+    /**
+     * @brief list of output streams
+     */
+    MultiPrint outputs;
     /**
      * @brief queue of the commands
      */
