@@ -85,11 +85,19 @@ private:
     char tempPath[maxPathLength]{};
 
     /**
-     * @brief function that convert a path to absolute if not already stor it to tempPath
+     * @brief function that convert a path to absolute if not already stored it to tempPath
+     * @param output the console where to write
      * @param path the path to convert
      *
      */
     void makeAbsolute(Print &output, const char* path);
+
+    /**
+     * @brief compact the path containing ".." or "."
+     * @param output the console where to write
+     * @param path the path to compact
+     */
+    void compactPath(char* path);
 };
 } // namespace internal
 
