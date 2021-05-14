@@ -14,4 +14,6 @@ constexpr uint8_t maxPathLength = 30;
 
 constexpr uint16_t maxConfigFileSize = 1024;
 
+constexpr char defaultHostname[]{"Onboard_12a85a"};
+
 } // namespace obd

@@ -32,16 +32,19 @@ public:
 
 private :
     /**
-     * @brief print the kernel information in the given stream
-     * @param output the stream onto write
+     * @brief print the kernel information
      */
     void printKernelInfo();
 
     /**
      * @brief print the system information
-     * @param output the stream onto write
      */
     void printSystemInfo();
+
+    /**
+     * @brief print the network informations
+     */
+    void printNetworkInfo();
 
     /**
      * @brief treat the command queue

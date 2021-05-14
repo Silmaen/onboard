@@ -5,7 +5,7 @@
 #include <obd_system.h>
 #ifdef ESP8266
 #include <Esp.h>
-#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
 #endif
 
 #include <obd_filesystem.h>
@@ -31,8 +31,15 @@ void impl::init() {
     Serial.println();
     Serial.println(F("SYSTEM INIT"));
     printKernelInfo();
+
+    // filesystem
     filesystem.init();
     filesystem.printInfo(Serial);
+
+    // network
+    WiFi.hostname(defaultHostname);
+    WiFi.begin();
+    WiFi.printDiag(outputs);
 }
 
 void impl::update() {
@@ -67,6 +74,8 @@ void impl::treatCommands() {
             filesystem.mkdir(outputs, cmd.getParams());
         }else if (cmd.isCmd("rm")){
             filesystem.rm(outputs, cmd.getParams());
+        }else if (cmd.isCmd("netinfo")){
+            printNetworkInfo();
         }else{
             outputs.println("Unknown command");
         }
@@ -154,6 +163,49 @@ void impl::printKernelInfo() {
 void impl::printSystemInfo(){
     printKernelInfo();
     filesystem.printInfo(outputs);
+}
+
+void impl::printNetworkInfo() {
+    const char* const modes[] = { "Off", "Station", "Access Point", "Both" };
+    outputs.print(F("Operation Mode      : "));
+    outputs.println(modes[wifi_get_opmode()]);
+    const char* const phymodes[] = { "", "b", "g", "n" };
+    outputs.print(F("PHY mode            : 802.11"));
+    outputs.println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
+
+    if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
+        // access point Infos
+        outputs.println(F("Access point informations"));
+    }
+    if ((wifi_get_opmode() == 1) || (wifi_get_opmode() == 3)) {
+        // station Infos
+        outputs.println(F("Station informations"));
+        outputs.print(F("Access point id     : "));
+        outputs.println(wifi_station_get_current_ap_id());
+        outputs.print(F("Access point SSID   : "));
+        outputs.println(WiFi.SSID());
+        outputs.print(F("Channel             : "));
+        outputs.println(WiFi.channel());
+        outputs.print(F("Connexion Status    : "));
+        const char* const connStatus[] = { "idle", "connecting", "Wrong Password", "No AP found" , "Connect fail", "got IP"};
+        outputs.println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
+
+        outputs.print(F("MAC address         : "));
+        outputs.println(WiFi.macAddress());
+
+        outputs.print("hostname                         : ");
+        outputs.println(WiFi.hostname());
+        if (WiFi.status() == WL_CONNECTED) {
+            outputs.print("IP address          : ");
+            outputs.println(WiFi.localIP().toString());
+            outputs.print("Net Mask            : ");
+            outputs.println(WiFi.subnetMask().toString());
+            outputs.print("Gateway             : ");
+            outputs.println(WiFi.gatewayIP().toString());
+            outputs.print("Dns                 : ");
+            outputs.println(WiFi.dnsIP().toString());
+        }
+    }
 }
 
 }// namespace system
