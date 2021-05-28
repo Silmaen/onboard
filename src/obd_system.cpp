@@ -3,12 +3,10 @@
 //
 
 #include <obd_system.h>
-#ifdef ESP8266
-#include <Esp.h>
-#include <ESP8266WiFi.h>
-#endif
+
 
 #include <obd_filesystem.h>
+#include <obd_network.h>
 
 namespace obd {
 
@@ -32,17 +30,21 @@ void impl::init() {
     Serial.println(F("SYSTEM INIT"));
     printKernelInfo();
 
+    // LED
+    pinMode(LED_BUILTIN, OUTPUT);
+    ledSetState();
+
     // filesystem
     filesystem.init();
     filesystem.printInfo(Serial);
 
     // network
-    WiFi.hostname(defaultHostname);
-    WiFi.begin();
-    WiFi.printDiag(outputs);
+    network.init(&outputs);
+
 }
 
 void impl::update() {
+    updateLedState();
     // read on serial
     if (Serial.available() > 0){
         delay(10);
@@ -54,8 +56,12 @@ void impl::update() {
         }
         commands.push(cmd);
     }
+    network.update(&commands);
     // treat the command queue
     treatCommands();
+
+    // update timestamp
+    timestamp = millis();
 }
 
 void impl::treatCommands() {
@@ -76,6 +82,18 @@ void impl::treatCommands() {
             filesystem.rm(outputs, cmd.getParams());
         }else if (cmd.isCmd("netinfo")){
             printNetworkInfo();
+        }else if (cmd.isCmd("led")){
+            char buf[30];
+            strcpy(buf,cmd.getParams());
+            if (strcmp(buf, "off") == 0)
+                ledSetState();
+            else if (strcmp(buf, "solid") == 0)
+                ledSetState(LedState::Solid);
+            else if (strcmp(buf, "blink") == 0)
+                ledSetState(LedState::Blink);
+            else {
+                outputs.println("Unknown led state");
+            }
         }else{
             outputs.println("Unknown command");
         }
@@ -166,46 +184,40 @@ void impl::printSystemInfo(){
 }
 
 void impl::printNetworkInfo() {
-    const char* const modes[] = { "Off", "Station", "Access Point", "Both" };
-    outputs.print(F("Operation Mode      : "));
-    outputs.println(modes[wifi_get_opmode()]);
-    const char* const phymodes[] = { "", "b", "g", "n" };
-    outputs.print(F("PHY mode            : 802.11"));
-    outputs.println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
+    network.printInfo();
+}
 
-    if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
-        // access point Infos
-        outputs.println(F("Access point informations"));
+void impl::updateLedState() {
+    switch(ledState){
+        case LedState::Off:
+        case LedState::Solid:
+            break;
+        case LedState::Blink:
+            if ((timestamp - ledTime) > 1000) {
+                ledVal = !ledVal;
+                ledTime = timestamp;
+            }
+            digitalWrite(LED_BUILTIN,static_cast<uint8_t>(!ledVal));
+            break;
     }
-    if ((wifi_get_opmode() == 1) || (wifi_get_opmode() == 3)) {
-        // station Infos
-        outputs.println(F("Station informations"));
-        outputs.print(F("Access point id     : "));
-        outputs.println(wifi_station_get_current_ap_id());
-        outputs.print(F("Access point SSID   : "));
-        outputs.println(WiFi.SSID());
-        outputs.print(F("Channel             : "));
-        outputs.println(WiFi.channel());
-        outputs.print(F("Connexion Status    : "));
-        const char* const connStatus[] = { "idle", "connecting", "Wrong Password", "No AP found" , "Connect fail", "got IP"};
-        outputs.println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
 
-        outputs.print(F("MAC address         : "));
-        outputs.println(WiFi.macAddress());
+}
 
-        outputs.print("hostname                         : ");
-        outputs.println(WiFi.hostname());
-        if (WiFi.status() == WL_CONNECTED) {
-            outputs.print("IP address          : ");
-            outputs.println(WiFi.localIP().toString());
-            outputs.print("Net Mask            : ");
-            outputs.println(WiFi.subnetMask().toString());
-            outputs.print("Gateway             : ");
-            outputs.println(WiFi.gatewayIP().toString());
-            outputs.print("Dns                 : ");
-            outputs.println(WiFi.dnsIP().toString());
-        }
+void impl::ledSetState(LedState state) {
+    ledState = state;
+    switch(ledState){
+        case LedState::Off:
+            ledVal = false;
+            break;
+        case LedState::Solid:
+            ledVal = true;
+            break;
+        case LedState::Blink:
+            ledVal = true;
+            ledTime = timestamp;
+            break;
     }
+    digitalWrite(LED_BUILTIN,static_cast<uint8_t>(!ledVal));
 }
 
 }// namespace system

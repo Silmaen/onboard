@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include <cstdint>
 namespace obd {
 
 /// base length of a command line
