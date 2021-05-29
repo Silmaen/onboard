@@ -5,21 +5,16 @@
 #include <obd_system.h>
 
 
-#include <obd_filesystem.h>
-#include <obd_network.h>
-
 namespace obd {
 
-system::impl hardware;
+namespace core {
 
-namespace system {
-
-void impl::init() {
+void system::init() {
+    // LED
+    led.init();
     // -----------------------------------------------------------------------
     // initialize the USB Serial for debug
     // -----------------------------------------------------------------------
-    // Reuse default Serial port rate, so the bootloader
-    // messages are also readable.
     Serial.begin(115200);
     uint32_t br = Serial.detectBaudrate(1000);
     if (br != 0U) {
@@ -30,78 +25,62 @@ void impl::init() {
     Serial.println(F("SYSTEM INIT"));
     printKernelInfo();
 
-    // LED
-    pinMode(LED_BUILTIN, OUTPUT);
-    ledSetState();
-
     // filesystem
-    filesystem.init();
-    filesystem.printInfo(Serial);
+    fs.init();
+    fs.printInfo();
 
     // network
-    network.init(&outputs);
-
+    net.init();
 }
 
-void impl::update() {
-    updateLedState();
+void system::update() {
+    // update timestamp
+    timestamp = millis();
+    // update status led
+    led.update();
     // read on serial
-    if (Serial.available() > 0){
+    if (Serial.available() > 0) {
         delay(10);
         command cmd(source::USB);
-        while(Serial.available()>0) {
+        while (Serial.available() > 0) {
             char c = Serial.read();
             if (c == '\n') break;
             if (!cmd.putChar(c)) break;
         }
         commands.push(cmd);
     }
-    network.update(&commands);
+    // update network (read input for commands)
+    net.update();
     // treat the command queue
     treatCommands();
-
-    // update timestamp
-    timestamp = millis();
 }
 
-void impl::treatCommands() {
+void system::treatCommands() {
     while (!commands.empty()) {
-        auto& cmd = commands.front();
+        auto &cmd = commands.front();
         cmd.printCmd(outputs);
+        if (fs.treatCommand(cmd)) {
+            commands.pop();
+            continue;
+        }
+        if (net.treatCommand(cmd)) {
+            commands.pop();
+            continue;
+        }
+        if (led.treatCommand(cmd)) {
+            commands.pop();
+            continue;
+        }
         if (cmd.isCmd("dmesg")) {
             printSystemInfo();
-        }else if (cmd.isCmd("pwd")){
-            filesystem.pwd(outputs);
-        }else if (cmd.isCmd("ls")){
-            filesystem.ls(outputs, cmd.getParams());
-        }else if (cmd.isCmd("cd")){
-            filesystem.cd(outputs, cmd.getParams());
-        }else if (cmd.isCmd("mkdir")){
-            filesystem.mkdir(outputs, cmd.getParams());
-        }else if (cmd.isCmd("rm")){
-            filesystem.rm(outputs, cmd.getParams());
-        }else if (cmd.isCmd("netinfo")){
-            printNetworkInfo();
-        }else if (cmd.isCmd("led")){
-            char buf[30];
-            strcpy(buf,cmd.getParams());
-            if (strcmp(buf, "off") == 0)
-                ledSetState();
-            else if (strcmp(buf, "solid") == 0)
-                ledSetState(LedState::Solid);
-            else if (strcmp(buf, "blink") == 0)
-                ledSetState(LedState::Blink);
-            else {
-                outputs.println("Unknown led state");
-            }
-        }else{
+        } else {
             outputs.println("Unknown command");
         }
         commands.pop();
     }
 }
 
-void impl::printKernelInfo() {
+void system::printKernelInfo() {
     // general info on chipset
     outputs.print(F("Chip Id:              0x"));
     outputs.println(ESP.getChipId(), HEX);
@@ -178,47 +157,12 @@ void impl::printKernelInfo() {
     outputs.println(ss + fss);
 }
 
-void impl::printSystemInfo(){
+void system::printSystemInfo() {
     printKernelInfo();
-    filesystem.printInfo(outputs);
+    led.printInfo();
+    fs.printInfo();
+    net.printInfo();
 }
 
-void impl::printNetworkInfo() {
-    network.printInfo();
-}
-
-void impl::updateLedState() {
-    switch(ledState){
-        case LedState::Off:
-        case LedState::Solid:
-            break;
-        case LedState::Blink:
-            if ((timestamp - ledTime) > 1000) {
-                ledVal = !ledVal;
-                ledTime = timestamp;
-            }
-            digitalWrite(LED_BUILTIN,static_cast<uint8_t>(!ledVal));
-            break;
-    }
-
-}
-
-void impl::ledSetState(LedState state) {
-    ledState = state;
-    switch(ledState){
-        case LedState::Off:
-            ledVal = false;
-            break;
-        case LedState::Solid:
-            ledVal = true;
-            break;
-        case LedState::Blink:
-            ledVal = true;
-            ledTime = timestamp;
-            break;
-    }
-    digitalWrite(LED_BUILTIN,static_cast<uint8_t>(!ledVal));
-}
-
-}// namespace system
+}// namespace core
 }// namespace obd

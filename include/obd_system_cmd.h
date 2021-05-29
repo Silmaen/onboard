@@ -3,11 +3,11 @@
 //
 
 #pragma once
+#include "classfwd.h"
 #include <Arduino.h>
-#include <config.h>
 
 namespace obd {
-namespace system {
+namespace core {
 
 /**
  * @brief type of the sources
@@ -35,7 +35,7 @@ public:
      * @brief constructor with source
      * @param src the source of the message
      */
-    explicit command(const source &src):from{src} {}
+    explicit command(const source &src) : from{src} {reset();}
 
     /**
      * @brief define the source of the command
@@ -78,24 +78,25 @@ public:
      * @param cmp the command to compare
      * @return true if commands matches
      */
-    bool isCmd(const char *cmp);
+    bool isCmd(const char *cmp) const;
 
     /**
      * @brief print in the given output
      * @param st the output
      */
-    void printCmd(Print &st);
+    void printCmd(Print &st) const;
 
     /**
      * @brief get the parameter string
      * @return the parameter string may be null string
      */
-    const char* getParams()const;
+    const char *getParams() const;
+
 private:
-    source from = source::NONE;            ///< the source of the command
-    char cmdline[commandBufferLength];     ///< le string of the command line
-    uint8_t curr_ptr = 0;                  ///< current pointer
+    source from = source::NONE;       ///< the source of the command
+    char cmdline[commandBufferLength];///< le string of the command line
+    uint8_t curr_ptr = 0;             ///< current pointer
 };
 
-}// namespace system
+}// namespace core
 }// namespace obd

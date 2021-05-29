@@ -1,10 +1,12 @@
 
 #include "obd_system.h"
 
+static obd::core::system hardware;
+
 void setup() {
-    obd::hardware.init();
+    hardware.init();
 }
 
 void loop() {
-    obd::hardware.update();
+    hardware.update();
 }

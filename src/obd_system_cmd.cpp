@@ -5,23 +5,23 @@
 #include <obd_system_cmd.h>
 
 namespace obd {
-namespace system {
+namespace core {
 
-bool system::command::isCmd(const char *cmp) {
+bool command::isCmd(const char *cmp) const{
     size_t l1 = strlen(cmp);
     //Serial.print("--- '");Serial.print(cmp);Serial.print("' '");Serial.print(cmdline);Serial.print("' ");Serial.print((int)l1);Serial.print(" ");Serial.println(size());
     if (l1 > size()) {
         return false;
     }
-    for(size_t i=0;i<l1;++i){
+    for (size_t i = 0; i < l1; ++i) {
         if (cmdline[i] != cmp[i])
             return false;
     }
     return (l1 == size()) || ((l1 < size()) && (cmdline[l1] == ' '));
 }
 
-void command::printCmd(Print &st) {
-    switch(from){
+void command::printCmd(Print &st) const{
+    switch (from) {
         case source::NONE:
             st.print(" none   > ");
             break;
@@ -39,12 +39,12 @@ void command::printCmd(Print &st) {
 }
 
 const char *command::getParams() const {
-    for(size_t i=1;i<size();++i){
-        if ((cmdline[i-1] == ' ') && (cmdline[i] != ' '))
+    for (size_t i = 1; i < size(); ++i) {
+        if ((cmdline[i - 1] == ' ') && (cmdline[i] != ' '))
             return &(cmdline[i]);
     }
     return nullptr;
 }
 
-} // namespace system
-} // namespace obd
+}// namespace core
+}// namespace obd

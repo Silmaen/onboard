@@ -6,71 +6,75 @@
 #include <config.h>
 #include <obd_network.h>
 #ifdef ESP8266
-#include <Esp.h>
 #include <ESP8266WiFi.h>
+#include <Esp.h>
 #endif
 
 namespace obd {
 
-internal::network_impl network;
+namespace network {
 
-namespace internal {
+void driver::init() {
 
-void network_impl::init(Print* out) {
-    output = out;
     WiFi.hostname(defaultHostname);
     WiFi.begin();
-    if (output != nullptr)
-        WiFi.printDiag(*output);
+    if (getParentPrint() != nullptr)
+        WiFi.printDiag(*getParentPrint());
 }
 
-void network_impl::printInfo() {
-    if (output == nullptr)
+void driver::printInfo() {
+    if (getParentPrint() == nullptr)
         return;
-    const char* const modes[] = { "Off", "Station", "Access Point", "Both" };
-    output->print(F("Operation Mode      : "));
-    output->println(modes[wifi_get_opmode()]);
-    const char* const phymodes[] = { "", "b", "g", "n" };
-    output->print(F("PHY mode            : 802.11"));
-    output->println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
+    const char *const modes[] = {"Off", "Station", "Access Point", "Both"};
+    getParentPrint()->print(F("Operation Mode      : "));
+    getParentPrint()->println(modes[wifi_get_opmode()]);
+    const char *const phymodes[] = {"", "b", "g", "n"};
+    getParentPrint()->print(F("PHY mode            : 802.11"));
+    getParentPrint()->println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
 
     if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
         // access point Infos
-        output->println(F("Access point informations"));
+        getParentPrint()->println(F("Access point informations"));
     }
     if ((wifi_get_opmode() == 1) || (wifi_get_opmode() == 3)) {
         // station Infos
-        output->println(F("Station informations"));
-        output->print(F("Access point id     : "));
-        output->println(wifi_station_get_current_ap_id());
-        output->print(F("Access point SSID   : "));
-        output->println(WiFi.SSID());
-        output->print(F("Channel             : "));
-        output->println(WiFi.channel());
-        output->print(F("Connexion Status    : "));
-        const char* const connStatus[] = { "idle", "connecting", "Wrong Password", "No AP found" , "Connect fail", "got IP"};
-        output->println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
+        getParentPrint()->println(F("Station informations"));
+        getParentPrint()->print(F("Access point id     : "));
+        getParentPrint()->println(wifi_station_get_current_ap_id());
+        getParentPrint()->print(F("Access point SSID   : "));
+        getParentPrint()->println(WiFi.SSID());
+        getParentPrint()->print(F("Channel             : "));
+        getParentPrint()->println(WiFi.channel());
+        getParentPrint()->print(F("Connexion Status    : "));
+        const char *const connStatus[] = {"idle", "connecting", "Wrong Password", "No AP found", "Connect fail", "got IP"};
+        getParentPrint()->println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
 
-        output->print(F("MAC address         : "));
-        output->println(WiFi.macAddress());
+        getParentPrint()->print(F("MAC address         : "));
+        getParentPrint()->println(WiFi.macAddress());
 
-        output->print("hostname                         : ");
-        output->println(WiFi.hostname());
+        getParentPrint()->print("hostname                         : ");
+        getParentPrint()->println(WiFi.hostname());
         if (WiFi.status() == WL_CONNECTED) {
-            output->print("IP address          : ");
-            output->println(WiFi.localIP().toString());
-            output->print("Net Mask            : ");
-            output->println(WiFi.subnetMask().toString());
-            output->print("Gateway             : ");
-            output->println(WiFi.gatewayIP().toString());
-            output->print("Dns                 : ");
-            output->println(WiFi.dnsIP().toString());
+            getParentPrint()->print("IP address          : ");
+            getParentPrint()->println(WiFi.localIP().toString());
+            getParentPrint()->print("Net Mask            : ");
+            getParentPrint()->println(WiFi.subnetMask().toString());
+            getParentPrint()->print("Gateway             : ");
+            getParentPrint()->println(WiFi.gatewayIP().toString());
+            getParentPrint()->print("Dns                 : ");
+            getParentPrint()->println(WiFi.dnsIP().toString());
         }
     }
 }
-void network_impl::update(std::queue<system::command>* cmds) {
-
+void driver::update() {
+}
+bool driver::treatCommand(const core::command &cmd) {
+    if (cmd.isCmd("netinfo")) {
+        printInfo();
+        return true;
+    }
+    return false;
 }
 
-} // namespace internal
-} // namespace obd
+}// namespace network
+}// namespace obd

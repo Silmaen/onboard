@@ -3,9 +3,12 @@
 //
 
 #pragma once
-#include <queue>
-#include <obd_system_cmd.h>
 #include "odb_multistream.h"
+#include <obd_system_cmd.h>
+#include <obd_filesystem.h>
+#include <obd_network.h>
+#include <obd_status_led.h>
+#include <queue>
 
 /**
  * @brief base namespace of the project
@@ -14,22 +17,19 @@ namespace obd {
 /**
  * @brief namespace for the base system
  */
-namespace system {
-
-/**
- * @brief States of the internal LED
- */
-enum struct LedState {
-    Off,   ///< Led off
-    Solid, ///< Led lit in a solid state
-    Blink, ///< Led is blinking with a 2s period
-};
+namespace core {
 
 /**
  * @brief implementation of the system
  */
-class impl {
+class system {
 public:
+    system():fs(this), net(this), led(this) {}
+    ~system() = default;
+    system(const system &) = default;
+    system(system &&) = default;
+    system &operator=(const system &) = default;
+    system &operator=(system &&) = default;
     /**
      * @brief initialize the system
      */
@@ -45,7 +45,23 @@ public:
      * @param state the new state
      */
     void ledSetState(LedState state = LedState::Off);
-private :
+
+    /**
+     * @brief get
+     * @return
+     */
+    Print* getPrint(){
+        return &outputs;
+    }
+
+    /**
+     * @brief get the actual timestamp
+     * @return the time stamp
+     */
+    uint64_t getTimestamp()const{
+        return timestamp;
+    }
+private:
     /**
      * @brief print the kernel information
      */
@@ -57,11 +73,6 @@ private :
     void printSystemInfo();
 
     /**
-     * @brief print the network informations
-     */
-    static void printNetworkInfo();
-
-    /**
      * @brief treat the command queue
      */
     void treatCommands();
@@ -71,32 +82,30 @@ private :
      */
     void updateLedState();
 
-    /**
-     * @brief list of output streams
-     */
+    /// list of output streams
     MultiPrint outputs;
 
-    /**
-     * @brief queue of the commands
-     */
+    /// filesystem driver
+    filesystem::driver fs;
+
+    /// network driver
+    network::driver net;
+
+    /// status led driver
+    StatusLed led;
+
+    /// queue of the commands
     std::queue<command> commands;
 
-    /**
-     * @brief current timestamp
-     */
+    /// current timestamp
     uint64_t timestamp = 0;
 
-    /**
-     * @brief current sztate of the led
-     */
-    LedState ledState= LedState::Off;
-    uint64_t ledTime;
-    bool ledVal;
+    /// current state of the led
+    LedState ledState = LedState::Off;
 
+    /// chronometer for led
+    uint64_t ledTime = 0;
 };
 
-}// namespace system
-
-extern system::impl hardware;
-
-} // namespace obd
+}// namespace core
+}// namespace obd

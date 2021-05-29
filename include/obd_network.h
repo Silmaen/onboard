@@ -5,37 +5,46 @@
  */
 
 #pragma once
-#include <Print.h>
+#include <obd_basedriver.h>
 #include <obd_system_cmd.h>
 #include <queue>
 
 namespace obd {
-namespace internal {
+namespace network {
 
-class network_impl {
+/**
+ * @brief network driver
+ */
+class driver: public core::baseDriver {
 public:
+    explicit driver(core::system *p = nullptr) : baseDriver(p){}
+    ~driver() = default;
+    driver(const driver &) = default;
+    driver(driver &&) = default;
+    driver &operator=(const driver &) = default;
+    driver &operator=(driver &&) = default;
     /**
      * @brief initialize file system
-     * @param out the print output
      */
-    void init(Print* out);
+    void init() override;
 
     /**
      * @brief print the network infos
      */
-    void printInfo();
+    void printInfo() override;
 
     /**
      * @brief listen to network for commands
-     * @param cmds the list of command where to append received
      */
-    void update(std::queue<system::command>* cmds);
+    void update() override;
+    /**
+     * @brief try to treat the given command
+     * @param cmd the command to treat
+     * @return true if the command has been treated
+     */
+    bool treatCommand(const core::command& cmd) override;
 private:
-    Print* output = nullptr;
 };
 
-} // namespace internal
-
-extern internal::network_impl network;
-
-} // namespace obd
+}// namespace network
+}// namespace obd
