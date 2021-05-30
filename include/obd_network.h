@@ -36,13 +36,24 @@ public:
     /**
      * @brief listen to network for commands
      */
-    void update() override;
+    void update(uint64_t timestamp) override;
     /**
      * @brief try to treat the given command
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
     bool treatCommand(const core::command& cmd) override;
+
+    /**
+     * @brief display help on commands
+     */
+    void printHelp() override;
+
+    /**
+     * @brief get the name of the driver
+     * @return driver name
+     */
+    const char *getName() const override{return "Network";}
 private:
 };
 

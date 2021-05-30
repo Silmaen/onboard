@@ -3,54 +3,39 @@
 //
 
 #include <obd_system.h>
-
+#include <obd_filesystem.h>
+#include <obd_network.h>
+#include <obd_status_led.h>
+#include <obd_usbserial.h>
 
 namespace obd {
 
 namespace core {
 
+system::system() {
+    drivers.push_back(new StatusLed(this));
+    drivers.push_back(new UsbSerial(this));
+    drivers.push_back(new filesystem::driver(this));
+    drivers.push_back(new network::driver(this));
+}
+
 void system::init() {
-    // LED
-    led.init();
     // -----------------------------------------------------------------------
     // initialize the USB Serial for debug
     // -----------------------------------------------------------------------
-    Serial.begin(115200);
-    uint32_t br = Serial.detectBaudrate(1000);
-    if (br != 0U) {
-        Serial.updateBaudRate(br);
+    for(auto* driver:drivers) {
+        driver->init();
+        driver->printInfo();
     }
-    outputs.addPrint(&Serial);
-    Serial.println();
-    Serial.println(F("SYSTEM INIT"));
-    printKernelInfo();
-
-    // filesystem
-    fs.init();
-    fs.printInfo();
-
-    // network
-    net.init();
 }
 
 void system::update() {
     // update timestamp
     timestamp = millis();
-    // update status led
-    led.update();
-    // read on serial
-    if (Serial.available() > 0) {
-        delay(10);
-        command cmd(source::USB);
-        while (Serial.available() > 0) {
-            char c = Serial.read();
-            if (c == '\n') break;
-            if (!cmd.putChar(c)) break;
-        }
-        commands.push(cmd);
+    // update drivers
+    for(auto* driver: drivers){
+        driver->update(timestamp);
     }
-    // update network (read input for commands)
-    net.update();
     // treat the command queue
     treatCommands();
 }
@@ -59,15 +44,13 @@ void system::treatCommands() {
     while (!commands.empty()) {
         auto &cmd = commands.front();
         cmd.printCmd(outputs);
-        if (fs.treatCommand(cmd)) {
-            commands.pop();
-            continue;
+        bool treated = false;
+        for(auto* driver: drivers){
+            treated = driver->treatCommand(cmd);
+            if (treated)
+                break;
         }
-        if (net.treatCommand(cmd)) {
-            commands.pop();
-            continue;
-        }
-        if (led.treatCommand(cmd)) {
+        if (treated) {
             commands.pop();
             continue;
         }
@@ -159,10 +142,24 @@ void system::printKernelInfo() {
 
 void system::printSystemInfo() {
     printKernelInfo();
-    led.printInfo();
-    fs.printInfo();
-    net.printInfo();
+    for(auto* driver: drivers){
+        driver->printInfo();
+    }
 }
 
+baseDriver *system::getDriver(size_t driver_id) {
+    if (driver_id  >= drivers.size())
+        return nullptr;
+    return drivers[driver_id];
+}
+
+baseDriver *system::getDriver(const char *name) {
+    for(auto* driver: drivers){
+        if (strcmp(driver->getName(), name) == 0){
+            return driver;
+        }
+    }
+    return nullptr;
+}
 }// namespace core
 }// namespace obd

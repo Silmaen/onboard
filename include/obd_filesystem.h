@@ -35,7 +35,7 @@ public:
     /**
      * @brief listen to network for commands
      */
-    void update() override {}
+    void update(uint64_t timestamp) override {}
 
     /**
      * @brief try to treat the given command
@@ -43,6 +43,17 @@ public:
      * @return true if the command has been treated
      */
     bool treatCommand(const core::command& cmd) override;
+
+    /**
+     * @brief display command help
+     */
+    void printHelp() override;
+
+    /**
+     * @brief get the name of the driver
+     * @return driver name
+     */
+    const char *getName() const override{return "Filesystem";}
 
     /**
      * @brief open a file

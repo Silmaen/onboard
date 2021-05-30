@@ -45,7 +45,7 @@ public:
     /**
      * @brief procedure called each frame
      */
-    void update() override;
+    void update(uint64_t timestamp) override;
 
     /**
      * @brief try to treat the given command
@@ -59,6 +59,17 @@ public:
      * @param st the new state
      */
     void setState(LedState st = LedState::Off);
+
+    /**
+     * @brief display help on command
+     */
+    void printHelp() override;
+
+    /**
+     * @brief get the name of the driver
+     * @return driver name
+     */
+    const char *getName() const override{return "Status Led";}
 private:
     /// current state of the led
     LedState ledState = LedState::Off;

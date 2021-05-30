@@ -21,7 +21,7 @@ public:
      * @brief constructor with parent
      * @param p the parent system
      */
-    explicit baseDriver(system *p) : parent{p} {}
+    explicit baseDriver(system *p = nullptr) : parent{p} {}
 
     /**
      * @brief attach a new parent to this driver
@@ -46,6 +46,13 @@ public:
     Print *getParentPrint();
 
     /**
+     * @brief retrieve the name of the driver
+     * @return name of the driver
+     */
+    virtual const char *getName() const =0;
+
+
+    /**
      * @brief initialize the driver
      */
     virtual void init() = 0;
@@ -58,7 +65,7 @@ public:
     /**
      * @brief procedure called each frame
      */
-    virtual void update() = 0;
+    virtual void update(uint64_t timestamp) = 0;
 
     /**
      * @brief try to treat the given command
@@ -68,6 +75,11 @@ public:
     virtual bool treatCommand(const core::command&  /*cmd*/){
         return false;
     }
+
+    /**
+     * @brief display driver help on commands
+     */
+    virtual void printHelp() = 0;
 private:
     /// pointer to the parent system
     system *parent = nullptr;

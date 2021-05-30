@@ -22,10 +22,10 @@ constexpr uint16_t ledThreeEighthPeriod = 3 * ledPeriod / 8;
 constexpr uint16_t ledFiveEighthPeriod = 5 * ledPeriod / 8;
 constexpr uint16_t ledSevenEighthPeriod = 7 * ledPeriod / 8;
 
-void StatusLed::update() {
+void StatusLed::update(uint64_t timestamp) {
     if (getParent()== nullptr)
         return;
-    uint64_t delta = getParent()->getTimestamp() - ledTime;
+    uint64_t delta = timestamp - ledTime;
     uint8_t state{0};
     switch (ledState) {
         case LedState::Off:
@@ -87,7 +87,7 @@ void StatusLed::update() {
     }
     digitalWrite(LED_BUILTIN, 1 - state);
     if (delta > ledPeriod) {
-        ledTime = getParent()->getTimestamp();
+        ledTime = timestamp;
     }
 }
 
@@ -111,7 +111,7 @@ bool StatusLed::treatCommand(const command &cmd) {
             setState(LedState::FasterBlink);
         } else {
             if (getParent() != nullptr) {
-                getParentPrint()->println("Unknown led state");
+                getParentPrint()->println(F("Unknown led state"));
             }
         }
         return true;
@@ -126,6 +126,20 @@ void StatusLed::setState(LedState st) {
     if (getParent()== nullptr)
         return;
     ledTime = getParent()->getTimestamp();
+}
+
+void StatusLed::printHelp() {
+    if (getParent() == nullptr)
+        return;
+    getParentPrint()->println(F("Help on led state"));
+    getParentPrint()->println(F("led <state>   change the state of the led. valid state are:"));
+    getParentPrint()->println(F("              off         led off"));
+    getParentPrint()->println(F("              solid       led on"));
+    getParentPrint()->println(F("              blink       led is slowly blinking"));
+    getParentPrint()->println(F("              fastblink   led is blinking twice faster"));
+    getParentPrint()->println(F("              twopulse    led do 2 pulses then wait"));
+    getParentPrint()->println(F("              threepulse  led do 3 pulses then wait"));
+    getParentPrint()->println(F("              fasterblink lest is continuously pulsing"));
 }
 
 }// namespace core

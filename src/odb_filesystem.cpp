@@ -14,6 +14,8 @@ void driver::init() {
 }
 
 void driver::printInfo() {
+    if (getParent() == nullptr)
+        return;
     FSInfo64 infos{};
     LittleFS.info64(infos);
     getParentPrint()->print(F("File System Size: "));
@@ -31,10 +33,14 @@ void driver::printInfo() {
 }
 
 void driver::pwd() {
+    if (getParent() == nullptr)
+        return;
     getParentPrint()->println(curPath);
 }
 
 void driver::ls(const char *options) {
+    if (getParent() == nullptr)
+        return;
     auto d = LittleFS.openDir(curPath);
     getParentPrint()->print("Content of: ");
     getParentPrint()->println(curPath);
@@ -53,17 +59,23 @@ void driver::ls(const char *options) {
 }
 
 void driver::cd(const char *where) {
+    if (getParent() == nullptr)
+        return;
     if (where == nullptr) {
-        getParentPrint()->println(F("cd: Invalid Void path"));
+        if(getParent() != nullptr)
+            getParentPrint()->println(F("cd: Invalid Void path"));
         return;
     }
     makeAbsolute(where);
     if (!LittleFS.exists(tempPath)) {
-        getParentPrint()->println(F("cd: Path does not exists"));
+        if(getParent() != nullptr)
+            getParentPrint()->println(F("cd: Path does not exists"));
         return;
     }
-    getParentPrint()->print(F("cd: goto "));
-    getParentPrint()->println(tempPath);
+    if(getParent() != nullptr) {
+        getParentPrint()->print(F("cd: goto "));
+        getParentPrint()->println(tempPath);
+    }
     strcpy(curPath, tempPath);
 }
 
@@ -73,12 +85,14 @@ File driver::open(char *filename, char *mode) {
 
 void driver::mkdir(const char *directory) {
     if (directory == nullptr) {
-        getParentPrint()->println(F("mkdir: Invalid Void path"));
+        if(getParent() != nullptr)
+            getParentPrint()->println(F("mkdir: Invalid Void path"));
         return;
     }
     makeAbsolute(directory);
     if (LittleFS.exists(tempPath)) {
-        getParentPrint()->println(F("mkdir: Path already exists"));
+        if(getParent() != nullptr)
+            getParentPrint()->println(F("mkdir: Path already exists"));
         return;
     }
     LittleFS.mkdir(tempPath);
@@ -86,12 +100,14 @@ void driver::mkdir(const char *directory) {
 
 void driver::rm(const char *path) {
     if (path == nullptr) {
-        getParentPrint()->println(F("rm: Invalid Void path"));
+        if(getParent() != nullptr)
+            getParentPrint()->println(F("rm: Invalid Void path"));
         return;
     }
     makeAbsolute(path);
     if (!LittleFS.exists(tempPath)) {
-        getParentPrint()->println(F("rm: Path does not exists"));
+        if(getParent() != nullptr)
+            getParentPrint()->println(F("rm: Path does not exists"));
         return;
     }
     LittleFS.remove(tempPath);
@@ -108,7 +124,8 @@ void driver::makeAbsolute(const char *path) {
         return;
     }
     if (strlen(path) + strlen(curPath) + 1 >= maxPathLength) {
-        getParentPrint()->println(F("Path too long"));
+        if(getParent() != nullptr)
+            getParentPrint()->println(F("Path too long"));
         compactPath(curPath);
         return;
     }
@@ -204,6 +221,18 @@ bool driver::treatCommand(const core::command &cmd) {
         return true;
     }
     return false;
+}
+
+void driver::printHelp() {
+    if (getParent() == nullptr)
+        return;
+    getParentPrint()->println(F("Help for Filesystem"));
+    getParentPrint()->println(F("pwd     print the working directory"));
+    getParentPrint()->println(F("ls      list the content of the current directory"));
+    getParentPrint()->println(F("cd      change current directory"));
+    getParentPrint()->println(F("mkdir   make a new directory"));
+    getParentPrint()->println(F("rm      remove a file or directory"));
+    getParentPrint()->println();
 }
 
 }// namespace filesystem

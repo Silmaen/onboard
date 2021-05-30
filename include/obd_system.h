@@ -3,11 +3,9 @@
 //
 
 #pragma once
-#include "odb_multistream.h"
+#include <odb_multistream.h>
 #include <obd_system_cmd.h>
-#include <obd_filesystem.h>
-#include <obd_network.h>
-#include <obd_status_led.h>
+#include <obd_basedriver.h>
 #include <queue>
 
 /**
@@ -24,7 +22,7 @@ namespace core {
  */
 class system {
 public:
-    system():fs(this), net(this), led(this) {}
+    system();
     ~system() = default;
     system(const system &) = default;
     system(system &&) = default;
@@ -41,17 +39,19 @@ public:
     void update();
 
     /**
-     * @brief define the new state of the LED
-     * @param state the new state
-     */
-    void ledSetState(LedState state = LedState::Off);
-
-    /**
      * @brief get
      * @return
      */
     Print* getPrint(){
         return &outputs;
+    }
+
+    /**
+     * @brief add a print to the list
+     * @param p the new Print to add
+     */
+    void addPrint(Print* p){
+        outputs.addPrint(p);
     }
 
     /**
@@ -61,11 +61,34 @@ public:
     uint64_t getTimestamp()const{
         return timestamp;
     }
-private:
+
+    /**
+     * @brief get a driver by its id in the list
+     * @param driver_id the id of the driver
+     * @return the driver
+     */
+    baseDriver* getDriver(size_t driver_id);
+
+    /**
+     * @brief get a driver by its name
+     * @param name the name of the driver
+     * @return the driver (nullptr if not exists)
+     */
+    baseDriver* getDriver(const char* name);
+
     /**
      * @brief print the kernel information
      */
     void printKernelInfo();
+
+    /**
+     * @brief add a command to the list
+     * @param cmd the command to add
+     */
+    void pushCommand(const command& cmd){
+        commands.push(cmd);
+    }
+private:
 
     /**
      * @brief print the system information
@@ -77,34 +100,17 @@ private:
      */
     void treatCommands();
 
-    /**
-     * @brief Update the state of the LED
-     */
-    void updateLedState();
-
     /// list of output streams
     MultiPrint outputs;
 
-    /// filesystem driver
-    filesystem::driver fs;
-
-    /// network driver
-    network::driver net;
-
-    /// status led driver
-    StatusLed led;
+    /// list of the drivers
+    std::vector<baseDriver*> drivers;
 
     /// queue of the commands
     std::queue<command> commands;
 
     /// current timestamp
     uint64_t timestamp = 0;
-
-    /// current state of the led
-    LedState ledState = LedState::Off;
-
-    /// chronometer for led
-    uint64_t ledTime = 0;
 };
 
 }// namespace core

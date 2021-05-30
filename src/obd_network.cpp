@@ -66,14 +66,23 @@ void driver::printInfo() {
         }
     }
 }
-void driver::update() {
+void driver::update(uint64_t timestamp) {
 }
+
 bool driver::treatCommand(const core::command &cmd) {
     if (cmd.isCmd("netinfo")) {
         printInfo();
         return true;
     }
     return false;
+}
+
+void driver::printHelp() {
+    if (getParentPrint() == nullptr)
+        return;
+    getParentPrint()->println(F("Help on network interface"));
+    getParentPrint()->println(F("netinfo      print information about network interface"));
+    getParentPrint()->println();
 }
 
 }// namespace network
