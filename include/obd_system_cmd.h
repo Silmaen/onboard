@@ -58,6 +58,12 @@ public:
     uint8_t size() const { return curr_ptr; }
 
     /**
+     * @brief return if the command is empty
+     * @return true if empty
+     */
+    bool empty() const{return curr_ptr == 0;}
+
+    /**
      * @brief add a char to the command
      * @param c the char to add
      */

@@ -30,8 +30,11 @@ void UsbSerial::update(uint64_t  /*timestamp*/) {
         while (Serial.available() > 0) {
             char c = Serial.read();
             if (c == '\n') break;
+            if (c == '\r') break;
             if (!cmd.putChar(c)) break;
         }
+        if (cmd.empty())
+            return;
         if (getParent() != nullptr) {
             getParent()->pushCommand(cmd);
         }

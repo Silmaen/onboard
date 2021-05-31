@@ -8,6 +8,8 @@
 #include <obd_basedriver.h>
 #include <obd_system_cmd.h>
 #include <queue>
+#include <ESP8266WiFi.h>
+#include <Esp.h>
 
 namespace obd {
 namespace network {
@@ -36,6 +38,7 @@ public:
     driver(driver &&) = default;
     driver &operator=(const driver &) = default;
     driver &operator=(driver &&) = default;
+
     /**
      * @brief initialize file system
      */
@@ -50,6 +53,7 @@ public:
      * @brief listen to network for commands
      */
     void update(uint64_t timestamp) override;
+
     /**
      * @brief try to treat the given command
      * @param cmd the command to treat
@@ -78,6 +82,10 @@ private:
     core::StatusLed* statusLed = nullptr;
     /// the status of the network
     Status currentStatus = Status::Disabled;
+    /// the telnet server
+    WiFiServer telnetServer{23};
+    /// the wifi client
+    WiFiClient client;
 
     /**
      * @brief display network status
@@ -85,10 +93,31 @@ private:
     void printStatus();
 
     /**
+     * @brief print welcome message
+     */
+    void printWelcome();
+
+    /**
      * @brief get network information and actualise the status
      * @return returns true if the status change since previous update
      */
     bool updateStatus();
+
+    /**
+     * @brief called when status change to start/stop server according to connexion
+     */
+    void updateServerState();
+
+    /**
+     * @brief update the connexion to client
+     * @return true if something change
+     */
+    bool updateClientConnexion();
+
+    /**
+     * @brief listen the telnet port for instructions
+     */
+    void listenTelnet();
 
     /**
      * @brief update the LED with the status

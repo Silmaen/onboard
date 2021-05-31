@@ -6,6 +6,9 @@
 #include <cstdint>
 namespace obd {
 
+constexpr char author[]{"Damien Lachouette"};
+constexpr char version[]{"1.0"};
+
 /// base length of a command line
 constexpr uint8_t commandBufferLength = 30;
 
@@ -18,5 +21,6 @@ constexpr uint16_t ledPeriod = 2000;
 constexpr uint16_t maxConfigFileSize = 1024;
 
 constexpr char defaultHostname[]{"Onboard_12a85a"};
+
 
 } // namespace obd

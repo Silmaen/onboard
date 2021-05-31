@@ -5,10 +5,6 @@
  */
 #include <config.h>
 #include <obd_network.h>
-#ifdef ESP8266
-#include <ESP8266WiFi.h>
-#include <Esp.h>
-#endif
 #include <obd_system.h>
 
 namespace obd {
@@ -32,7 +28,7 @@ void driver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
     WiFi.hostname(defaultHostname);
-    WiFi.begin("aigle","1234567891234");
+    WiFi.begin("aigle", "1234567891234");
     if (getParentPrint() != nullptr)
         WiFi.printDiag(*getParentPrint());
 }
@@ -82,9 +78,18 @@ void driver::printInfo() {
     }
 }
 
-void driver::update(uint64_t timestamp) {
-    if (updateStatus())
+void driver::update(uint64_t /*timestamp*/) {
+    if (updateStatus()) {
         updateLED();
+        // do nothing more if status changed
+        return;
+    }
+    // see if there is a new client or a client quit
+    if (updateClientConnexion()) {
+        return;
+    }
+    // listen to the telnet server
+    listenTelnet();
 }
 
 bool driver::treatCommand(const core::command &cmd) {
@@ -115,12 +120,47 @@ bool driver::updateStatus() {
     } else if (WiFi.status() == WL_CONNECTED) {
         if (WiFi.getMode() == WiFiMode::WIFI_AP) {
             cal = Status::Hotspot;
+            if (client && client.connected() != 0U)
+                cal = Status::HotspotClient;
         } else {
             cal = Status::Connected;
+            if (client && client.connected() != 0U)
+                cal = Status::ConnectedClient;
         }
     }
-    if (cal != currentStatus){
+    if (cal != currentStatus) {
         currentStatus = cal;
+        // start/stop the telnet server
+        updateServerState();
+        return true;
+    }
+    return false;
+}
+
+void driver::updateServerState() {
+    if (currentStatus == Status::Connected || currentStatus == Status::Hotspot) {
+        getParent()->getOutput()->removePrint(&client);
+        if (telnetServer.status() == 0U) {
+            telnetServer.begin();
+            telnetServer.setNoDelay(true);
+        }
+    }
+    if ((currentStatus == Status::Disabled || currentStatus == Status::Connecting) && telnetServer.status() != 0U) {
+        getParent()->getOutput()->removePrint(&client);
+        telnetServer.stop();
+    }
+}
+
+bool driver::updateClientConnexion() {
+    if (telnetServer.hasClient() && (!client || (client.connected() == 0U))) {
+        if (client) {
+            client.stop();
+        }
+        client = telnetServer.available();
+        client.flush();
+        getParent()->getOutput()->addPrint(&client);
+        printWelcome();
+        // do nothing more if client just connect
         return true;
     }
     return false;
@@ -151,6 +191,27 @@ void driver::updateLED() {
     }
 }
 
+void driver::listenTelnet() {
+    if (currentStatus != Status::HotspotClient && currentStatus != Status::ConnectedClient)
+        return;
+
+    if (client.available() > 0) {
+        delay(10);
+        core::command cmd(core::source::TELNET);
+        while (client.available() > 0) {
+            char c = client.read();
+            if (c == '\n') break;
+            if (c == '\r') break;
+            if (!cmd.putChar(c)) break;
+        }
+        if (cmd.empty())
+            return;
+        if (getParent() != nullptr) {
+            getParent()->pushCommand(cmd);
+        }
+    }
+}
+
 void driver::printStatus() {
     if (getParent() == nullptr)
         return;
@@ -176,6 +237,22 @@ void driver::printStatus() {
             break;
     }
 }
+
+void driver::printWelcome() {
+    client.println();
+    client.println(F("Welcome on board!"));
+    client.println(F("  _____ _____ ____  "));
+    client.println(F(" |     | __  |    \\ "));
+    client.println(F(" |  |  | __ -|  |  |"));
+    client.println(F(" |_____|_____|____/ "));
+    client.println(F("----------------------------------------"));
+    client.print(F(" obd version: "));
+    client.print(version);
+    client.print(F(" Author: "));
+    client.println(author);
+    client.println(F("----------------------------------------"));
+}
+
 
 }// namespace network
 }// namespace obd

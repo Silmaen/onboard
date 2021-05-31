@@ -98,6 +98,14 @@ public:
     void pushCommand(const command& cmd){
         commands.push(cmd);
     }
+
+    /**
+     * @brief return a direct pointer to the outputs list
+     * @return the outputs list
+     */
+    MultiPrint* getOutput(){
+        return &outputs;
+    }
 private:
 
     /**
