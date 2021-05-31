@@ -5,7 +5,6 @@
 #include <obd_system.h>
 #include <obd_filesystem.h>
 #include <obd_network.h>
-#include <obd_status_led.h>
 #include <obd_usbserial.h>
 
 namespace obd {
@@ -145,12 +144,6 @@ void system::printSystemInfo() {
     for(auto* driver: drivers){
         driver->printInfo();
     }
-}
-
-baseDriver *system::getDriver(size_t driver_id) {
-    if (driver_id  >= drivers.size())
-        return nullptr;
-    return drivers[driver_id];
 }
 
 baseDriver *system::getDriver(const char *name) {

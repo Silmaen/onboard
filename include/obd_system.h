@@ -6,6 +6,7 @@
 #include <odb_multistream.h>
 #include <obd_system_cmd.h>
 #include <obd_basedriver.h>
+#include <obd_status_led.h>
 #include <queue>
 
 /**
@@ -63,18 +64,27 @@ public:
     }
 
     /**
-     * @brief get a driver by its id in the list
-     * @param driver_id the id of the driver
-     * @return the driver
-     */
-    baseDriver* getDriver(size_t driver_id);
-
-    /**
      * @brief get a driver by its name
      * @param name the name of the driver
      * @return the driver (nullptr if not exists)
      */
     baseDriver* getDriver(const char* name);
+
+    /**
+     * @brief get the driver by its name and convert it to desired type
+     * @tparam T the desired output type (must inherit from baseDriver)
+     * @param name the driver name
+     * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
+     */
+    template<class T>
+    T* getDriverAs(const char* name){
+        if (!std::is_base_of<baseDriver, T>::value)
+            return nullptr;
+        baseDriver* a = getDriver(name);
+        if (a == nullptr)
+            return nullptr;
+        return static_cast<T*>(a);
+    }
 
     /**
      * @brief print the kernel information

@@ -13,11 +13,24 @@ namespace obd {
 namespace network {
 
 /**
+ * @brief list of the different Status of the network
+ */
+enum class Status {
+    Disabled,        ///< no connexion, no try to connect (LED Off)
+    Connecting,      ///< trying to connect to an hotspot (LED faster blinking)
+    Connected,       ///< network connected to an hotspot (LED blinking)
+    ConnectedClient, ///< Connected to an hotspot and a client is connected to telnet server (LED Solid)
+    Hotspot,         ///< this device acts as an hotspot (LED 2-blink)
+    HotspotClient,   ///< this device acts as an hotspot and a client is connected to telnet server (LED 3-blink)
+};
+
+
+/**
  * @brief network driver
  */
 class driver: public core::baseDriver {
 public:
-    explicit driver(core::system *p = nullptr) : baseDriver(p){}
+    explicit driver(core::system *p = nullptr);
     ~driver() = default;
     driver(const driver &) = default;
     driver(driver &&) = default;
@@ -54,7 +67,28 @@ public:
      * @return driver name
      */
     const char *getName() const override{return "Network";}
+
+    /**
+     * @brief attach a new parent to this driver
+     * @param p the parent
+     */
+    void attachParent(core::system *p) override;
 private:
+    /// direct link to the status led
+    core::StatusLed* statusLed = nullptr;
+    /// the status of the network
+    Status currentStatus = Status::Disabled;
+
+    /**
+     * @brief get network information and actualise the status
+     * @return returns true if the status change since previous update
+     */
+    bool updateStatus();
+
+    /**
+     * @brief update the LED with the status
+     */
+    void updateLED();
 };
 
 }// namespace network

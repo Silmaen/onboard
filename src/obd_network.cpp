@@ -9,13 +9,28 @@
 #include <ESP8266WiFi.h>
 #include <Esp.h>
 #endif
+#include <obd_system.h>
 
 namespace obd {
 
 namespace network {
 
-void driver::init() {
+driver::driver(core::system *p) : baseDriver(p) {
+    if (p != nullptr) {
+        statusLed = p->getDriverAs<core::StatusLed>("Status Led");
+    }
+}
 
+void driver::attachParent(core::system *p) {
+    baseDriver::attachParent(p);
+    if (p != nullptr) {
+        statusLed = p->getDriverAs<core::StatusLed>("Status Led");
+    }
+}
+
+void driver::init() {
+    if (statusLed != nullptr)
+        statusLed->setState(core::LedState::FasterBlink);
     WiFi.hostname(defaultHostname);
     WiFi.begin();
     if (getParentPrint() != nullptr)
@@ -66,7 +81,10 @@ void driver::printInfo() {
         }
     }
 }
+
 void driver::update(uint64_t timestamp) {
+    if (updateStatus())
+        updateLED();
 }
 
 bool driver::treatCommand(const core::command &cmd) {
@@ -83,6 +101,48 @@ void driver::printHelp() {
     getParentPrint()->println(F("Help on network interface"));
     getParentPrint()->println(F("netinfo      print information about network interface"));
     getParentPrint()->println();
+}
+bool driver::updateStatus() {
+    Status cal = Status::Connecting;
+    if (WiFi.status() == WL_IDLE_STATUS) {
+        cal = Status::Disabled;
+    } else if (WiFi.status() == WL_CONNECTED) {
+        if (WiFi.getMode() == WiFiMode::WIFI_AP) {
+            cal = Status::Hotspot;
+        } else {
+            cal = Status::Connected;
+        }
+    }
+    if (cal != currentStatus){
+        currentStatus = cal;
+        return true;
+    }
+    return false;
+}
+
+void driver::updateLED() {
+    if (statusLed == nullptr)
+        return;
+    switch (currentStatus) {
+        case Status::Disabled:
+            statusLed->setState(core::LedState::Off);
+            break;
+        case Status::Connecting:
+            statusLed->setState(core::LedState::FasterBlink);
+            break;
+        case Status::Connected:
+            statusLed->setState(core::LedState::Blink);
+            break;
+        case Status::ConnectedClient:
+            statusLed->setState(core::LedState::Solid);
+            break;
+        case Status::Hotspot:
+            statusLed->setState(core::LedState::TwoPulse);
+            break;
+        case Status::HotspotClient:
+            statusLed->setState(core::LedState::ThreePulses);
+            break;
+    }
 }
 
 }// namespace network

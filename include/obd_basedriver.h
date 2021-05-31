@@ -27,7 +27,7 @@ public:
      * @brief attach a new parent to this driver
      * @param p the parent
      */
-    void attachParent(system *p) {
+    virtual void attachParent(system *p) {
         parent = p;
     }
 
