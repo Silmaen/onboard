@@ -55,6 +55,8 @@ void system::treatCommands() {
         }
         if (cmd.isCmd("dmesg")) {
             printSystemInfo();
+        } else if (cmd.isCmd("help")) {
+            printHelp(cmd.getParams());
         } else {
             outputs.println("Unknown command");
         }
@@ -154,5 +156,31 @@ baseDriver *system::getDriver(const char *name) {
     }
     return nullptr;
 }
+
+void system::printHelp(const char* param) {
+    outputs.println("SYSTEM HELP");
+    if ((param==nullptr) || (strlen(param) == 0)) {
+        outputs.println("please give a subcategory for the specific help.");
+        outputs.println("valid categories are:");
+        outputs.println("kernel");
+        for(auto* driver:drivers){
+            outputs.println(driver->getName());
+        }
+        return;
+    }
+    if (strcmp(param, "kernel") == 0){
+        outputs.println(F("dmesg       print all system info"));
+        outputs.println(F("help <sub>  get help on specific category"));
+        return;
+    }
+    for(auto* driver:drivers){
+        if (strcmp(param, driver->getName()) == 0){
+            driver->printHelp();
+            return;
+        }
+    }
+}
+
+
 }// namespace core
 }// namespace obd

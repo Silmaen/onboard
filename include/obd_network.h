@@ -80,6 +80,11 @@ private:
     Status currentStatus = Status::Disabled;
 
     /**
+     * @brief display network status
+     */
+    void printStatus();
+
+    /**
      * @brief get network information and actualise the status
      * @return returns true if the status change since previous update
      */

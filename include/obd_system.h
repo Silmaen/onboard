@@ -106,6 +106,12 @@ private:
     void printSystemInfo();
 
     /**
+     * @brief print the system help
+     * @param[in] param the sub category for help
+     */
+    void printHelp(const char* param);
+
+    /**
      * @brief treat the command queue
      */
     void treatCommands();

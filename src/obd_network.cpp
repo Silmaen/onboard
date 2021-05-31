@@ -32,7 +32,7 @@ void driver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
     WiFi.hostname(defaultHostname);
-    WiFi.begin();
+    WiFi.begin("aigle","1234567891234");
     if (getParentPrint() != nullptr)
         WiFi.printDiag(*getParentPrint());
 }
@@ -67,7 +67,7 @@ void driver::printInfo() {
         getParentPrint()->print(F("MAC address         : "));
         getParentPrint()->println(WiFi.macAddress());
 
-        getParentPrint()->print("hostname                         : ");
+        getParentPrint()->print(F("hostname            : "));
         getParentPrint()->println(WiFi.hostname());
         if (WiFi.status() == WL_CONNECTED) {
             getParentPrint()->print("IP address          : ");
@@ -92,6 +92,10 @@ bool driver::treatCommand(const core::command &cmd) {
         printInfo();
         return true;
     }
+    if (cmd.isCmd("netstat")) {
+        printStatus();
+        return true;
+    }
     return false;
 }
 
@@ -100,8 +104,10 @@ void driver::printHelp() {
         return;
     getParentPrint()->println(F("Help on network interface"));
     getParentPrint()->println(F("netinfo      print information about network interface"));
+    getParentPrint()->println(F("netstat      print information about network status"));
     getParentPrint()->println();
 }
+
 bool driver::updateStatus() {
     Status cal = Status::Connecting;
     if (WiFi.status() == WL_IDLE_STATUS) {
@@ -141,6 +147,32 @@ void driver::updateLED() {
             break;
         case Status::HotspotClient:
             statusLed->setState(core::LedState::ThreePulses);
+            break;
+    }
+}
+
+void driver::printStatus() {
+    if (getParent() == nullptr)
+        return;
+    getParentPrint()->print(F("Network status:    "));
+    switch (currentStatus) {
+        case Status::Disabled:
+            getParentPrint()->println(F("Disabled"));
+            break;
+        case Status::Connecting:
+            getParentPrint()->println(F("Connecting"));
+            break;
+        case Status::Connected:
+            getParentPrint()->println(F("Station waiting for a client"));
+            break;
+        case Status::ConnectedClient:
+            getParentPrint()->println(F("Station with a client"));
+            break;
+        case Status::Hotspot:
+            getParentPrint()->println(F("Hotspot waiting for client"));
+            break;
+        case Status::HotspotClient:
+            getParentPrint()->println(F("hotspot with a client"));
             break;
     }
 }
