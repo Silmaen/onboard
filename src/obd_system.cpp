@@ -3,78 +3,68 @@
 //
 
 #include <obd_system.h>
-#ifdef ESP8266
-#include <Esp.h>
-#include <ArduinoJson.h>
-#endif
-
 #include <obd_filesystem.h>
+#include <obd_network.h>
+#include <obd_usbserial.h>
 
 namespace obd {
 
-system::impl hardware;
+namespace core {
 
-namespace system {
+system::system() {
+    drivers.push_back(new StatusLed(this));
+    drivers.push_back(new UsbSerial(this));
+    drivers.push_back(new filesystem::driver(this));
+    drivers.push_back(new network::driver(this));
+}
 
-void impl::init() {
+void system::init() {
     // -----------------------------------------------------------------------
     // initialize the USB Serial for debug
     // -----------------------------------------------------------------------
-    // Reuse default Serial port rate, so the bootloader
-    // messages are also readable.
-    Serial.begin(115200);
-    uint32_t br = Serial.detectBaudrate(1000);
-    if (br != 0U) {
-        Serial.updateBaudRate(br);
+    for(auto* driver:drivers) {
+        driver->init();
+        driver->printInfo();
     }
-    outputs.addPrint(&Serial);
-    Serial.println();
-    Serial.println(F("SYSTEM INIT"));
-    printKernelInfo();
-    filesystem.init();
-    filesystem.printInfo(Serial);
 }
 
-void impl::update() {
-    // read on serial
-    if (Serial.available() > 0){
-        delay(10);
-        command cmd(source::USB);
-        while(Serial.available()>0) {
-            char c = Serial.read();
-            if (c == '\n') break;
-            if (!cmd.putChar(c)) break;
-        }
-        commands.push(cmd);
+void system::update() {
+    // update timestamp
+    timestamp = millis();
+    // update drivers
+    for(auto* driver: drivers){
+        driver->update(timestamp);
     }
     // treat the command queue
     treatCommands();
 }
 
-void impl::treatCommands() {
+void system::treatCommands() {
     while (!commands.empty()) {
-        auto& cmd = commands.front();
+        auto &cmd = commands.front();
         cmd.printCmd(outputs);
+        bool treated = false;
+        for(auto* driver: drivers){
+            treated = driver->treatCommand(cmd);
+            if (treated)
+                break;
+        }
+        if (treated) {
+            commands.pop();
+            continue;
+        }
         if (cmd.isCmd("dmesg")) {
             printSystemInfo();
-        }else if (cmd.isCmd("pwd")){
-            filesystem.pwd(outputs);
-        }else if (cmd.isCmd("ls")){
-            filesystem.ls(outputs, cmd.getParams());
-        }else if (cmd.isCmd("cd")){
-            filesystem.cd(outputs, cmd.getParams());
-        }else if (cmd.isCmd("mkdir")){
-            filesystem.mkdir(outputs, cmd.getParams());
-        }else if (cmd.isCmd("rm")){
-            filesystem.rm(outputs, cmd.getParams());
-        }else{
+        } else if (cmd.isCmd("help")) {
+            printHelp(cmd.getParams());
+        } else {
             outputs.println("Unknown command");
         }
         commands.pop();
     }
 }
 
-void impl::printKernelInfo() {
+void system::printKernelInfo() {
     // general info on chipset
     outputs.print(F("Chip Id:              0x"));
     outputs.println(ESP.getChipId(), HEX);
@@ -151,10 +141,46 @@ void impl::printKernelInfo() {
     outputs.println(ss + fss);
 }
 
-void impl::printSystemInfo(){
+void system::printSystemInfo() {
     printKernelInfo();
-    filesystem.printInfo(outputs);
+    for(auto* driver: drivers){
+        driver->printInfo();
+    }
 }
 
-}// namespace system
+baseDriver *system::getDriver(const char *name) {
+    for(auto* driver: drivers){
+        if (strcmp(driver->getName(), name) == 0){
+            return driver;
+        }
+    }
+    return nullptr;
+}
+
+void system::printHelp(const char* param) {
+    outputs.println("SYSTEM HELP");
+    if ((param==nullptr) || (strlen(param) == 0)) {
+        outputs.println("please give a subcategory for the specific help.");
+        outputs.println("valid categories are:");
+        outputs.println("kernel");
+        for(auto* driver:drivers){
+            outputs.println(driver->getName());
+        }
+        return;
+    }
+    if (strcmp(param, "kernel") == 0){
+        outputs.println(F("dmesg       print all system info"));
+        outputs.println(F("help <sub>  get help on specific category"));
+        return;
+    }
+    for(auto* driver:drivers){
+        if (strcmp(param, driver->getName()) == 0){
+            driver->printHelp();
+            return;
+        }
+    }
+}
+
+
+}// namespace core
 }// namespace obd

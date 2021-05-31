@@ -3,27 +3,57 @@
 //
 
 #pragma once
-#include <Print.h>
-#include "config.h"
+#include "obd_basedriver.h"
 #include <FS.h>
+#include <Print.h>
 
 namespace obd {
-namespace internal {
+namespace filesystem {
 
-class filesystem_impl {
+/**
+ * @brief driver for the filesystem
+ */
+class driver : public core::baseDriver {
 public:
-
-    filesystem_impl(){ strcpy(curPath, "/");};
-    ~filesystem_impl() = default;
-    filesystem_impl(const filesystem_impl &) = default;
-    filesystem_impl(filesystem_impl &&) = default;
-    filesystem_impl &operator=(const filesystem_impl &) = default;
-    filesystem_impl &operator=(filesystem_impl &&) = default;
-
+    explicit driver(core::system *p = nullptr) : baseDriver(p) { strcpy(curPath, "/"); };
+    ~driver() = default;
+    driver(const driver &) = default;
+    driver(driver &&) = default;
+    driver &operator=(const driver &) = default;
+    driver &operator=(driver &&) = default;
     /**
      * @brief initialize file system
      */
-    static void init();
+    void init() override;
+
+    /**
+     * @brief print the file system information in the given stream
+     * @param output the stream onto write
+     */
+    void printInfo() override;
+
+    /**
+     * @brief listen to network for commands
+     */
+    void update(uint64_t timestamp) override {}
+
+    /**
+     * @brief try to treat the given command
+     * @param cmd the command to treat
+     * @return true if the command has been treated
+     */
+    bool treatCommand(const core::command& cmd) override;
+
+    /**
+     * @brief display command help
+     */
+    void printHelp() override;
+
+    /**
+     * @brief get the name of the driver
+     * @return driver name
+     */
+    const char *getName() const override{return "Filesystem";}
 
     /**
      * @brief open a file
@@ -31,49 +61,44 @@ public:
      * @param mode opening mode
      * @return the file handler
      */
-    static File open(char* filename, char* mode);
+    static File open(char *filename, char *mode);
 
-    /**
-     * @brief print the file system information in the given stream
-     * @param output the stream onto write
-     */
-    static void printInfo(Print &output);
 
     /**
      * @brief print working directory
      * @param output the console where to write
      */
-    void pwd(Print& output);
+    void pwd();
 
     /**
      * @brief list files in the current directory
      * @param output the console where to write
      * @param options options to the ls command
      */
-    void ls(Print& output, const char* options);
+    void ls(const char *options);
 
     /**
      * @brief change directory
      * @param output the console where to write
      * @param where the new path
      */
-    void cd(Print& output, const char* where);
+    void cd(const char *where);
 
     /**
      * @brief create a new directory
      * @param output the console where to write
      * @param directory the directory to create
      */
-    void mkdir(Print& output, const char* directory);
+    void mkdir(const char *directory);
 
     /**
      * @brief remove a file or a directory (with its content)
      * @param output the console where to write
      * @param path what to remove
      */
-    void rm(Print& output, const char* path);
-private:
+    void rm(const char *path);
 
+private:
     /**
      * @brief the current file path
      */
@@ -90,17 +115,15 @@ private:
      * @param path the path to convert
      *
      */
-    void makeAbsolute(Print &output, const char* path);
+    void makeAbsolute(const char *path);
 
     /**
      * @brief compact the path containing ".." or "."
      * @param output the console where to write
      * @param path the path to compact
      */
-    void compactPath(char* path);
+    void compactPath(char *path);
 };
-} // namespace internal
 
-extern internal::filesystem_impl filesystem;
-
-} // namespace obd
+}// namespace filesystem
+}// namespace obd
