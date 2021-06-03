@@ -3,20 +3,21 @@
 //
 
 #pragma once
-#include <odb_multistream.h>
-#include <obd_system_cmd.h>
 #include <obd_basedriver.h>
+#include <obd_multistream.h>
 #include <obd_status_led.h>
+#include <obd_system_cmd.h>
 #include <queue>
 
 /**
+ * @namespace obd
  * @brief base namespace of the project
  */
-namespace obd {
 /**
+ * @namespace core
  * @brief namespace for the base system
  */
-namespace core {
+namespace obd::core {
 
 /**
  * @brief implementation of the system
@@ -24,9 +25,9 @@ namespace core {
 class system {
 public:
     system();
-    ~system() = default;
+    ~system()              = default;
     system(const system &) = default;
-    system(system &&) = default;
+    system(system &&)      = default;
     system &operator=(const system &) = default;
     system &operator=(system &&) = default;
     /**
@@ -43,7 +44,7 @@ public:
      * @brief get
      * @return
      */
-    Print* getPrint(){
+    Print *getPrint() {
         return &outputs;
     }
 
@@ -51,7 +52,7 @@ public:
      * @brief add a print to the list
      * @param p the new Print to add
      */
-    void addPrint(Print* p){
+    void addPrint(Print *p) {
         outputs.addPrint(p);
     }
 
@@ -59,7 +60,7 @@ public:
      * @brief get the actual timestamp
      * @return the time stamp
      */
-    uint64_t getTimestamp()const{
+    [[nodiscard]] uint64_t getTimestamp() const {
         return timestamp;
     }
 
@@ -68,7 +69,7 @@ public:
      * @param name the name of the driver
      * @return the driver (nullptr if not exists)
      */
-    baseDriver* getDriver(const char* name);
+    baseDriver *getDriver(const std::string &name);
 
     /**
      * @brief get the driver by its name and convert it to desired type
@@ -77,13 +78,13 @@ public:
      * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
      */
     template<class T>
-    T* getDriverAs(const char* name){
+    T *getDriverAs(const std::string &name) {
         if (!std::is_base_of<baseDriver, T>::value)
             return nullptr;
-        baseDriver* a = getDriver(name);
+        baseDriver *a = getDriver(name);
         if (a == nullptr)
             return nullptr;
-        return static_cast<T*>(a);
+        return static_cast<T *>(a);
     }
 
     /**
@@ -95,7 +96,7 @@ public:
      * @brief add a command to the list
      * @param cmd the command to add
      */
-    void pushCommand(const command& cmd){
+    void pushCommand(const command &cmd) {
         commands.push(cmd);
     }
 
@@ -103,11 +104,11 @@ public:
      * @brief return a direct pointer to the outputs list
      * @return the outputs list
      */
-    MultiPrint* getOutput(){
+    MultiPrint *getOutput() {
         return &outputs;
     }
-private:
 
+private:
     /**
      * @brief print the system information
      */
@@ -117,7 +118,7 @@ private:
      * @brief print the system help
      * @param[in] param the sub category for help
      */
-    void printHelp(const char* param);
+    void printHelp(const std::string &param);
 
     /**
      * @brief treat the command queue
@@ -128,7 +129,7 @@ private:
     MultiPrint outputs;
 
     /// list of the drivers
-    std::vector<baseDriver*> drivers;
+    std::vector<baseDriver *> drivers;
 
     /// queue of the commands
     std::queue<command> commands;
@@ -137,5 +138,4 @@ private:
     uint64_t timestamp = 0;
 };
 
-}// namespace core
-}// namespace obd
+}// namespace obd::core

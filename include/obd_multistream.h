@@ -9,8 +9,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace obd {
-namespace core {
+namespace obd::core {
 
 /**
  * @brief Simple override of the Print class to allow multiple output
@@ -46,11 +45,11 @@ public:
             print->write(a);
         return 1;
     }
+
 private:
     /// list of the print implementations
     std::vector<Print *> _prints = {};
 };
 
 
-}// namespace core
-}// namespace obd
+}// namespace obd::core

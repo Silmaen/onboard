@@ -9,8 +9,7 @@
 #include "obd_system_cmd.h"
 #include <Print.h>
 
-namespace obd {
-namespace core {
+namespace obd::core {
 
 /**
  * @brief base implementation of a system driver
@@ -49,7 +48,7 @@ public:
      * @brief retrieve the name of the driver
      * @return name of the driver
      */
-    virtual const char *getName() const =0;
+    [[nodiscard]] virtual std::string getName() const = 0;
 
 
     /**
@@ -85,5 +84,4 @@ private:
     system *parent = nullptr;
 };
 
-}// namespace core
-}// namespace obd
+}// namespace obd::core

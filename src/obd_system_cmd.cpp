@@ -4,23 +4,13 @@
 
 #include <obd_system_cmd.h>
 
-namespace obd {
-namespace core {
+namespace obd::core {
 
-bool command::isCmd(const char *cmp) const{
-    size_t l1 = strlen(cmp);
-    //Serial.print("--- '");Serial.print(cmp);Serial.print("' '");Serial.print(cmdline);Serial.print("' ");Serial.print((int)l1);Serial.print(" ");Serial.println(size());
-    if (l1 > size()) {
-        return false;
-    }
-    for (size_t i = 0; i < l1; ++i) {
-        if (cmdline[i] != cmp[i])
-            return false;
-    }
-    return (l1 == size()) || ((l1 < size()) && (cmdline[l1] == ' '));
+bool command::isCmd(const std::string& cmp) const {
+    return cmdline.substr(0, cmdline.find(' ')) == cmp;
 }
 
-void command::printCmd(Print &st) const{
+void command::printCmd(Print &st) const {
     switch (from) {
         case source::NONE:
             st.print(" none   > ");
@@ -35,16 +25,11 @@ void command::printCmd(Print &st) const{
             st.print(" telnet > ");
             break;
     }
-    st.println(cmdline);
+    st.println(cmdline.c_str());
 }
 
-const char *command::getParams() const {
-    for (size_t i = 1; i < size(); ++i) {
-        if ((cmdline[i - 1] == ' ') && (cmdline[i] != ' '))
-            return &(cmdline[i]);
-    }
-    return nullptr;
+std::string command::getParams() const {
+    return cmdline.substr(cmdline.find(' '));
 }
 
-}// namespace core
-}// namespace obd
+}// namespace obd::core
