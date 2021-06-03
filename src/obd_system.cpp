@@ -3,139 +3,184 @@
 //
 
 #include <obd_system.h>
-#ifdef ESP8266
-#include <Esp.h>
-#endif
-
+#include <obd_filesystem.h>
+#include <obd_network.h>
+#include <obd_usbserial.h>
 
 namespace obd {
 
-system::impl hardware;
+namespace core {
 
-namespace system {
+system::system() {
+    drivers.push_back(new StatusLed(this));
+    drivers.push_back(new UsbSerial(this));
+    drivers.push_back(new filesystem::driver(this));
+    drivers.push_back(new network::driver(this));
+}
 
-void impl::init() {
+void system::init() {
     // -----------------------------------------------------------------------
     // initialize the USB Serial for debug
     // -----------------------------------------------------------------------
-    // Reuse default Serial port rate, so the bootloader
-    // messages are also readable.
-    Serial.begin(115200);
-    uint32_t br = Serial.detectBaudrate(1000);
-    if (br != 0U) {
-        Serial.updateBaudRate(br);
+    for(auto* driver:drivers) {
+        driver->init();
+        driver->printInfo();
     }
-    Serial.println();
-    Serial.println(F("SYSTEM INIT"));
-    printSystemInfo(Serial);
 }
 
-void impl::update() {
-    // read on serial
-    if (Serial.available() > 0){
-        delay(10);
-        command cmd(source::USB);
-        while(Serial.available()>0) {
-            char c = Serial.read();
-            if (c == '\n') break;
-            if (!cmd.putChar(c)) break;
-        }
-        commands.push(cmd);
+void system::update() {
+    // update timestamp
+    timestamp = millis();
+    // update drivers
+    for(auto* driver: drivers){
+        driver->update(timestamp);
     }
     // treat the command queue
     treatCommands();
 }
 
-void impl::printSystemInfo(Stream &output) {
+void system::treatCommands() {
+    while (!commands.empty()) {
+        auto &cmd = commands.front();
+        cmd.printCmd(outputs);
+        bool treated = false;
+        for(auto* driver: drivers){
+            treated = driver->treatCommand(cmd);
+            if (treated)
+                break;
+        }
+        if (treated) {
+            commands.pop();
+            continue;
+        }
+        if (cmd.isCmd("dmesg")) {
+            printSystemInfo();
+        } else if (cmd.isCmd("help")) {
+            printHelp(cmd.getParams());
+        } else {
+            outputs.println("Unknown command");
+        }
+        commands.pop();
+    }
+}
+
+void system::printKernelInfo() {
     // general info on chipset
-    output.print(F("Chip Id:              0x"));
-    output.println(ESP.getChipId(), HEX);
-    output.print(F("Core Version:         "));
-    output.println(ESP.getCoreVersion());
-    output.print(F("Full Version:         "));
-    output.println(ESP.getFullVersion());
-    output.print(F("CPU freq:             "));
-    output.print(ESP.getCpuFreqMHz());
-    output.println(F("MHz"));
+    outputs.print(F("Chip Id:              0x"));
+    outputs.println(ESP.getChipId(), HEX);
+    outputs.print(F("Core Version:         "));
+    outputs.println(ESP.getCoreVersion());
+    outputs.print(F("Full Version:         "));
+    outputs.println(ESP.getFullVersion());
+    outputs.print(F("CPU freq:             "));
+    outputs.print(ESP.getCpuFreqMHz());
+    outputs.println(F("MHz"));
 
     // infos on the reset
-    output.print(F("Reset Info:           "));
-    output.println(ESP.getResetInfo());
-    output.print(F("boot version:         "));
-    output.println(ESP.getBootVersion());
-    output.print(F("boot mode:            "));
-    output.println(ESP.getBootMode() == 0 ? F("SYS_BOOT_ENHANCE_MODE") : F("SYS_BOOT_NORMAL_MODE"));
-
+    outputs.print(F("Reset Info:           "));
+    outputs.println(ESP.getResetInfo());
+    outputs.print(F("boot version:         "));
+    outputs.println(ESP.getBootVersion());
+    outputs.print(F("boot mode:            "));
+    outputs.println(ESP.getBootMode() == 0 ? F("SYS_BOOT_ENHANCE_MODE") : F("SYS_BOOT_NORMAL_MODE"));
 
     // HEAP memory statistics:
     uint32_t h_free = 0;
     uint16_t h_max = 0;
     uint8_t h_frag = 0;
     ESP.getHeapStats(&h_free, &h_max, &h_frag);
-    output.print(F("Heap:                 free: "));
-    output.print(h_free);
-    output.print(F(" / "));
-    output.print(h_max);
-    output.print(F(" Fragment: "));
-    output.print((int) h_frag);
-    output.print(F(" Free stack: "));
-    output.println(ESP.getFreeContStack());
+    outputs.print(F("Heap:                 free: "));
+    outputs.print(h_free);
+    outputs.print(F(" / "));
+    outputs.print(h_max);
+    outputs.print(F(" Fragment: "));
+    outputs.print((int) h_frag);
+    outputs.print(F(" Free stack: "));
+    outputs.println(ESP.getFreeContStack());
 
     // flash memory info
-    output.print(F("Flash Chip Id:        0x"));
-    output.println(ESP.getFlashChipId(), HEX);
-    output.print(F("Flash Chip Vendor Id: 0x"));
-    output.println(ESP.getFlashChipVendorId(), HEX);
+    outputs.print(F("Flash Chip Id:        0x"));
+    outputs.println(ESP.getFlashChipId(), HEX);
+    outputs.print(F("Flash Chip Vendor Id: 0x"));
+    outputs.println(ESP.getFlashChipVendorId(), HEX);
 
     //gets the actual chip size based on the flash id
-    output.print(F("Flash Chip real size: "));
-    output.println(ESP.getFlashChipRealSize());
+    outputs.print(F("Flash Chip real size: "));
+    outputs.println(ESP.getFlashChipRealSize());
     //gets the size of the flash as set by the compiler
-    output.print(F("Flash Chip size:      "));
-    output.println(ESP.getFlashChipSize());
-    output.print(F("Flash Chip speed:     "));
-    output.println(ESP.getFlashChipSpeed());
+    outputs.print(F("Flash Chip size:      "));
+    outputs.println(ESP.getFlashChipSize());
+    outputs.print(F("Flash Chip speed:     "));
+    outputs.println(ESP.getFlashChipSpeed());
     FlashMode_t a = ESP.getFlashChipMode();
-    output.print(F("Flash mode:           "));
+    outputs.print(F("Flash mode:           "));
     switch (a) {
         case FM_QIO:
-            output.println(F("QIO"));
+            outputs.println(F("QIO"));
             break;
         case FM_QOUT:
-            output.println(F("QOUT"));
+            outputs.println(F("QOUT"));
             break;
         case FM_DIO:
-            output.println(F("DIO"));
+            outputs.println(F("DIO"));
             break;
         case FM_DOUT:
-            output.println(F("DOUT"));
+            outputs.println(F("DOUT"));
             break;
         default:
-            output.println(F("UNKNOWN"));
+            outputs.println(F("UNKNOWN"));
             break;
     }
 
     // sketch size
     uint32_t ss = ESP.getSketchSize();
     uint32_t fss = ESP.getFreeSketchSpace();
-    output.print(F("Sketch size:          "));
-    output.print(ss);
-    output.print(" / ");
-    output.println(ss + fss);
+    outputs.print(F("Sketch size:          "));
+    outputs.print(ss);
+    outputs.print(" / ");
+    outputs.println(ss + fss);
 }
 
-void impl::treatCommands() {
-    while (!commands.empty()) {
-        auto& cmd = commands.front();
-        cmd.printCmd(Serial);
-        if (cmd.isCmd("dmesg")){
-            printSystemInfo(Serial);
-        }else{
-            Serial.println("Unknown command");
-        }
-        commands.pop();
+void system::printSystemInfo() {
+    printKernelInfo();
+    for(auto* driver: drivers){
+        driver->printInfo();
     }
 }
 
-}// namespace system
+baseDriver *system::getDriver(const char *name) {
+    for(auto* driver: drivers){
+        if (strcmp(driver->getName(), name) == 0){
+            return driver;
+        }
+    }
+    return nullptr;
+}
+
+void system::printHelp(const char* param) {
+    outputs.println("SYSTEM HELP");
+    if ((param==nullptr) || (strlen(param) == 0)) {
+        outputs.println("please give a subcategory for the specific help.");
+        outputs.println("valid categories are:");
+        outputs.println("kernel");
+        for(auto* driver:drivers){
+            outputs.println(driver->getName());
+        }
+        return;
+    }
+    if (strcmp(param, "kernel") == 0){
+        outputs.println(F("dmesg       print all system info"));
+        outputs.println(F("help <sub>  get help on specific category"));
+        return;
+    }
+    for(auto* driver:drivers){
+        if (strcmp(param, driver->getName()) == 0){
+            driver->printHelp();
+            return;
+        }
+    }
+}
+
+
+}// namespace core
 }// namespace obd
