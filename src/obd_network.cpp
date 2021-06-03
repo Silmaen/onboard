@@ -3,13 +3,10 @@
  * \date 26/05/2021
  *
  */
-#include <config.h>
 #include <obd_network.h>
 #include <obd_system.h>
 
-namespace obd {
-
-namespace network {
+namespace obd::network {
 
 driver::driver(core::system *p) : baseDriver(p) {
     if (p != nullptr) {
@@ -199,7 +196,7 @@ void driver::listenTelnet() {
         delay(10);
         core::command cmd(core::source::TELNET);
         while (client.available() > 0) {
-            char c = client.read();
+            char c = static_cast<char>(client.read());
             if (c == '\n') break;
             if (c == '\r') break;
             if (!cmd.putChar(c)) break;
@@ -254,5 +251,4 @@ void driver::printWelcome() {
 }
 
 
-}// namespace network
-}// namespace obd
+}// namespace obd::network

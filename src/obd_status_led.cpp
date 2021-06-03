@@ -6,24 +6,23 @@
 
 #include <obd_status_led.h>
 #include <obd_system.h>
-
-namespace obd {
-namespace core {
+#include <Arduino.h>
+namespace obd::core {
 
 void StatusLed::init() {
     pinMode(LED_BUILTIN, OUTPUT);
 }
 
-constexpr uint16_t ledHalfPeriod = ledPeriod / 2;
-constexpr uint16_t ledQuarterPeriod = ledPeriod / 4;
+constexpr uint16_t ledHalfPeriod         = ledPeriod / 2;
+constexpr uint16_t ledQuarterPeriod      = ledPeriod / 4;
 constexpr uint16_t ledThreeQuarterPeriod = 3 * ledPeriod / 4;
-constexpr uint16_t ledEighthPeriod = ledPeriod / 8;
-constexpr uint16_t ledThreeEighthPeriod = 3 * ledPeriod / 8;
-constexpr uint16_t ledFiveEighthPeriod = 5 * ledPeriod / 8;
-constexpr uint16_t ledSevenEighthPeriod = 7 * ledPeriod / 8;
+constexpr uint16_t ledEighthPeriod       = ledPeriod / 8;
+constexpr uint16_t ledThreeEighthPeriod  = 3 * ledPeriod / 8;
+constexpr uint16_t ledFiveEighthPeriod   = 5 * ledPeriod / 8;
+constexpr uint16_t ledSevenEighthPeriod  = 7 * ledPeriod / 8;
 
 void StatusLed::update(uint64_t timestamp) {
-    if (getParent()== nullptr)
+    if (getParent() == nullptr)
         return;
     uint64_t delta = timestamp - ledTime;
     uint8_t state{0};
@@ -34,58 +33,58 @@ void StatusLed::update(uint64_t timestamp) {
             state = 1;
             break;
         case LedState::Blink:
-            state = (delta < ledHalfPeriod) ? 1 : 0;
+            state = static_cast<uint8_t>((delta < ledHalfPeriod) ? 1U : 0U);
             break;
         case LedState::FastBlink:
             if (delta < ledQuarterPeriod) {
-                state = 1;
+                state = 1U;
             } else if (delta < ledHalfPeriod) {
                 state = 0;
             } else if (delta < ledThreeQuarterPeriod) {
-                state = 1;
+                state = 1U;
             }
             break;
         case LedState::TwoPulse:
             if (delta < ledEighthPeriod) {
-                state = 1;
+                state = 1U;
             } else if (delta < ledQuarterPeriod) {
                 state = 0;
             } else if (delta < ledThreeEighthPeriod) {
-                state = 1;
+                state = 1U;
             }
             break;
         case LedState::ThreePulses:
             if (delta < ledEighthPeriod) {
-                state = 1;
+                state = 1U;
             } else if (delta < ledQuarterPeriod) {
                 state = 0;
             } else if (delta < ledThreeEighthPeriod) {
-                state = 1;
+                state = 1U;
             } else if (delta < ledHalfPeriod) {
-                state = 0;
+                state = 0U;
             } else if (delta < ledFiveEighthPeriod) {
-                state = 1;
+                state = 1U;
             }
             break;
         case LedState::FasterBlink:
             if (delta < ledEighthPeriod) {
-                state = 1;
+                state = 1U;
             } else if (delta < ledQuarterPeriod) {
                 state = 0;
             } else if (delta < ledThreeEighthPeriod) {
-                state = 1;
+                state = 1U;
             } else if (delta < ledHalfPeriod) {
                 state = 0;
             } else if (delta < ledFiveEighthPeriod) {
-                state = 1;
+                state = 1U;
             } else if (delta < ledThreeQuarterPeriod) {
                 state = 0;
             } else if (delta < ledSevenEighthPeriod) {
-                state = 1;
+                state = 1U;
             }
             break;
     }
-    digitalWrite(LED_BUILTIN, 1 - state);
+    digitalWrite(LED_BUILTIN, static_cast<uint8_t>(1U - state));
     if (delta > ledPeriod) {
         ledTime = timestamp;
     }
@@ -93,21 +92,20 @@ void StatusLed::update(uint64_t timestamp) {
 
 bool StatusLed::treatCommand(const command &cmd) {
     if (cmd.isCmd("led")) {
-        char buf[30];
-        strcpy(buf, cmd.getParams());
-        if (strcmp(buf, "off") == 0) {
+        std::string buf{cmd.getParams()};
+        if (buf == "off") {
             setState();
-        } else if (strcmp(buf, "solid") == 0) {
+        } else if (buf == "solid") {
             setState(LedState::Solid);
-        } else if (strcmp(buf, "blink") == 0) {
+        } else if (buf == "blink") {
             setState(LedState::Blink);
-        } else if (strcmp(buf, "fastblink") == 0) {
+        } else if (buf == "fastblink") {
             setState(LedState::FastBlink);
-        } else if (strcmp(buf, "twopulse") == 0) {
+        } else if (buf == "twopulse") {
             setState(LedState::TwoPulse);
-        } else if (strcmp(buf, "threepulse") == 0) {
+        } else if (buf == "threepulse") {
             setState(LedState::ThreePulses);
-        } else if (strcmp(buf, "fasterblink") == 0) {
+        } else if (buf == "fasterblink") {
             setState(LedState::FasterBlink);
         } else {
             if (getParent() != nullptr) {
@@ -123,7 +121,7 @@ void StatusLed::setState(LedState st) {
     if (ledState == st)
         return;
     ledState = st;
-    if (getParent()== nullptr)
+    if (getParent() == nullptr)
         return;
     ledTime = getParent()->getTimestamp();
 }
@@ -142,5 +140,4 @@ void StatusLed::printHelp() {
     getParentPrint()->println(F("              fasterblink lest is continuously pulsing"));
 }
 
-}// namespace core
-}// namespace obd
+}// namespace obd::core
