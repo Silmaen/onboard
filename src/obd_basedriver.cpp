@@ -7,8 +7,7 @@
 #include <obd_basedriver.h>
 #include <obd_system.h>
 
-namespace obd {
-namespace core {
+namespace obd::core {
 
 Print* baseDriver::getParentPrint() {
     if (parent == nullptr)
@@ -16,5 +15,4 @@ Print* baseDriver::getParentPrint() {
     return parent->getPrint();
 }
 
-}// namespace core
-}// namespace obd
+}// namespace obd::core

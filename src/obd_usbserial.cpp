@@ -6,9 +6,9 @@
 
 #include <obd_system.h>
 #include <obd_usbserial.h>
+#include "Arduino.h"
 
-namespace obd {
-namespace core {
+namespace obd::core {
 
 void UsbSerial::init() {
     Serial.begin(115200);
@@ -28,7 +28,7 @@ void UsbSerial::update(uint64_t  /*timestamp*/) {
         delay(10);
         command cmd(source::USB);
         while (Serial.available() > 0) {
-            char c = Serial.read();
+            char c = static_cast<char>(Serial.read());
             if (c == '\n') break;
             if (c == '\r') break;
             if (!cmd.putChar(c)) break;
@@ -48,5 +48,4 @@ void UsbSerial::printInfo() {
 }
 
 
-}// namespace core
-}// namespace obd
+}// namespace obd::core

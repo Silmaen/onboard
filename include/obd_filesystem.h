@@ -4,11 +4,12 @@
 
 #pragma once
 #include "obd_basedriver.h"
+#ifdef ARDUINO
 #include <FS.h>
 #include <Print.h>
+#endif
 
-namespace obd {
-namespace filesystem {
+namespace obd::filesystem {
 
 /**
  * @brief driver for the filesystem
@@ -16,9 +17,9 @@ namespace filesystem {
 class driver : public core::baseDriver {
 public:
     explicit driver(core::system *p = nullptr) : baseDriver(p) { strcpy(curPath, "/"); };
-    ~driver() = default;
+    ~driver()              = default;
     driver(const driver &) = default;
-    driver(driver &&) = default;
+    driver(driver &&)      = default;
     driver &operator=(const driver &) = default;
     driver &operator=(driver &&) = default;
     /**
@@ -42,7 +43,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    bool treatCommand(const core::command& cmd) override;
+    bool treatCommand(const core::command &cmd) override;
 
     /**
      * @brief display command help
@@ -53,7 +54,7 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    const char *getName() const override{return "Filesystem";}
+    [[nodiscard]] std::string getName() const override { return "Filesystem"; }
 
     /**
      * @brief open a file
@@ -125,5 +126,4 @@ private:
     void compactPath(char *path);
 };
 
-}// namespace filesystem
-}// namespace obd
+}// namespace obd::filesystem

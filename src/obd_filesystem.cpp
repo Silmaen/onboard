@@ -3,11 +3,10 @@
 //
 
 #include "obd_filesystem.h"
+#ifdef ARDUINO
 #include <LittleFS.h>
-
-namespace obd {
-
-namespace filesystem {
+#endif
+namespace obd::filesystem {
 
 void driver::init() {
     LittleFS.begin();
@@ -38,7 +37,7 @@ void driver::pwd() {
     getParentPrint()->println(curPath);
 }
 
-void driver::ls(const char *options) {
+void driver::ls(const char * /*options*/) {
     if (getParent() == nullptr)
         return;
     auto d = LittleFS.openDir(curPath);
@@ -62,17 +61,17 @@ void driver::cd(const char *where) {
     if (getParent() == nullptr)
         return;
     if (where == nullptr) {
-        if(getParent() != nullptr)
+        if (getParent() != nullptr)
             getParentPrint()->println(F("cd: Invalid Void path"));
         return;
     }
     makeAbsolute(where);
     if (!LittleFS.exists(tempPath)) {
-        if(getParent() != nullptr)
+        if (getParent() != nullptr)
             getParentPrint()->println(F("cd: Path does not exists"));
         return;
     }
-    if(getParent() != nullptr) {
+    if (getParent() != nullptr) {
         getParentPrint()->print(F("cd: goto "));
         getParentPrint()->println(tempPath);
     }
@@ -85,13 +84,13 @@ File driver::open(char *filename, char *mode) {
 
 void driver::mkdir(const char *directory) {
     if (directory == nullptr) {
-        if(getParent() != nullptr)
+        if (getParent() != nullptr)
             getParentPrint()->println(F("mkdir: Invalid Void path"));
         return;
     }
     makeAbsolute(directory);
     if (LittleFS.exists(tempPath)) {
-        if(getParent() != nullptr)
+        if (getParent() != nullptr)
             getParentPrint()->println(F("mkdir: Path already exists"));
         return;
     }
@@ -100,13 +99,13 @@ void driver::mkdir(const char *directory) {
 
 void driver::rm(const char *path) {
     if (path == nullptr) {
-        if(getParent() != nullptr)
+        if (getParent() != nullptr)
             getParentPrint()->println(F("rm: Invalid Void path"));
         return;
     }
     makeAbsolute(path);
     if (!LittleFS.exists(tempPath)) {
-        if(getParent() != nullptr)
+        if (getParent() != nullptr)
             getParentPrint()->println(F("rm: Path does not exists"));
         return;
     }
@@ -115,7 +114,7 @@ void driver::rm(const char *path) {
 
 void driver::makeAbsolute(const char *path) {
     if (path == nullptr) {
-        strcpy(curPath,"/");
+        strcpy(curPath, "/");
         return;
     }
     if (path[0] == '/') {// already absolute
@@ -124,7 +123,7 @@ void driver::makeAbsolute(const char *path) {
         return;
     }
     if (strlen(path) + strlen(curPath) + 1 >= maxPathLength) {
-        if(getParent() != nullptr)
+        if (getParent() != nullptr)
             getParentPrint()->println(F("Path too long"));
         compactPath(curPath);
         return;
@@ -188,7 +187,7 @@ void driver::compactPath(char *path) {
     // remove "/.." at the end (case with only "/.." should already be treated by the begining
     if ((path[len - 3] == '/') && (path[len - 2] == '.') && (path[len - 1] == '.')) {
         // get previous '/' char
-        for (long int i = len - 4; i >= 0; --i) {
+        for (int32_t i = len - 4; i >= 0; --i) {
             if (path[i] == '/') {
                 path[i] = '\0';
                 compactPath(path);
@@ -205,19 +204,19 @@ bool driver::treatCommand(const core::command &cmd) {
         return true;
     }
     if (cmd.isCmd("ls")) {
-        ls(cmd.getParams());
+        ls(cmd.getParams().c_str());
         return true;
     }
     if (cmd.isCmd("cd")) {
-        cd(cmd.getParams());
+        cd(cmd.getParams().c_str());
         return true;
     }
     if (cmd.isCmd("mkdir")) {
-        mkdir(cmd.getParams());
+        mkdir(cmd.getParams().c_str());
         return true;
     }
     if (cmd.isCmd("rm")) {
-        rm(cmd.getParams());
+        rm(cmd.getParams().c_str());
         return true;
     }
     return false;
@@ -235,5 +234,4 @@ void driver::printHelp() {
     getParentPrint()->println();
 }
 
-}// namespace filesystem
-}// namespace obd
+}// namespace obd::filesystem
