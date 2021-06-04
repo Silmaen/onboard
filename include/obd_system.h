@@ -14,7 +14,7 @@
  * @brief base namespace of the project
  */
 /**
- * @namespace core
+ * @namespace obd::core
  * @brief namespace for the base system
  */
 namespace obd::core {

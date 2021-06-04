@@ -1,12 +1,18 @@
-//
-// Created by damien.lachouette on 11/05/2021.
-//
+/**
+ * @author damien.lachouette
+ * @date 11/05/2021.
+ */
 
 #pragma once
 #include <cstdint>
+
+
 namespace obd {
 
+/// the name of the author
 constexpr char author[]{"Damien Lachouette"};
+
+/// current version of the program
 constexpr char version[]{"1.0"};
 
 /// base length of a command line
@@ -18,8 +24,7 @@ constexpr uint8_t maxPathLength = 30;
 /// default led state period
 constexpr uint16_t ledPeriod = 2000;
 
-constexpr uint16_t maxConfigFileSize = 1024;
-
+/// default name for the device
 constexpr char defaultHostname[]{"Onboard_12a85a"};
 
 

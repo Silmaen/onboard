@@ -9,6 +9,9 @@
 
 namespace obd::core {
 
+/**
+ * @brief class to handle communication through USB
+ */
 class UsbSerial : public baseDriver {
 public:
     explicit UsbSerial(core::system *p = nullptr) : baseDriver(p){};

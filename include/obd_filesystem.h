@@ -9,6 +9,10 @@
 #include <Print.h>
 #endif
 
+/**
+ * @namespace obd::filesystem
+ * @brief namespace for the file system
+ */
 namespace obd::filesystem {
 
 /**
@@ -73,28 +77,24 @@ public:
 
     /**
      * @brief list files in the current directory
-     * @param output the console where to write
      * @param options options to the ls command
      */
     void ls(const char *options);
 
     /**
      * @brief change directory
-     * @param output the console where to write
      * @param where the new path
      */
     void cd(const char *where);
 
     /**
      * @brief create a new directory
-     * @param output the console where to write
      * @param directory the directory to create
      */
     void mkdir(const char *directory);
 
     /**
      * @brief remove a file or a directory (with its content)
-     * @param output the console where to write
      * @param path what to remove
      */
     void rm(const char *path);
@@ -112,15 +112,12 @@ private:
 
     /**
      * @brief function that convert a path to absolute if not already stored it to tempPath
-     * @param output the console where to write
      * @param path the path to convert
-     *
      */
     void makeAbsolute(const char *path);
 
     /**
      * @brief compact the path containing ".." or "."
-     * @param output the console where to write
      * @param path the path to compact
      */
     void compactPath(char *path);

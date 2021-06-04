@@ -22,6 +22,9 @@ enum struct LedState {
     FasterBlink,///< -_-_-_-_  Led is blinking very fast
 };
 
+/**
+ * @brief Class to handle the Internal LED
+ */
 class StatusLed : public baseDriver {
 public:
     explicit StatusLed(core::system *p = nullptr) : baseDriver(p){};

@@ -63,6 +63,7 @@ public:
 
     /**
      * @brief procedure called each frame
+     * @param timestamp the current timestamp of the device
      */
     virtual void update(uint64_t timestamp) = 0;
 
@@ -71,7 +72,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    virtual bool treatCommand(const core::command&  /*cmd*/){
+    virtual bool treatCommand([[maybe_unused]]const core::command& cmd){
         return false;
     }
 

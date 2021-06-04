@@ -13,6 +13,11 @@
 #include <obd_system_cmd.h>
 #include <queue>
 
+
+/**
+ * @namespace obd::network
+ * @brief namespace for the network system
+ */
 namespace obd::network {
 
 /**
