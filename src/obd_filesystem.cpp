@@ -34,15 +34,15 @@ void driver::printInfo() {
 void driver::pwd() {
     if (getParent() == nullptr)
         return;
-    getParentPrint()->println(curPath);
+    getParentPrint()->println(curPath.get());
 }
 
-void driver::ls(const char * /*options*/) {
+void driver::ls(const String& /*options*/) {
     if (getParent() == nullptr)
         return;
-    auto d = LittleFS.openDir(curPath);
+    auto d = LittleFS.openDir(curPath.get());
     getParentPrint()->print("Content of: ");
-    getParentPrint()->println(curPath);
+    getParentPrint()->println(curPath.get());
     while (d.next()) {
         if (d.isDirectory()) {
             getParentPrint()->print("d ");
@@ -57,166 +57,83 @@ void driver::ls(const char * /*options*/) {
     }
 }
 
-void driver::cd(const char *where) {
+void driver::cd(const String& where) {
     if (getParent() == nullptr)
         return;
-    if (where == nullptr) {
+    if (where.isEmpty()) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("cd: Invalid Void path"));
         return;
     }
-    makeAbsolute(where);
-    if (!LittleFS.exists(tempPath)) {
+    tempPath = path{where};
+    tempPath.simplify();
+    if (!LittleFS.exists(tempPath.get())) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("cd: Path does not exists"));
         return;
     }
     if (getParent() != nullptr) {
         getParentPrint()->print(F("cd: goto "));
-        getParentPrint()->println(tempPath);
+        getParentPrint()->println(tempPath.get());
     }
-    strcpy(curPath, tempPath);
+    curPath = tempPath;
 }
 
-File driver::open(char *filename, char *mode) {
-    return LittleFS.open(filename, mode);
+File driver::open(const String& filename, const String& mode) {
+    return LittleFS.open(filename.c_str(), mode.c_str());
 }
 
-void driver::mkdir(const char *directory) {
-    if (directory == nullptr) {
+void driver::mkdir(const String& directory) {
+    if (directory.isEmpty()) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("mkdir: Invalid Void path"));
         return;
     }
-    makeAbsolute(directory);
-    if (LittleFS.exists(tempPath)) {
+    tempPath = path{directory};
+    tempPath.simplify();
+    if (LittleFS.exists(tempPath.get())) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("mkdir: Path already exists"));
         return;
     }
-    LittleFS.mkdir(tempPath);
+    LittleFS.mkdir(tempPath.get());
 }
 
-void driver::rm(const char *path) {
-    if (path == nullptr) {
+void driver::rm(const String& _path) {
+    if (_path.isEmpty()) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("rm: Invalid Void path"));
         return;
     }
-    makeAbsolute(path);
-    if (!LittleFS.exists(tempPath)) {
+    tempPath = path{_path};
+    tempPath.simplify();
+    if (!LittleFS.exists(tempPath.get())) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("rm: Path does not exists"));
         return;
     }
-    LittleFS.remove(tempPath);
+    LittleFS.remove(tempPath.get());
 }
 
-void driver::makeAbsolute(const char *path) {
-    if (path == nullptr) {
-        strcpy(curPath, "/");
-        return;
-    }
-    if (path[0] == '/') {// already absolute
-        strcpy(tempPath, path);
-        compactPath(tempPath);
-        return;
-    }
-    if (strlen(path) + strlen(curPath) + 1 >= maxPathLength) {
-        if (getParent() != nullptr)
-            getParentPrint()->println(F("Path too long"));
-        compactPath(curPath);
-        return;
-    }
-    strcpy(tempPath, curPath);
-    if (tempPath[strlen(tempPath) - 1] != '/')
-        strcat(tempPath, "/");
-    strcat(tempPath, path);
-    compactPath(tempPath);
-}
-
-void driver::compactPath(char *path) {
-    if (path == nullptr)// avoid errors!!
-        return;
-    size_t len = strlen(path);
-    if ((len <= 1) || (strcmp(path, "/..") == 0) || (strcmp(path, "/.") == 0)) {// 0 length string: return root!
-        path[0] = '/';
-        path[1] = '\0';
-        return;
-    }
-
-
-    // "/" at the end (except for root), with recursion to remove all the '/' at the end
-    if ((len > 1) && (path[len - 1] == '/')) {
-        path[len - 1] = '\0';
-        // path is modified, redo the compact
-        compactPath(path);
-    }
-
-    // "/./" or "/../" in the beginning or middle
-    for (size_t j = 0; j < len - 2; ++j) {
-        if ((path[j] == '/') && (path[j + 1] == '.') && (path[j + 2] == '/')) {
-            len -= 2;
-            for (size_t i = j; i < len; ++i) {
-                path[i] = path[i + 2];
-            }
-            path[len] = '\0';
-            // path is modified, redo the compact
-            compactPath(path);
-        }
-    }
-    for (size_t j = 0; j < len - 3; ++j) {
-        if ((path[j] == '/') && (path[j + 1] == '.') && (path[j + 2] == '.') && (path[j + 3] == '/')) {
-            len -= 3;
-            for (size_t i = j; i < len; ++i) {
-                path[i] = path[i + 3];
-            }
-            path[len] = '\0';
-            // path is modified, redo the compact
-            compactPath(path);
-        }
-    }
-
-    // remove "/." at the end
-    if ((path[len - 2] == '/') && (path[len - 1] == '.')) {
-        path[len - 2] = '\0';
-        // path is modified, redo the compact
-        compactPath(path);
-    }
-
-    // remove "/.." at the end (case with only "/.." should already be treated by the begining
-    if ((path[len - 3] == '/') && (path[len - 2] == '.') && (path[len - 1] == '.')) {
-        // get previous '/' char
-        for (int32_t i = len - 4; i >= 0; --i) {
-            if (path[i] == '/') {
-                path[i] = '\0';
-                compactPath(path);
-                break;
-            }
-        }
-        return;
-    }
-}
-
-bool driver::treatCommand(const core::command &cmd) {
-    if (cmd.isCmd("pwd")) {
+bool driver::treatCommand(const core::command& cmd) {
+    if (cmd.isCmd(F("pwd"))) {
         pwd();
         return true;
     }
-    if (cmd.isCmd("ls")) {
-        ls(cmd.getParams().c_str());
+    if (cmd.isCmd(F("ls"))) {
+        ls(cmd.getParams());
         return true;
     }
-    if (cmd.isCmd("cd")) {
-        cd(cmd.getParams().c_str());
+    if (cmd.isCmd(F("cd"))) {
+        cd(cmd.getParams());
         return true;
     }
-    if (cmd.isCmd("mkdir")) {
-        mkdir(cmd.getParams().c_str());
+    if (cmd.isCmd(F("mkdir"))) {
+        mkdir(cmd.getParams());
         return true;
     }
-    if (cmd.isCmd("rm")) {
-        rm(cmd.getParams().c_str());
+    if (cmd.isCmd(F("rm"))) {
+        rm(cmd.getParams());
         return true;
     }
     return false;

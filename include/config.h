@@ -5,7 +5,7 @@
 
 #pragma once
 #include <cstdint>
-
+#include <WString.h>
 
 namespace obd {
 
@@ -27,5 +27,4 @@ constexpr uint16_t ledPeriod = 2000;
 /// default name for the device
 constexpr char defaultHostname[]{"Onboard_12a85a"};
 
-
-} // namespace obd
+}// namespace obd

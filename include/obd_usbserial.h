@@ -14,19 +14,20 @@ namespace obd::core {
  */
 class UsbSerial : public baseDriver {
 public:
-    explicit UsbSerial(core::system *p = nullptr) : baseDriver(p){};
-    ~UsbSerial()                 = default;
-    UsbSerial(const UsbSerial &) = default;
-    UsbSerial(UsbSerial &&)      = default;
-    UsbSerial &operator=(const UsbSerial &) = default;
-    UsbSerial &operator=(UsbSerial &&) = default;
+    explicit UsbSerial(core::system* p = nullptr) :
+        baseDriver(p){};
+    ~UsbSerial()                = default;
+    UsbSerial(const UsbSerial&) = default;
+    UsbSerial(UsbSerial&&)      = default;
+    UsbSerial& operator=(const UsbSerial&) = default;
+    UsbSerial& operator=(UsbSerial&&) = default;
 
     /**
      * @brief retrieve the name of the driver
      * @return name of the driver
      */
-    [[nodiscard]] std::string getName() const override {
-        return "UsbSerial";
+    [[nodiscard]] String getName() const override {
+        return F("UsbSerial");
     }
 
     /**

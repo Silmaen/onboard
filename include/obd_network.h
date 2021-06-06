@@ -38,12 +38,12 @@ enum class Status {
  */
 class driver : public core::baseDriver {
 public:
-    explicit driver(core::system *p = nullptr);
-    ~driver()              = default;
-    driver(const driver &) = default;
-    driver(driver &&)      = default;
-    driver &operator=(const driver &) = default;
-    driver &operator=(driver &&) = default;
+    explicit driver(core::system* p = nullptr);
+    ~driver()             = default;
+    driver(const driver&) = default;
+    driver(driver&&)      = default;
+    driver& operator=(const driver&) = default;
+    driver& operator=(driver&&) = default;
 
     /**
      * @brief initialize file system
@@ -65,7 +65,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    bool treatCommand(const core::command &cmd) override;
+    bool treatCommand(const core::command& cmd) override;
 
     /**
      * @brief display help on commands
@@ -76,17 +76,17 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] std::string getName() const override { return "Network"; }
+    [[nodiscard]] String getName() const override { return F("Network"); }
 
     /**
      * @brief attach a new parent to this driver
      * @param p the parent
      */
-    void attachParent(core::system *p) override;
+    void attachParent(core::system* p) override;
 
 private:
     /// direct link to the status led
-    core::StatusLed *statusLed = nullptr;
+    core::StatusLed* statusLed = nullptr;
     /// the status of the network
     Status currentStatus = Status::Disabled;
     /// the telnet server

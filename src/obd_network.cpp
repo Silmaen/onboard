@@ -8,16 +8,17 @@
 
 namespace obd::network {
 
-driver::driver(core::system *p) : baseDriver(p) {
+driver::driver(core::system* p) :
+    baseDriver(p) {
     if (p != nullptr) {
-        statusLed = p->getDriverAs<core::StatusLed>("Status Led");
+        statusLed = p->getDriverAs<core::StatusLed>(F("Status Led"));
     }
 }
 
-void driver::attachParent(core::system *p) {
+void driver::attachParent(core::system* p) {
     baseDriver::attachParent(p);
     if (p != nullptr) {
-        statusLed = p->getDriverAs<core::StatusLed>("Status Led");
+        statusLed = p->getDriverAs<core::StatusLed>(F("Status Led"));
     }
 }
 
@@ -33,10 +34,10 @@ void driver::init() {
 void driver::printInfo() {
     if (getParentPrint() == nullptr)
         return;
-    const char *const modes[] = {"Off", "Station", "Access Point", "Both"};
+    const String modes[] = {F("Off"), F("Station"), F("Access Point"), F("Both")};
     getParentPrint()->print(F("Operation Mode      : "));
     getParentPrint()->println(modes[wifi_get_opmode()]);
-    const char *const phymodes[] = {"", "b", "g", "n"};
+    const String phymodes[] = {F(""), F("b"), F("g"), F("n")};
     getParentPrint()->print(F("PHY mode            : 802.11"));
     getParentPrint()->println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
 
@@ -54,7 +55,7 @@ void driver::printInfo() {
         getParentPrint()->print(F("Channel             : "));
         getParentPrint()->println(WiFi.channel());
         getParentPrint()->print(F("Connexion Status    : "));
-        const char *const connStatus[] = {"idle", "connecting", "Wrong Password", "No AP found", "Connect fail", "got IP"};
+        const char* const connStatus[] = {"idle", "connecting", "Wrong Password", "No AP found", "Connect fail", "got IP"};
         getParentPrint()->println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
 
         getParentPrint()->print(F("MAC address         : "));
@@ -89,12 +90,12 @@ void driver::update(uint64_t /*timestamp*/) {
     listenTelnet();
 }
 
-bool driver::treatCommand(const core::command &cmd) {
-    if (cmd.isCmd("netinfo")) {
+bool driver::treatCommand(const core::command& cmd) {
+    if (cmd.isCmd(F("netinfo"))) {
         printInfo();
         return true;
     }
-    if (cmd.isCmd("netstat")) {
+    if (cmd.isCmd(F("netstat"))) {
         printStatus();
         return true;
     }
@@ -167,24 +168,24 @@ void driver::updateLED() {
     if (statusLed == nullptr)
         return;
     switch (currentStatus) {
-        case Status::Disabled:
-            statusLed->setState(core::LedState::Off);
-            break;
-        case Status::Connecting:
-            statusLed->setState(core::LedState::FasterBlink);
-            break;
-        case Status::Connected:
-            statusLed->setState(core::LedState::Blink);
-            break;
-        case Status::ConnectedClient:
-            statusLed->setState(core::LedState::Solid);
-            break;
-        case Status::Hotspot:
-            statusLed->setState(core::LedState::TwoPulse);
-            break;
-        case Status::HotspotClient:
-            statusLed->setState(core::LedState::ThreePulses);
-            break;
+    case Status::Disabled:
+        statusLed->setState(core::LedState::Off);
+        break;
+    case Status::Connecting:
+        statusLed->setState(core::LedState::FasterBlink);
+        break;
+    case Status::Connected:
+        statusLed->setState(core::LedState::Blink);
+        break;
+    case Status::ConnectedClient:
+        statusLed->setState(core::LedState::Solid);
+        break;
+    case Status::Hotspot:
+        statusLed->setState(core::LedState::TwoPulse);
+        break;
+    case Status::HotspotClient:
+        statusLed->setState(core::LedState::ThreePulses);
+        break;
     }
 }
 
@@ -214,24 +215,24 @@ void driver::printStatus() {
         return;
     getParentPrint()->print(F("Network status:    "));
     switch (currentStatus) {
-        case Status::Disabled:
-            getParentPrint()->println(F("Disabled"));
-            break;
-        case Status::Connecting:
-            getParentPrint()->println(F("Connecting"));
-            break;
-        case Status::Connected:
-            getParentPrint()->println(F("Station waiting for a client"));
-            break;
-        case Status::ConnectedClient:
-            getParentPrint()->println(F("Station with a client"));
-            break;
-        case Status::Hotspot:
-            getParentPrint()->println(F("Hotspot waiting for client"));
-            break;
-        case Status::HotspotClient:
-            getParentPrint()->println(F("hotspot with a client"));
-            break;
+    case Status::Disabled:
+        getParentPrint()->println(F("Disabled"));
+        break;
+    case Status::Connecting:
+        getParentPrint()->println(F("Connecting"));
+        break;
+    case Status::Connected:
+        getParentPrint()->println(F("Station waiting for a client"));
+        break;
+    case Status::ConnectedClient:
+        getParentPrint()->println(F("Station with a client"));
+        break;
+    case Status::Hotspot:
+        getParentPrint()->println(F("Hotspot waiting for client"));
+        break;
+    case Status::HotspotClient:
+        getParentPrint()->println(F("hotspot with a client"));
+        break;
     }
 }
 

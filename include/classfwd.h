@@ -18,11 +18,11 @@ class StatusLed;
 
 namespace filesystem {
 class driver;
-} // namespace filesystem
+}// namespace filesystem
 
 
 namespace network {
 class driver;
-} // namespace network
+}// namespace network
 
 }// namespace obd
