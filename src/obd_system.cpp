@@ -1,6 +1,7 @@
-//
-// Created by damien.lachouette on 10/05/2021.
-//
+/**
+ * @author Silmaen
+ * @date 10/05/2021.
+ */
 
 #include <obd_filesystem.h>
 #include <obd_network.h>
@@ -17,10 +18,7 @@ system::system() {
 }
 
 void system::init() {
-    // -----------------------------------------------------------------------
-    // initialize the USB Serial for debug
-    // -----------------------------------------------------------------------
-    for (auto *driver : drivers) {
+    for (auto* driver : drivers) {
         driver->init();
         driver->printInfo();
     }
@@ -30,7 +28,7 @@ void system::update() {
     // update timestamp
     timestamp = millis();
     // update drivers
-    for (auto *driver : drivers) {
+    for (auto* driver : drivers) {
         driver->update(timestamp);
     }
     // treat the command queue
@@ -39,10 +37,10 @@ void system::update() {
 
 void system::treatCommands() {
     while (!commands.empty()) {
-        auto &cmd = commands.front();
+        auto& cmd = commands.front();
         cmd.printCmd(outputs);
         bool treated = false;
-        for (auto *driver : drivers) {
+        for (auto* driver : drivers) {
             treated = driver->treatCommand(cmd);
             if (treated)
                 break;
@@ -51,9 +49,9 @@ void system::treatCommands() {
             commands.pop();
             continue;
         }
-        if (cmd.isCmd("dmesg")) {
+        if (cmd.isCmd(F("dmesg"))) {
             printSystemInfo();
-        } else if (cmd.isCmd("help")) {
+        } else if (cmd.isCmd(F("help"))) {
             printHelp(cmd.getParams());
         } else {
             outputs.println("Unknown command");
@@ -113,40 +111,40 @@ void system::printKernelInfo() {
     FlashMode_t a = EspClass::getFlashChipMode();
     outputs.print(F("Flash mode:           "));
     switch (a) {
-        case FM_QIO:
-            outputs.println(F("QIO"));
-            break;
-        case FM_QOUT:
-            outputs.println(F("QOUT"));
-            break;
-        case FM_DIO:
-            outputs.println(F("DIO"));
-            break;
-        case FM_DOUT:
-            outputs.println(F("DOUT"));
-            break;
-        default:
-            outputs.println(F("UNKNOWN"));
-            break;
+    case FM_QIO:
+        outputs.println(F("QIO"));
+        break;
+    case FM_QOUT:
+        outputs.println(F("QOUT"));
+        break;
+    case FM_DIO:
+        outputs.println(F("DIO"));
+        break;
+    case FM_DOUT:
+        outputs.println(F("DOUT"));
+        break;
+    default:
+        outputs.println(F("UNKNOWN"));
+        break;
     }
     // sketch size
     uint32_t ss  = EspClass::getSketchSize();
     uint32_t fss = EspClass::getFreeSketchSpace();
     outputs.print(F("Sketch size:          "));
     outputs.print(ss);
-    outputs.print(" / ");
+    outputs.print(F(" / "));
     outputs.println(ss + fss);
 }
 
 void system::printSystemInfo() {
     printKernelInfo();
-    for (auto *driver : drivers) {
+    for (auto* driver : drivers) {
         driver->printInfo();
     }
 }
 
-baseDriver *system::getDriver(const std::string& name) {
-    for (auto *driver : drivers) {
+baseDriver* system::getDriver(const String& name) {
+    for (auto* driver : drivers) {
         if (driver->getName() == name) {
             return driver;
         }
@@ -154,14 +152,14 @@ baseDriver *system::getDriver(const std::string& name) {
     return nullptr;
 }
 
-void system::printHelp(const std::string& param) {
-    outputs.println("SYSTEM HELP");
-    if (param.empty()) {
-        outputs.println("please give a subcategory for the specific help.");
-        outputs.println("valid categories are:");
-        outputs.println("kernel");
-        for (auto *driver : drivers) {
-            outputs.println(driver->getName().c_str());
+void system::printHelp(const String& param) {
+    outputs.println(F("SYSTEM HELP"));
+    if (param.isEmpty()) {
+        outputs.println(F("please give a subcategory for the specific help."));
+        outputs.println(F("valid categories are:"));
+        outputs.println(F("kernel"));
+        for (auto* driver : drivers) {
+            outputs.println(driver->getName());
         }
         return;
     }
@@ -170,7 +168,7 @@ void system::printHelp(const std::string& param) {
         outputs.println(F("help <sub>  get help on specific category"));
         return;
     }
-    for (auto *driver : drivers) {
+    for (auto* driver : drivers) {
         if (param == driver->getName()) {
             driver->printHelp();
             return;

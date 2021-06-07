@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 30/05/2021
- *
+ * @author Silmaen
+ * @date 30/05/2021
  */
 
 #pragma once
@@ -27,12 +26,12 @@ enum struct LedState {
  */
 class StatusLed : public baseDriver {
 public:
-    explicit StatusLed(core::system *p = nullptr) : baseDriver(p){};
-    ~StatusLed()                 = default;
-    StatusLed(const StatusLed &) = default;
-    StatusLed(StatusLed &&)      = default;
-    StatusLed &operator=(const StatusLed &) = default;
-    StatusLed &operator=(StatusLed &&) = default;
+    /**
+     * @brief Constructor with parent
+     * @param p the parent system
+     */
+    explicit StatusLed(core::system* p = nullptr) :
+        baseDriver(p){};
 
     /**
      * @brief initialize the driver
@@ -54,7 +53,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    bool treatCommand(const core::command &cmd) override;
+    bool treatCommand(const core::command& cmd) override;
 
     /**
      * @brief display help on command
@@ -65,7 +64,7 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] std::string getName() const override { return "Status Led"; }
+    [[nodiscard]] String getName() const override { return F("Status Led"); }
 
     /**
      * @brief define the new state of the led

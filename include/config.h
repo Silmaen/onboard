@@ -1,11 +1,11 @@
 /**
- * @author damien.lachouette
+ * @author Silmaen
  * @date 11/05/2021.
  */
 
 #pragma once
+#include <WString.h>
 #include <cstdint>
-
 
 namespace obd {
 
@@ -27,5 +27,4 @@ constexpr uint16_t ledPeriod = 2000;
 /// default name for the device
 constexpr char defaultHostname[]{"Onboard_12a85a"};
 
-
-} // namespace obd
+}// namespace obd

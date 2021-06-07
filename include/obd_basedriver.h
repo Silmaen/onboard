@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 29/05/2021
- *
+ * @author Silmaen
+ * @date 29/05/2021
  */
 
 #pragma once
@@ -20,13 +19,14 @@ public:
      * @brief constructor with parent
      * @param p the parent system
      */
-    explicit baseDriver(system *p = nullptr) : parent{p} {}
+    explicit baseDriver(system* p = nullptr) :
+        parent{p} {}
 
     /**
      * @brief attach a new parent to this driver
      * @param p the parent
      */
-    virtual void attachParent(system *p) {
+    virtual void attachParent(system* p) {
         parent = p;
     }
 
@@ -34,7 +34,7 @@ public:
      * @brief get the parent system
      * @return the parent
      */
-    system *getParent() {
+    system* getParent() {
         return parent;
     }
 
@@ -42,14 +42,13 @@ public:
      * @brief get the outputs from the parent system
      * @return the output
      */
-    Print *getParentPrint();
+    Print* getParentPrint();
 
     /**
      * @brief retrieve the name of the driver
      * @return name of the driver
      */
-    [[nodiscard]] virtual std::string getName() const = 0;
-
+    [[nodiscard]] virtual String getName() const = 0;
 
     /**
      * @brief initialize the driver
@@ -72,7 +71,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    virtual bool treatCommand([[maybe_unused]]const core::command& cmd){
+    virtual bool treatCommand([[maybe_unused]] const core::command& cmd) {
         return false;
     }
 
@@ -80,9 +79,10 @@ public:
      * @brief display driver help on commands
      */
     virtual void printHelp() = 0;
+
 private:
     /// pointer to the parent system
-    system *parent = nullptr;
+    system* parent = nullptr;
 };
 
 }// namespace obd::core
