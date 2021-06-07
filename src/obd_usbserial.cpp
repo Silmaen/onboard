@@ -1,12 +1,11 @@
 /**
- * \author argawaen 
- * \date 30/05/2021
- *
+ * @author Silmaen
+ * @date 30/05/2021
  */
 
+#include "Arduino.h"
 #include <obd_system.h>
 #include <obd_usbserial.h>
-#include "Arduino.h"
 
 namespace obd::core {
 
@@ -23,7 +22,7 @@ void UsbSerial::init() {
     }
 }
 
-void UsbSerial::update(uint64_t  /*timestamp*/) {
+void UsbSerial::update(uint64_t /*timestamp*/) {
     if (Serial.available() > 0) {
         delay(10);
         command cmd(source::USB);
@@ -46,6 +45,5 @@ void UsbSerial::printInfo() {
         getParent()->printKernelInfo();
     }
 }
-
 
 }// namespace obd::core

@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 29/05/2021
- *
+ * @author Silmaen
+ * @date 29/05/2021
  */
 
 #include <obd_basedriver.h>

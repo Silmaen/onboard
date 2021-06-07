@@ -4,6 +4,7 @@
 
 #pragma once
 #include "obd_basedriver.h"
+#include "obd_path.h"
 #ifdef ARDUINO
 #include <FS.h>
 #include <Print.h>
@@ -20,12 +21,13 @@ namespace obd::filesystem {
  */
 class driver : public core::baseDriver {
 public:
-    explicit driver(core::system *p = nullptr) : baseDriver(p) { strcpy(curPath, "/"); };
-    ~driver()              = default;
-    driver(const driver &) = default;
-    driver(driver &&)      = default;
-    driver &operator=(const driver &) = default;
-    driver &operator=(driver &&) = default;
+    /**
+     * @brief constructor with parent
+     * @param p the parent system
+     */
+    explicit driver(core::system* p = nullptr) :
+        baseDriver(p), curPath{F("/")}{};
+
     /**
      * @brief initialize file system
      */
@@ -47,7 +49,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    bool treatCommand(const core::command &cmd) override;
+    bool treatCommand(const core::command& cmd) override;
 
     /**
      * @brief display command help
@@ -58,7 +60,7 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] std::string getName() const override { return "Filesystem"; }
+    [[nodiscard]] String getName() const override { return F("Filesystem"); }
 
     /**
      * @brief open a file
@@ -66,7 +68,7 @@ public:
      * @param mode opening mode
      * @return the file handler
      */
-    static File open(char *filename, char *mode);
+    static File open(const String& filename, const String& mode);
 
 
     /**
@@ -79,48 +81,36 @@ public:
      * @brief list files in the current directory
      * @param options options to the ls command
      */
-    void ls(const char *options);
+    void ls(const String& options);
 
     /**
      * @brief change directory
      * @param where the new path
      */
-    void cd(const char *where);
+    void cd(const String& where);
 
     /**
      * @brief create a new directory
      * @param directory the directory to create
      */
-    void mkdir(const char *directory);
+    void mkdir(const String& directory);
 
     /**
      * @brief remove a file or a directory (with its content)
      * @param path what to remove
      */
-    void rm(const char *path);
+    void rm(const String& path);
 
 private:
     /**
      * @brief the current file path
      */
-    char curPath[maxPathLength]{};
+    path curPath{"/"};
 
     /**
      * @brief buffer path to make intermediate computations
      */
-    char tempPath[maxPathLength]{};
-
-    /**
-     * @brief function that convert a path to absolute if not already stored it to tempPath
-     * @param path the path to convert
-     */
-    void makeAbsolute(const char *path);
-
-    /**
-     * @brief compact the path containing ".." or "."
-     * @param path the path to compact
-     */
-    void compactPath(char *path);
+    path tempPath{"/"};
 };
 
 }// namespace obd::filesystem

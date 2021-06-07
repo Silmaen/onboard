@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 13/05/2021
- *
+ * @author Silmaen
+ * @date 13/05/2021
  */
 
 #pragma once
@@ -20,7 +19,7 @@ public:
      * @brief add a print to the list
      * @param str the stream to add
      */
-    void addPrint(Print *str) {
+    void addPrint(Print* str) {
         _prints.push_back(str);
     }
 
@@ -28,7 +27,7 @@ public:
      * @brief remove a print from the list
      * @param str the stream to remove
      */
-    void removePrint(Print *str) {
+    void removePrint(Print* str) {
         auto it = std::find(_prints.begin(), _prints.end(), str);
         if (it != _prints.end()) {
             _prints.erase(it);
@@ -41,15 +40,14 @@ public:
      * @return number of bytes written
      */
     size_t write(uint8_t a) override {
-        for (auto *print : _prints)
+        for (auto* print : _prints)
             print->write(a);
         return 1;
     }
 
 private:
     /// list of the print implementations
-    std::vector<Print *> _prints = {};
+    std::vector<Print*> _prints = {};
 };
-
 
 }// namespace obd::core

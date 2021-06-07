@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 26/05/2021
- *
+ * @author Silmaen
+ * @date 26/05/2021
  */
 
 #pragma once
@@ -12,7 +11,6 @@
 #include <obd_basedriver.h>
 #include <obd_system_cmd.h>
 #include <queue>
-
 
 /**
  * @namespace obd::network
@@ -32,18 +30,16 @@ enum class Status {
     HotspotClient,  ///< this device acts as an hotspot and a client is connected to telnet server (LED 3-blink)
 };
 
-
 /**
  * @brief network driver
  */
 class driver : public core::baseDriver {
 public:
-    explicit driver(core::system *p = nullptr);
-    ~driver()              = default;
-    driver(const driver &) = default;
-    driver(driver &&)      = default;
-    driver &operator=(const driver &) = default;
-    driver &operator=(driver &&) = default;
+    /**
+     * @brief Constructor with parent
+     * @param p the parent system
+     */
+    explicit driver(core::system* p = nullptr);
 
     /**
      * @brief initialize file system
@@ -65,7 +61,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    bool treatCommand(const core::command &cmd) override;
+    bool treatCommand(const core::command& cmd) override;
 
     /**
      * @brief display help on commands
@@ -76,17 +72,17 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] std::string getName() const override { return "Network"; }
+    [[nodiscard]] String getName() const override { return F("Network"); }
 
     /**
      * @brief attach a new parent to this driver
      * @param p the parent
      */
-    void attachParent(core::system *p) override;
+    void attachParent(core::system* p) override;
 
 private:
     /// direct link to the status led
-    core::StatusLed *statusLed = nullptr;
+    core::StatusLed* statusLed = nullptr;
     /// the status of the network
     Status currentStatus = Status::Disabled;
     /// the telnet server

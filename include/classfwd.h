@@ -1,9 +1,7 @@
 /**
- * \author argawaen 
- * \date 29/05/2021
- *
+ * @author Silmaen
+ * @date 29/05/2021
  */
-
 #pragma once
 #include "config.h"
 
@@ -18,11 +16,11 @@ class StatusLed;
 
 namespace filesystem {
 class driver;
-} // namespace filesystem
+}// namespace filesystem
 
 
 namespace network {
 class driver;
-} // namespace network
+}// namespace network
 
 }// namespace obd
