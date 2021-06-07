@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 26/05/2021
- *
+ * @author Silmaen
+ * @date 26/05/2021
  */
 #include <obd_network.h>
 #include <obd_system.h>
@@ -26,7 +25,7 @@ void driver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
     WiFi.hostname(defaultHostname);
-    WiFi.begin("aigle", "1234567891234");
+    WiFi.begin();
     if (getParentPrint() != nullptr)
         WiFi.printDiag(*getParentPrint());
 }
@@ -55,7 +54,7 @@ void driver::printInfo() {
         getParentPrint()->print(F("Channel             : "));
         getParentPrint()->println(WiFi.channel());
         getParentPrint()->print(F("Connexion Status    : "));
-        const char* const connStatus[] = {"idle", "connecting", "Wrong Password", "No AP found", "Connect fail", "got IP"};
+        String connStatus[] = {F("idle"), F("connecting"), F("Wrong Password"), F("No AP found"), F("Connect fail"), F("got IP")};
         getParentPrint()->println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
 
         getParentPrint()->print(F("MAC address         : "));
@@ -64,13 +63,13 @@ void driver::printInfo() {
         getParentPrint()->print(F("hostname            : "));
         getParentPrint()->println(WiFi.hostname());
         if (WiFi.status() == WL_CONNECTED) {
-            getParentPrint()->print("IP address          : ");
+            getParentPrint()->print(F("IP address          : "));
             getParentPrint()->println(WiFi.localIP().toString());
-            getParentPrint()->print("Net Mask            : ");
+            getParentPrint()->print(F("Net Mask            : "));
             getParentPrint()->println(WiFi.subnetMask().toString());
-            getParentPrint()->print("Gateway             : ");
+            getParentPrint()->print(F("Gateway             : "));
             getParentPrint()->println(WiFi.gatewayIP().toString());
-            getParentPrint()->print("Dns                 : ");
+            getParentPrint()->print(F("Dns                 : "));
             getParentPrint()->println(WiFi.dnsIP().toString());
         }
     }

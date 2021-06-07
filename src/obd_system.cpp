@@ -1,6 +1,7 @@
-//
-// Created by damien.lachouette on 10/05/2021.
-//
+/**
+ * @author Silmaen
+ * @date 10/05/2021.
+ */
 
 #include <obd_filesystem.h>
 #include <obd_network.h>
@@ -17,9 +18,6 @@ system::system() {
 }
 
 void system::init() {
-    // -----------------------------------------------------------------------
-    // initialize the USB Serial for debug
-    // -----------------------------------------------------------------------
     for (auto* driver : drivers) {
         driver->init();
         driver->printInfo();

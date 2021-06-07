@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 30/05/2021
- *
+ * @author Silmaen
+ * @date 30/05/2021
  */
 
 #pragma once
@@ -27,13 +26,12 @@ enum struct LedState {
  */
 class StatusLed : public baseDriver {
 public:
+    /**
+     * @brief Constructor with parent
+     * @param p the parent system
+     */
     explicit StatusLed(core::system* p = nullptr) :
         baseDriver(p){};
-    ~StatusLed()                = default;
-    StatusLed(const StatusLed&) = default;
-    StatusLed(StatusLed&&)      = default;
-    StatusLed& operator=(const StatusLed&) = default;
-    StatusLed& operator=(StatusLed&&) = default;
 
     /**
      * @brief initialize the driver

@@ -1,6 +1,7 @@
-//
-// Created by damien.lachouette on 11/05/2021.
-//
+/**
+ * @author Silmaen
+ * @date 11/05/2021
+ */
 
 #pragma once
 #include "classfwd.h"
@@ -86,8 +87,10 @@ public:
     [[nodiscard]] String getParams() const;
 
 private:
-    source from = source::NONE;///< the source of the command
-    String cmdline;       ///< the string of the command line
+    /// the source of the command
+    source from = source::NONE;
+    /// the string of the command line
+    String cmdline;
 };
 
 }// namespace obd::core

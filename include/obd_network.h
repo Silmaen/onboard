@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 26/05/2021
- *
+ * @author Silmaen
+ * @date 26/05/2021
  */
 
 #pragma once
@@ -12,7 +11,6 @@
 #include <obd_basedriver.h>
 #include <obd_system_cmd.h>
 #include <queue>
-
 
 /**
  * @namespace obd::network
@@ -32,18 +30,16 @@ enum class Status {
     HotspotClient,  ///< this device acts as an hotspot and a client is connected to telnet server (LED 3-blink)
 };
 
-
 /**
  * @brief network driver
  */
 class driver : public core::baseDriver {
 public:
+    /**
+     * @brief Constructor with parent
+     * @param p the parent system
+     */
     explicit driver(core::system* p = nullptr);
-    ~driver()             = default;
-    driver(const driver&) = default;
-    driver(driver&&)      = default;
-    driver& operator=(const driver&) = default;
-    driver& operator=(driver&&) = default;
 
     /**
      * @brief initialize file system

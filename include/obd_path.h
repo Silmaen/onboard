@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 06/06/2021
- *
+ * @author Silmaen
+ * @date 06/06/2021
  */
 
 #pragma once
@@ -107,6 +106,7 @@ public:
     }
 
 private:
+    /// store the path as string
     String _path{"/"};
 };
 

@@ -1,6 +1,7 @@
-//
-// Created by damien.lachouette on 11/05/2021.
-//
+/**
+ * @author Silmaen
+ * @date 11/05/2021.
+ */
 
 #include <obd_system_cmd.h>
 

@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 13/05/2021
- *
+ * @author Silmaen
+ * @date 13/05/2021
  */
 
 #pragma once
@@ -50,6 +49,5 @@ private:
     /// list of the print implementations
     std::vector<Print*> _prints = {};
 };
-
 
 }// namespace obd::core

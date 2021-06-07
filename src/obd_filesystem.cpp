@@ -1,11 +1,11 @@
-//
-// Created by damien.lachouette on 12/05/2021.
-//
+/**
+ * @author Silmaen
+ * @date 12/05/2021.
+ */
 
 #include "obd_filesystem.h"
-#ifdef ARDUINO
 #include <LittleFS.h>
-#endif
+
 namespace obd::filesystem {
 
 void driver::init() {
@@ -41,18 +41,18 @@ void driver::ls(const String& /*options*/) {
     if (getParent() == nullptr)
         return;
     auto d = LittleFS.openDir(curPath.get());
-    getParentPrint()->print("Content of: ");
+    getParentPrint()->print(F("Content of: "));
     getParentPrint()->println(curPath.get());
     while (d.next()) {
         if (d.isDirectory()) {
-            getParentPrint()->print("d ");
+            getParentPrint()->print(F("d "));
         } else {
-            getParentPrint()->print("  ");
+            getParentPrint()->print(F("  "));
         }
         getParentPrint()->print(static_cast<int>(d.fileSize()));
-        getParentPrint()->print(" ");
+        getParentPrint()->print(F(" "));
         getParentPrint()->print(d.fileTime());
-        getParentPrint()->print(" ");
+        getParentPrint()->print(F(" "));
         getParentPrint()->println(d.fileName());
     }
 }

@@ -1,6 +1,7 @@
-//
-// Created by damien.lachouette on 10/05/2021.
-//
+/**
+ * @author Silmaen
+ * @date 10/05/2021.
+ */
 
 #pragma once
 #include <obd_basedriver.h>

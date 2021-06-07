@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 29/05/2021
- *
+ * @author Silmaen
+ * @date 29/05/2021
  */
 
 #pragma once
@@ -50,7 +49,6 @@ public:
      * @return name of the driver
      */
     [[nodiscard]] virtual String getName() const = 0;
-
 
     /**
      * @brief initialize the driver

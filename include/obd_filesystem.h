@@ -21,13 +21,13 @@ namespace obd::filesystem {
  */
 class driver : public core::baseDriver {
 public:
+    /**
+     * @brief constructor with parent
+     * @param p the parent system
+     */
     explicit driver(core::system* p = nullptr) :
         baseDriver(p), curPath{F("/")}{};
-    ~driver()             = default;
-    driver(const driver&) = default;
-    driver(driver&&)      = default;
-    driver& operator=(const driver&) = default;
-    driver& operator=(driver&&) = default;
+
     /**
      * @brief initialize file system
      */

@@ -1,7 +1,6 @@
 /**
- * \author argawaen 
- * \date 30/05/2021
- *
+ * @author Silmaen
+ * @date 30/05/2021
  */
 
 #include <Arduino.h>
