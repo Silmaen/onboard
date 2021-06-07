@@ -80,7 +80,9 @@ void driver::cd(const String& where) {
 }
 
 File driver::open(const String& filename, const String& mode) {
-    return LittleFS.open(filename.c_str(), mode.c_str());
+    tempPath = path(filename);
+    tempPath.makeAbsolute(curPath.get());
+    return LittleFS.open(tempPath.get().c_str(), mode.c_str());
 }
 
 void driver::mkdir(const String& directory) {
@@ -136,6 +138,10 @@ bool driver::treatCommand(const core::command& cmd) {
         rm(cmd.getParams());
         return true;
     }
+    if (cmd.isCmd(F("cat"))) {
+        cat(cmd.getParams());
+        return true;
+    }
     return false;
 }
 
@@ -148,7 +154,34 @@ void driver::printHelp() {
     getParentPrint()->println(F("cd      change current directory"));
     getParentPrint()->println(F("mkdir   make a new directory"));
     getParentPrint()->println(F("rm      remove a file or directory"));
+    getParentPrint()->println(F("cat     display the content of a file"));
     getParentPrint()->println();
+}
+
+bool driver::exists(const String& _path) {
+    tempPath = path{_path};
+    tempPath.simplify();
+    return LittleFS.exists(tempPath.get());
+}
+
+void driver::cat(const String& _path) {
+    if (!exists(_path)) {
+        if (getParent() != nullptr){
+            getParentPrint()->println(F("ERROR: file does not exists"));
+        }
+        return;
+    }
+    File file = LittleFS.open(tempPath.get(), "r");
+    if (!file.isFile()) {
+        if (getParent() != nullptr){
+            getParentPrint()->println(F("ERROR: only files can be displayed"));
+        }
+        return;
+    }
+    while(file.available()>0){
+        getParentPrint()->print(file.readString());
+    }
+    file.close();
 }
 
 }// namespace obd::filesystem

@@ -80,6 +80,16 @@ public:
      */
     virtual void printHelp() = 0;
 
+    /**
+     * @brief load and apply parameters in the config file
+     */
+    virtual void loadConfigFile() = 0;
+
+    /**
+     * @brief save the driver parameter in file
+     */
+    virtual void saveConfigFile() const = 0;
+
 private:
     /// pointer to the parent system
     system* parent = nullptr;

@@ -67,6 +67,16 @@ public:
     [[nodiscard]] String getName() const override { return F("Status Led"); }
 
     /**
+     * @brief load and apply parameters in the config file
+     */
+    void loadConfigFile() override {}
+
+    /**
+     * @brief save the driver parameter in file
+     */
+    void saveConfigFile() const override {}
+
+    /**
      * @brief define the new state of the led
      * @param st the new state
      */

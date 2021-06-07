@@ -3,10 +3,12 @@
  * @date 10/05/2021.
  */
 
+#include <obd_configfile.h>
 #include <obd_filesystem.h>
 #include <obd_network.h>
 #include <obd_system.h>
 #include <obd_usbserial.h>
+#include <user_interface.h>
 
 namespace obd::core {
 
@@ -36,7 +38,8 @@ void system::update() {
 }
 
 void system::treatCommands() {
-    while (!commands.empty()) {
+    // only one command is treated: if the queue contains more, the command will be treated at the next loop
+    if (!commands.empty()) {
         auto& cmd = commands.front();
         cmd.printCmd(outputs);
         bool treated = false;
@@ -47,12 +50,16 @@ void system::treatCommands() {
         }
         if (treated) {
             commands.pop();
-            continue;
+            return;
         }
         if (cmd.isCmd(F("dmesg"))) {
             printSystemInfo();
         } else if (cmd.isCmd(F("help"))) {
             printHelp(cmd.getParams());
+        } else if (cmd.isCmd(F("cfgSave"))) {
+            saveAllConfig();
+        } else if (cmd.isCmd(F("cfgLoad"))) {
+            loadAllConfig();
         } else {
             outputs.println("Unknown command");
         }
@@ -166,6 +173,8 @@ void system::printHelp(const String& param) {
     if (param == "kernel") {
         outputs.println(F("dmesg       print all system info"));
         outputs.println(F("help <sub>  get help on specific category"));
+        outputs.println(F("cfgSave     save configuration to files"));
+        outputs.println(F("cfgLoad     load configuration from files"));
         return;
     }
     for (auto* driver : drivers) {
@@ -176,5 +185,36 @@ void system::printHelp(const String& param) {
     }
 }
 
+
+void system::loadAllConfig() {
+    // load for the system
+    filesystem::configFile file(this);
+    file.loadConfig(F("kernel"));
+    if (file.hasKey(F("cpu_feq"))) {
+        String val = file.getKey(F("cpu_freq"));
+        if (val == F("160")) { // don't allow any values!!!
+            system_update_cpu_freq(SYS_CPU_160MHZ);
+        } else {
+            system_update_cpu_freq(SYS_CPU_80MHZ);
+        }
+    }
+    // load for the drivers
+    for (auto* driver : drivers) {
+        driver->loadConfigFile();
+    }
+}
+
+void system::saveAllConfig() {
+    // save for the system
+    filesystem::configFile file(this);
+    //  the configuration to save
+    file.addConfigParameter("cpu_freq", String(EspClass::getCpuFreqMHz()));
+    // effectively write the file
+    file.saveConfig(F("kernel"));
+    // save for the drivers
+    for (auto* driver : drivers) {
+        driver->saveConfigFile();
+    }
+}
 
 }// namespace obd::core
