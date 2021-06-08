@@ -52,6 +52,7 @@ void system::treatCommands() {
             commands.pop();
             return;
         }
+        outputs.println("system");
         if (cmd.isCmd(F("dmesg"))) {
             printSystemInfo();
         } else if (cmd.isCmd(F("help"))) {
@@ -61,7 +62,7 @@ void system::treatCommands() {
         } else if (cmd.isCmd(F("cfgLoad"))) {
             loadAllConfig();
         } else {
-            outputs.println("Unknown command");
+            outputs.println(F("Unknown command"));
         }
         commands.pop();
     }
@@ -188,16 +189,6 @@ void system::printHelp(const String& param) {
 
 void system::loadAllConfig() {
     // load for the system
-    filesystem::configFile file(this);
-    file.loadConfig(F("kernel"));
-    if (file.hasKey(F("cpu_feq"))) {
-        String val = file.getKey(F("cpu_freq"));
-        if (val == F("160")) { // don't allow any values!!!
-            system_update_cpu_freq(SYS_CPU_160MHZ);
-        } else {
-            system_update_cpu_freq(SYS_CPU_80MHZ);
-        }
-    }
     // load for the drivers
     for (auto* driver : drivers) {
         driver->loadConfigFile();
@@ -206,11 +197,6 @@ void system::loadAllConfig() {
 
 void system::saveAllConfig() {
     // save for the system
-    filesystem::configFile file(this);
-    //  the configuration to save
-    file.addConfigParameter("cpu_freq", String(EspClass::getCpuFreqMHz()));
-    // effectively write the file
-    file.saveConfig(F("kernel"));
     // save for the drivers
     for (auto* driver : drivers) {
         driver->saveConfigFile();

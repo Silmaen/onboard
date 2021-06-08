@@ -51,7 +51,11 @@ void driver::ls(const String& /*options*/) {
         }
         getParentPrint()->print(static_cast<int>(d.fileSize()));
         getParentPrint()->print(F(" "));
-        getParentPrint()->print(d.fileTime());
+        time_t t = d.fileTime();
+        String fileTime(ctime(&t));
+        fileTime.replace("\n","");
+        fileTime.replace("\r","");
+        getParentPrint()->print(fileTime);
         getParentPrint()->print(F(" "));
         getParentPrint()->println(d.fileName());
     }
@@ -65,11 +69,13 @@ void driver::cd(const String& where) {
             getParentPrint()->println(F("cd: Invalid Void path"));
         return;
     }
-    tempPath = path{where};
-    tempPath.simplify();
+    makePath(where);
     if (!LittleFS.exists(tempPath.get())) {
-        if (getParent() != nullptr)
-            getParentPrint()->println(F("cd: Path does not exists"));
+        if (getParent() != nullptr) {
+            getParentPrint()->print(F("cd: Path '"));
+            getParentPrint()->print(tempPath.get());
+            getParentPrint()->println(F("'does not exists"));
+        }
         return;
     }
     if (getParent() != nullptr) {
@@ -80,8 +86,7 @@ void driver::cd(const String& where) {
 }
 
 File driver::open(const String& filename, const String& mode) {
-    tempPath = path(filename);
-    tempPath.makeAbsolute(curPath.get());
+    makePath(filename);
     return LittleFS.open(tempPath.get().c_str(), mode.c_str());
 }
 
@@ -91,11 +96,13 @@ void driver::mkdir(const String& directory) {
             getParentPrint()->println(F("mkdir: Invalid Void path"));
         return;
     }
-    tempPath = path{directory};
-    tempPath.simplify();
+    makePath(directory);
     if (LittleFS.exists(tempPath.get())) {
-        if (getParent() != nullptr)
-            getParentPrint()->println(F("mkdir: Path already exists"));
+        if (getParent() != nullptr) {
+            getParentPrint()->print(F("mkdir: Path '"));
+            getParentPrint()->print(tempPath.get());
+            getParentPrint()->println(F("'does not exists"));
+        }
         return;
     }
     LittleFS.mkdir(tempPath.get());
@@ -107,11 +114,13 @@ void driver::rm(const String& _path) {
             getParentPrint()->println(F("rm: Invalid Void path"));
         return;
     }
-    tempPath = path{_path};
-    tempPath.simplify();
+    makePath(_path);
     if (!LittleFS.exists(tempPath.get())) {
-        if (getParent() != nullptr)
-            getParentPrint()->println(F("rm: Path does not exists"));
+        if (getParent() != nullptr) {
+            getParentPrint()->print(F("rm: Path '"));
+            getParentPrint()->print(tempPath.get());
+            getParentPrint()->println(F("'does not exists"));
+        }
         return;
     }
     LittleFS.remove(tempPath.get());
@@ -159,29 +168,38 @@ void driver::printHelp() {
 }
 
 bool driver::exists(const String& _path) {
-    tempPath = path{_path};
-    tempPath.simplify();
+    makePath(_path);
     return LittleFS.exists(tempPath.get());
 }
 
 void driver::cat(const String& _path) {
-    if (!exists(_path)) {
-        if (getParent() != nullptr){
-            getParentPrint()->println(F("ERROR: file does not exists"));
+    makePath(_path);
+    if (!exists(tempPath.get())) {
+        if (getParent() != nullptr) {
+            getParentPrint()->print(F("ERROR: file '"));
+            getParentPrint()->print(tempPath.get());
+            getParentPrint()->println(F("' does not exists"));
         }
         return;
     }
     File file = LittleFS.open(tempPath.get(), "r");
     if (!file.isFile()) {
-        if (getParent() != nullptr){
+        if (getParent() != nullptr) {
             getParentPrint()->println(F("ERROR: only files can be displayed"));
         }
         return;
     }
-    while(file.available()>0){
+    while (file.available() > 0) {
         getParentPrint()->print(file.readString());
     }
     file.close();
+    getParentPrint()->println();
+}
+
+void driver::makePath(const String& _path) {
+    tempPath = path{_path};
+    tempPath.makeAbsolute(curPath.get());
+    tempPath.simplify();
 }
 
 }// namespace obd::filesystem

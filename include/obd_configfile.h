@@ -70,6 +70,8 @@ public:
      * @brief reset database
      */
     void clear();
+
+    void printContent()const;
 private:
     /// link to the filesystem
     filesystem::driver* fs = nullptr;

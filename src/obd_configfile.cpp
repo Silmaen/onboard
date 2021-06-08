@@ -57,7 +57,7 @@ void configFile::saveConfig(const String& driverName) const {
     path pp{driverName + F(".cfg")};
     pp.makeAbsolute(F("/config"));
     File file = fs->open(pp.get(),F("w"));
-    for(auto& it: fileContent){
+    for(const auto& it: fileContent){
         file.print(it.first);
         file.print("=");
         file.println(it.second);
@@ -81,6 +81,17 @@ const String& configFile::getKey(const String& key) const {
 
 void configFile::clear() {
     fileContent.clear();
+}
+
+void configFile::printContent()const {
+    fs->getParentPrint()->println(F("File content"));
+    for(const auto& it: fileContent){
+        fs->getParentPrint()->print("'");
+        fs->getParentPrint()->print(it.first);
+        fs->getParentPrint()->print("'='");
+        fs->getParentPrint()->print(it.second);
+        fs->getParentPrint()->println("'");
+    }
 }
 
 }// namespace obd::filesystem

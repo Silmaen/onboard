@@ -122,6 +122,7 @@ public:
      * @param path the file to display
      */
     void cat(const String& path);
+
 private:
     /**
      * @brief the current file path
@@ -132,6 +133,12 @@ private:
      * @brief buffer path to make intermediate computations
      */
     path tempPath{"/"};
+
+    /**
+     * @brief create and verify a path
+     * @param _path
+     */
+    void makePath(const String& _path);
 };
 
 }// namespace obd::filesystem

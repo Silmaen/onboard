@@ -2,6 +2,7 @@
  * @author Silmaen
  * @date 26/05/2021
  */
+#include <obd_configfile.h>
 #include <obd_network.h>
 #include <obd_system.h>
 
@@ -10,21 +11,22 @@ namespace obd::network {
 driver::driver(core::system* p) :
     baseDriver(p) {
     if (p != nullptr) {
-        statusLed = p->getDriverAs<core::StatusLed>(F("Status Led"));
+        statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
 }
 
 void driver::attachParent(core::system* p) {
     baseDriver::attachParent(p);
     if (p != nullptr) {
-        statusLed = p->getDriverAs<core::StatusLed>(F("Status Led"));
+        statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
 }
 
 void driver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
-    WiFi.hostname(defaultHostname);
+    WiFi.hostname("toto");
+    loadConfigFile();
     WiFi.begin();
     if (getParentPrint() != nullptr)
         WiFi.printDiag(*getParentPrint());
@@ -33,10 +35,18 @@ void driver::init() {
 void driver::printInfo() {
     if (getParentPrint() == nullptr)
         return;
-    const String modes[] = {F("Off"), F("Station"), F("Access Point"), F("Both")};
+    const String modes[] = {
+            F("Off"),
+            F("Station"),
+            F("Access Point"),
+            F("Both")};
     getParentPrint()->print(F("Operation Mode      : "));
     getParentPrint()->println(modes[wifi_get_opmode()]);
-    const String phymodes[] = {F(""), F("b"), F("g"), F("n")};
+    const String phymodes[] = {
+            F(""),
+            F("b"),
+            F("g"),
+            F("n")};
     getParentPrint()->print(F("PHY mode            : 802.11"));
     getParentPrint()->println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
 
@@ -54,7 +64,13 @@ void driver::printInfo() {
         getParentPrint()->print(F("Channel             : "));
         getParentPrint()->println(WiFi.channel());
         getParentPrint()->print(F("Connexion Status    : "));
-        String connStatus[] = {F("idle"), F("connecting"), F("Wrong Password"), F("No AP found"), F("Connect fail"), F("got IP")};
+        String connStatus[] = {
+                F("idle"),
+                F("connecting"),
+                F("Wrong Password"),
+                F("No AP found"),
+                F("Connect fail"),
+                F("got IP")};
         getParentPrint()->println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
 
         getParentPrint()->print(F("MAC address         : "));
@@ -238,16 +254,33 @@ void driver::printStatus() {
 void driver::printWelcome() {
     client.println();
     client.println(F("Welcome on board!"));
-    client.println(F("  _____ _____ ____  "));
-    client.println(F(" |     | __  |    \\ "));
-    client.println(F(" |  |  | __ -|  |  |"));
-    client.println(F(" |_____|_____|____/ "));
-    client.println(F("----------------------------------------"));
+    client.println(F("  _______         ______                      __ "));
+    client.println(F(" |       |.-----.|   __ \\.-----.---.-.----.--|  |"));
+    client.println(F(" |   -   ||     ||   __ <|  _  |  _  |   _|  _  |"));
+    client.println(F(" |_______||__|__||______/|_____|___._|__| |_____|"));
+    client.println(F("--------------------------------------------------"));
     client.print(F(" obd version: "));
     client.print(version);
     client.print(F(" Author: "));
     client.println(author);
-    client.println(F("----------------------------------------"));
+    client.println(F("--------------------------------------------------"));
+}
+
+void driver::loadConfigFile() {
+    filesystem::configFile file(getParent());
+    file.loadConfig(getName());
+    // parameters to load:
+    if (file.hasKey("host")) {
+        WiFi.hostname(file.getKey("host").c_str());
+    }
+}
+
+void driver::saveConfigFile() const {
+    filesystem::configFile file(getParent());
+    // parameter to save
+    file.addConfigParameter("host", WiFi.hostname());
+    //
+    file.saveConfig(getName());
 }
 
 

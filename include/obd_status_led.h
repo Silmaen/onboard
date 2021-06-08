@@ -64,7 +64,7 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] String getName() const override { return F("Status Led"); }
+    [[nodiscard]] String getName() const override { return F("StatusLed"); }
 
     /**
      * @brief load and apply parameters in the config file

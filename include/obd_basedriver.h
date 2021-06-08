@@ -34,7 +34,7 @@ public:
      * @brief get the parent system
      * @return the parent
      */
-    system* getParent() {
+    system* getParent() const {
         return parent;
     }
 

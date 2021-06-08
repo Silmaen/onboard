@@ -25,6 +25,6 @@ constexpr uint8_t maxPathLength = 30;
 constexpr uint16_t ledPeriod = 2000;
 
 /// default name for the device
-constexpr char defaultHostname[]{"Onboard_12a85a"};
+constexpr char defaultHostname[]{"Onboard12a85a"};
 
 }// namespace obd
