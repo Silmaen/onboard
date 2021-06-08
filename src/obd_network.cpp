@@ -9,7 +9,7 @@
 namespace obd::network {
 
 driver::driver(core::system* p) :
-    baseDriver(p) {
+    baseDriver(p),ntpClient(udp) {
     if (p != nullptr) {
         statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
@@ -25,7 +25,8 @@ void driver::attachParent(core::system* p) {
 void driver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
-    WiFi.hostname("toto");
+    WiFi.mode(WIFI_STA);
+    WiFi.hostname(defaultHostname);
     loadConfigFile();
     WiFi.begin();
     if (getParentPrint() != nullptr)
@@ -91,7 +92,7 @@ void driver::printInfo() {
     }
 }
 
-void driver::update(uint64_t /*timestamp*/) {
+void driver::update(int64_t /*delta*/) {
     if (updateStatus()) {
         updateLED();
         // do nothing more if status changed
@@ -101,6 +102,7 @@ void driver::update(uint64_t /*timestamp*/) {
     if (updateClientConnexion()) {
         return;
     }
+    ntpClient.update();
     // listen to the telnet server
     listenTelnet();
 }
@@ -161,6 +163,11 @@ void driver::updateServerState() {
     if ((currentStatus == Status::Disabled || currentStatus == Status::Connecting) && telnetServer.status() != 0U) {
         getParent()->getOutput()->removePrint(&client);
         telnetServer.stop();
+    }
+    if (currentStatus == Status::Connected) {
+        ntpClient.begin();
+    }else if (currentStatus != Status::ConnectedClient) {
+        ntpClient.end();
     }
 }
 
@@ -282,6 +289,5 @@ void driver::saveConfigFile() const {
     //
     file.saveConfig(getName());
 }
-
 
 }// namespace obd::network

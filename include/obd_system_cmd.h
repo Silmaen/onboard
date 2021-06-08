@@ -5,9 +5,7 @@
 
 #pragma once
 #include "classfwd.h"
-#ifdef ARDUINO
 #include <Print.h>
-#endif
 #include <string>
 
 namespace obd::core {

@@ -34,7 +34,7 @@ public:
      * @brief get the parent system
      * @return the parent
      */
-    system* getParent() const {
+    [[nodiscard]] system* getParent() const {
         return parent;
     }
 
@@ -62,9 +62,9 @@ public:
 
     /**
      * @brief procedure called each frame
-     * @param timestamp the current timestamp of the device
+     * @param delta the delta from last update
      */
-    virtual void update(uint64_t timestamp) = 0;
+    virtual void update(int64_t delta) = 0;
 
     /**
      * @brief try to treat the given command

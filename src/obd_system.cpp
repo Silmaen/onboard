@@ -8,6 +8,7 @@
 #include <obd_network.h>
 #include <obd_system.h>
 #include <obd_usbserial.h>
+#include <obd_systemtime.h>
 #include <user_interface.h>
 
 namespace obd::core {
@@ -17,6 +18,7 @@ system::system() {
     drivers.push_back(new UsbSerial(this));
     drivers.push_back(new filesystem::driver(this));
     drivers.push_back(new network::driver(this));
+    drivers.push_back(new time::clock(this));
 }
 
 void system::init() {
@@ -28,10 +30,12 @@ void system::init() {
 
 void system::update() {
     // update timestamp
-    timestamp = millis();
+    uint64_t ts = millis();
+    int64_t delta = ts - timestamp ;
+    timestamp = ts;
     // update drivers
     for (auto* driver : drivers) {
-        driver->update(timestamp);
+        driver->update(delta);
     }
     // treat the command queue
     treatCommands();

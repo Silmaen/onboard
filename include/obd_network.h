@@ -4,10 +4,9 @@
  */
 
 #pragma once
-#ifdef ARDUINO
 #include <ESP8266WiFi.h>
-#include <Esp.h>
-#endif
+#include <WiFiUdp.h>
+#include <NTPClient.h>
 #include <obd_basedriver.h>
 #include <obd_system_cmd.h>
 #include <queue>
@@ -52,9 +51,10 @@ public:
     void printInfo() override;
 
     /**
-     * @brief listen to network for commands
+     * @brief procedure called each frame
+     * @param delta the delta from last update
      */
-    void update(uint64_t timestamp) override;
+    void update(int64_t delta) override;
 
     /**
      * @brief try to treat the given command
@@ -90,6 +90,17 @@ public:
      */
     void saveConfigFile() const override;
 
+    /**
+     * @brief return the actual status of network
+     * @return the status
+     */
+    [[nodiscard]] Status getCurrentStatus()const{return currentStatus;}
+
+    /**
+     * @brief get the Ntp client
+     * @return the Ntp client
+     */
+    NTPClient& getNtpClient(){return ntpClient;}
 private:
     /// direct link to the status led
     core::StatusLed* statusLed = nullptr;
@@ -99,7 +110,10 @@ private:
     WiFiServer telnetServer{23};
     /// the wifi client
     WiFiClient client;
-
+    /// udp client for NTP
+    WiFiUDP udp;
+    /// ntp client
+    NTPClient ntpClient;
     /**
      * @brief display network status
      */

@@ -18,9 +18,12 @@ namespace filesystem {
 class driver;
 }// namespace filesystem
 
-
 namespace network {
 class driver;
 }// namespace network
+
+namespace time {
+class clock;
+}// namespace time
 
 }// namespace obd
