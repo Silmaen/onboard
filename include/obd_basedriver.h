@@ -34,7 +34,7 @@ public:
      * @brief get the parent system
      * @return the parent
      */
-    system* getParent() {
+    system* getParent() const {
         return parent;
     }
 
@@ -79,6 +79,16 @@ public:
      * @brief display driver help on commands
      */
     virtual void printHelp() = 0;
+
+    /**
+     * @brief load and apply parameters in the config file
+     */
+    virtual void loadConfigFile() = 0;
+
+    /**
+     * @brief save the driver parameter in file
+     */
+    virtual void saveConfigFile() const = 0;
 
 private:
     /// pointer to the parent system

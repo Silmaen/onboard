@@ -109,6 +109,16 @@ public:
         return &outputs;
     }
 
+    /**
+     * @brief load and apply parameters from config files
+     */
+    void loadAllConfig();
+
+    /**
+     * @brief save config in files
+     */
+    void saveAllConfig();
+
 private:
     /**
      * @brief print the system information

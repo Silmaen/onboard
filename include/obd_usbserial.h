@@ -48,6 +48,16 @@ public:
      */
     void printHelp() override {}
 
+    /**
+     * @brief load and apply parameters in the config file
+     */
+    void loadConfigFile() override {}
+
+    /**
+     * @brief save the driver parameter in file
+     */
+    void saveConfigFile() const override {}
+
 private:
 };
 

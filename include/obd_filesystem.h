@@ -26,7 +26,7 @@ public:
      * @param p the parent system
      */
     explicit driver(core::system* p = nullptr) :
-        baseDriver(p), curPath{F("/")}{};
+        baseDriver(p), curPath{F("/")} {};
 
     /**
      * @brief initialize file system
@@ -60,7 +60,17 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] String getName() const override { return F("Filesystem"); }
+    [[nodiscard]] String getName() const override { return F("FileSystem"); }
+
+    /**
+     * @brief load and apply parameters in the config file
+     */
+    void loadConfigFile() override {}
+
+    /**
+     * @brief save the driver parameter in file
+     */
+    void saveConfigFile() const override {}
 
     /**
      * @brief open a file
@@ -68,8 +78,7 @@ public:
      * @param mode opening mode
      * @return the file handler
      */
-    static File open(const String& filename, const String& mode);
-
+    File open(const String& filename, const String& mode);
 
     /**
      * @brief print working directory
@@ -101,6 +110,19 @@ public:
      */
     void rm(const String& path);
 
+    /**
+     * @brief check the existence of a file of directory
+     * @param path the path to check
+     * @return true if the path exists
+     */
+    [[nodiscard]] bool exists(const String& path);
+
+    /**
+     * @brief display the content of a file
+     * @param path the file to display
+     */
+    void cat(const String& path);
+
 private:
     /**
      * @brief the current file path
@@ -111,6 +133,12 @@ private:
      * @brief buffer path to make intermediate computations
      */
     path tempPath{"/"};
+
+    /**
+     * @brief create and verify a path
+     * @param _path
+     */
+    void makePath(const String& _path);
 };
 
 }// namespace obd::filesystem

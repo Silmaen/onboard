@@ -80,6 +80,16 @@ public:
      */
     void attachParent(core::system* p) override;
 
+    /**
+     * @brief load and apply parameters in the config file
+     */
+    void loadConfigFile() override;
+
+    /**
+     * @brief save the driver parameter in file
+     */
+    void saveConfigFile() const override;
+
 private:
     /// direct link to the status led
     core::StatusLed* statusLed = nullptr;
