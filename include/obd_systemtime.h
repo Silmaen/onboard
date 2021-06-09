@@ -119,6 +119,8 @@ private:
     uint16_t port = NtpDefaultLocalPort;
     /// chronometer in ms
     uint64_t timer = 0;
+    /// internal looping timer
+    uint64_t internalTimer = 0;
     /// update interval in ms
     uint64_t updateInterval = defaultUpdateInterval;
     /// value of time

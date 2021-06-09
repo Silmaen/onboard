@@ -25,9 +25,20 @@ void clock::printInfo() {
 
 void clock::update(int64_t delta) {
     timer += delta;
+    internalTimer += delta;
+    bool synchro = false;
     if (timer == 0 || timer > updateInterval) {
-        updateNTP();
+        if (updateNTP())
+            synchro = true;
         timer = 0;
+        if (synchro)
+            internalTimer = 0;
+    }
+    if (!synchro){
+        if (internalTimer >= 1000){
+            currentEpoch += internalTimer/1000;
+            internalTimer = 0;
+        }
     }
 }
 
@@ -80,7 +91,7 @@ void clock::sendNTPPacket() {
 }
 
 bool clock::updateNTP() {
-    if (!checkNetworkState())
+    if (!checkNetworkState()) // if no network, don't waste time
         return false;
     // send request
     sendNTPPacket();
@@ -102,6 +113,7 @@ bool clock::updateNTP() {
     currentEpoch -= SevenZyYears;
     return true;
 }
+
 bool clock::checkNetworkState() {
     if (net == nullptr)
         return false;
