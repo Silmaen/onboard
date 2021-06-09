@@ -53,10 +53,7 @@ void clock::saveConfigFile() const {}
 void clock::printDate() {
     if (getParentPrint() == nullptr)
         return;
-    String tStr = ctime(&currentEpoch);
-    tStr.replace("\n", "");
-    tStr.replace("\r", "");
-    getParentPrint()->println(tStr);
+    getParentPrint()->println(getDateFormatted());
 }
 
 void clock::sendNTPPacket() {
@@ -109,6 +106,13 @@ bool clock::checkNetworkState() {
     if (net == nullptr)
         return false;
     return net->getCurrentStatus() == network::Status::Connected || net->getCurrentStatus() == network::Status::ConnectedClient;
+}
+
+String clock::getDateFormatted(bool utc) {
+    String tStr = ctime(&currentEpoch);
+    tStr.replace("\n", "");
+    tStr.replace("\r", "");
+    return tStr;
 }
 
 }// namespace obd::time

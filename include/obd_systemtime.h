@@ -6,19 +6,25 @@
 
 #pragma once
 #include "obd_basedriver.h"
-#include <ctime>
 #include <Udp.h>
+#include <ctime>
 
 namespace obd::time {
 
 /// size of a ntp packet
-constexpr uint16_t NtpPacketSize=48U;
+constexpr uint16_t NtpPacketSize = 48U;
 /// default local udp port number
-constexpr uint16_t NtpDefaultLocalPort=1337;
+constexpr uint16_t NtpDefaultLocalPort = 1337;
 /// default update interval in ms
 constexpr uint64_t defaultUpdateInterval = 60000;
 /// seconds between Jan 1 1900 and Jan 1 1970
 constexpr time_t SevenZyYears = 2208988800UL;
+
+/**
+ * @brief get time for call back function
+ * @return current time
+ */
+time_t timeCb();
 
 class clock : public core::baseDriver {
 public:
@@ -29,7 +35,7 @@ public:
      * @brief retrieve the name of the driver
      * @return name of the driver
      */
-    [[nodiscard]] String getName() const override { return F("SystemClock");}
+    [[nodiscard]] String getName() const override { return F("SystemClock"); }
 
     /**
      * @brief initialize the driver
@@ -68,6 +74,19 @@ public:
      * @brief save the driver parameter in file
      */
     void saveConfigFile() const override;
+
+    /**
+     * @brief get the date as a string
+     * @param utc return utc time if true or local time
+     * @return the time as string
+     */
+    String getDateFormatted(bool utc = false);
+
+    /**
+     * @brief get the current time as posix time
+     * @return the posix time
+     */
+    [[nodiscard]] time_t getDate() const{return currentEpoch;}
 private:
     /**
      * @brief display the current date and time of the system
@@ -103,7 +122,7 @@ private:
     /// update interval in ms
     uint64_t updateInterval = defaultUpdateInterval;
     /// value of time
-    time_t currentEpoch;
+    time_t currentEpoch = 0;
 };
 
 }// namespace obd::time

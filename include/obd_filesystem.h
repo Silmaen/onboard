@@ -123,6 +123,11 @@ public:
      */
     void cat(const String& path);
 
+    /**
+     * @brief set time callback
+     * @param cb the time call back
+     */
+    void setTimeCb(time_t (*cb)());
 private:
     /**
      * @brief the current file path

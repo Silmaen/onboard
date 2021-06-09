@@ -84,6 +84,11 @@ public:
     void setState(LedState st = LedState::Off);
 
 private:
+    /**
+     * @brief print the current state of the led
+     */
+    void printCurrentState();
+
     /// current state of the led
     LedState ledState = LedState::Off;
 

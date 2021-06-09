@@ -5,11 +5,15 @@
 
 #include "obd_filesystem.h"
 #include <LittleFS.h>
+#include "obd_system.h"
+#include "obd_systemtime.h"
 
 namespace obd::filesystem {
 
+
 void driver::init() {
     LittleFS.begin();
+    LittleFS.setTimeCallback(time::timeCb);
 }
 
 void driver::printInfo() {
@@ -200,6 +204,10 @@ void driver::makePath(const String& _path) {
     tempPath = path{_path};
     tempPath.makeAbsolute(curPath.get());
     tempPath.simplify();
+}
+
+void driver::setTimeCb(time_t (*cb)()){
+    LittleFS.setTimeCallback(cb);
 }
 
 }// namespace obd::filesystem

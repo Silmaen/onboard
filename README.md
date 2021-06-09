@@ -63,17 +63,26 @@ to `/bar/bbb`). Please note that the paths are limited to 31 characters.
    
  | command | parameter | description |
  | ------- | :-------: | ----------: |
- |`led`    | `<state>` | change the led to given state |
+ |`led`    | n/a       | print the current LED state |
+ |`led`    | `<state>` | change the LED to given state |
 
 valid sates are:
 
  | state name   |  description |
  | ------------ |  ----------: |
- |`off`         |  led off     |
- |`solid`       |  led on |
- |`blink`       |  led is slowly blinking |
- |`fastblink`   |  led is blinking twice faster |
- |`twopulse`    |  led do 2 pulses then wait |
- |`threepulse`  |  led do 3 pulses then wait |
- |`fasterblink` |  lest is continuously pulsing |
+ |`off`         |  LED off     |
+ |`solid`       |  LED on |
+ |`blink`       |  LED is slowly blinking |
+ |`fastblink`   |  LED is blinking twice faster |
+ |`twopulse`    |  LED do 2 pulses then wait |
+ |`threepulse`  |  LED do 3 pulses then wait |
+ |`fasterblink` |  LED is continuously pulsing |
+
+### Time commands
+
+If the device is connected to the internet, then it internal time can be synchronized by NTP protocol.
+
+ | command | parameter | description |
+ | ------- | :-------: | ----------: |
+ |`date`   | n/a       | Print the current date |
 
