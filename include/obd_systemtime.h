@@ -7,8 +7,18 @@
 #pragma once
 #include "obd_basedriver.h"
 #include <ctime>
+#include <Udp.h>
 
 namespace obd::time {
+
+/// size of a ntp packet
+constexpr uint16_t NtpPacketSize=48U;
+/// default local udp port number
+constexpr uint16_t NtpDefaultLocalPort=1337;
+/// default update interval in ms
+constexpr uint64_t defaultUpdateInterval = 60000;
+/// seconds between Jan 1 1900 and Jan 1 1970
+constexpr time_t SevenZyYears = 2208988800UL;
 
 class clock : public core::baseDriver {
 public:
@@ -60,15 +70,40 @@ public:
     void saveConfigFile() const override;
 private:
     /**
-     * @brief display the curent date and time of the system
+     * @brief display the current date and time of the system
      */
     void printDate();
-    /// base epoch time
-    time_t epoch = 0;
-    /// direct link to the net driver
+    /**
+     * @brief send NTP requested to the pool
+     */
+    void sendNTPPacket();
+
+    /**
+     * @brief update value from NTP server
+     * @return true if UDP request successfully replied
+     */
+    bool updateNTP();
+
+    /**
+     * @brief check if the network is in a state that allow NTP communication
+     * @return true if NTP request is possible
+     */
+    bool checkNetworkState();
+
+    ///link to the network driver
     network::driver* net = nullptr;
-    /// last timestamp
-    uint64_t lastTs;
+    /// port to communicate with NTP Servers
+    UDP* udpConn = nullptr;
+    /// the pool server name to query
+    String poolServerName;
+    /// port number
+    uint16_t port = NtpDefaultLocalPort;
+    /// chronometer in ms
+    uint64_t timer = 0;
+    /// update interval in ms
+    uint64_t updateInterval = defaultUpdateInterval;
+    /// value of time
+    time_t currentEpoch;
 };
 
 }// namespace obd::time

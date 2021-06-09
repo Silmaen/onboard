@@ -9,7 +9,7 @@
 namespace obd::network {
 
 driver::driver(core::system* p) :
-    baseDriver(p),ntpClient(udp) {
+    baseDriver(p) {
     if (p != nullptr) {
         statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
@@ -43,13 +43,13 @@ void driver::printInfo() {
             F("Both")};
     getParentPrint()->print(F("Operation Mode      : "));
     getParentPrint()->println(modes[wifi_get_opmode()]);
-    const String phymodes[] = {
+    const String phyModes[] = {
             F(""),
             F("b"),
             F("g"),
             F("n")};
     getParentPrint()->print(F("PHY mode            : 802.11"));
-    getParentPrint()->println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
+    getParentPrint()->println(phyModes[static_cast<int>(wifi_get_phy_mode())]);
 
     if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
         // access point Infos
@@ -102,7 +102,6 @@ void driver::update(int64_t /*delta*/) {
     if (updateClientConnexion()) {
         return;
     }
-    ntpClient.update();
     // listen to the telnet server
     listenTelnet();
 }
@@ -163,11 +162,6 @@ void driver::updateServerState() {
     if ((currentStatus == Status::Disabled || currentStatus == Status::Connecting) && telnetServer.status() != 0U) {
         getParent()->getOutput()->removePrint(&client);
         telnetServer.stop();
-    }
-    if (currentStatus == Status::Connected) {
-        ntpClient.begin();
-    }else if (currentStatus != Status::ConnectedClient) {
-        ntpClient.end();
     }
 }
 

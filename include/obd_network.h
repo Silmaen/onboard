@@ -6,7 +6,6 @@
 #pragma once
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include <NTPClient.h>
 #include <obd_basedriver.h>
 #include <obd_system_cmd.h>
 #include <queue>
@@ -96,11 +95,6 @@ public:
      */
     [[nodiscard]] Status getCurrentStatus()const{return currentStatus;}
 
-    /**
-     * @brief get the Ntp client
-     * @return the Ntp client
-     */
-    NTPClient& getNtpClient(){return ntpClient;}
 private:
     /// direct link to the status led
     core::StatusLed* statusLed = nullptr;
@@ -110,10 +104,6 @@ private:
     WiFiServer telnetServer{23};
     /// the wifi client
     WiFiClient client;
-    /// udp client for NTP
-    WiFiUDP udp;
-    /// ntp client
-    NTPClient ntpClient;
     /**
      * @brief display network status
      */
