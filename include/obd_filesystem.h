@@ -5,10 +5,9 @@
 #pragma once
 #include "obd_basedriver.h"
 #include "obd_path.h"
-#ifdef ARDUINO
 #include <FS.h>
 #include <Print.h>
-#endif
+
 
 /**
  * @namespace obd::filesystem
@@ -41,8 +40,9 @@ public:
 
     /**
      * @brief listen to network for commands
+     * @param delta the time delta from last update
      */
-    void update(uint64_t timestamp) override {}
+    void update(int64_t delta) override {}
 
     /**
      * @brief try to treat the given command
@@ -123,6 +123,11 @@ public:
      */
     void cat(const String& path);
 
+    /**
+     * @brief set time callback
+     * @param cb the time call back
+     */
+    void setTimeCb(time_t (*cb)());
 private:
     /**
      * @brief the current file path

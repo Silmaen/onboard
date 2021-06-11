@@ -25,7 +25,8 @@ void driver::attachParent(core::system* p) {
 void driver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
-    WiFi.hostname("toto");
+    WiFi.mode(WIFI_STA);
+    WiFi.hostname(defaultHostname);
     loadConfigFile();
     WiFi.begin();
     if (getParentPrint() != nullptr)
@@ -42,13 +43,13 @@ void driver::printInfo() {
             F("Both")};
     getParentPrint()->print(F("Operation Mode      : "));
     getParentPrint()->println(modes[wifi_get_opmode()]);
-    const String phymodes[] = {
+    const String phyModes[] = {
             F(""),
             F("b"),
             F("g"),
             F("n")};
     getParentPrint()->print(F("PHY mode            : 802.11"));
-    getParentPrint()->println(phymodes[static_cast<int>(wifi_get_phy_mode())]);
+    getParentPrint()->println(phyModes[static_cast<int>(wifi_get_phy_mode())]);
 
     if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
         // access point Infos
@@ -91,7 +92,7 @@ void driver::printInfo() {
     }
 }
 
-void driver::update(uint64_t /*timestamp*/) {
+void driver::update(int64_t /*delta*/) {
     if (updateStatus()) {
         updateLED();
         // do nothing more if status changed
@@ -282,6 +283,5 @@ void driver::saveConfigFile() const {
     //
     file.saveConfig(getName());
 }
-
 
 }// namespace obd::network

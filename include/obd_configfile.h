@@ -41,7 +41,7 @@ public:
 
     /**
      * @brief save into file the given data
-     * @param drverName the name of the driver to save
+     * @param driverName the name of the driver to save
      */
     void saveConfig(const String& driverName)const;
 

@@ -20,10 +20,10 @@ constexpr uint16_t ledThreeEighthPeriod  = 3 * ledPeriod / 8;
 constexpr uint16_t ledFiveEighthPeriod   = 5 * ledPeriod / 8;
 constexpr uint16_t ledSevenEighthPeriod  = 7 * ledPeriod / 8;
 
-void StatusLed::update(uint64_t timestamp) {
+void StatusLed::update(int64_t delta) {
     if (getParent() == nullptr)
         return;
-    uint64_t delta = timestamp - ledTime;
+    ledTime += delta;
     uint8_t state{0};
     switch (ledState) {
     case LedState::Off:
@@ -32,67 +32,69 @@ void StatusLed::update(uint64_t timestamp) {
         state = 1;
         break;
     case LedState::Blink:
-        state = static_cast<uint8_t>((delta < ledHalfPeriod) ? 1U : 0U);
+        state = static_cast<uint8_t>((ledTime < ledHalfPeriod) ? 1U : 0U);
         break;
     case LedState::FastBlink:
-        if (delta < ledQuarterPeriod) {
+        if (ledTime < ledQuarterPeriod) {
             state = 1U;
-        } else if (delta < ledHalfPeriod) {
+        } else if (ledTime < ledHalfPeriod) {
             state = 0;
-        } else if (delta < ledThreeQuarterPeriod) {
+        } else if (ledTime < ledThreeQuarterPeriod) {
             state = 1U;
         }
         break;
     case LedState::TwoPulse:
-        if (delta < ledEighthPeriod) {
+        if (ledTime < ledEighthPeriod) {
             state = 1U;
-        } else if (delta < ledQuarterPeriod) {
+        } else if (ledTime < ledQuarterPeriod) {
             state = 0;
-        } else if (delta < ledThreeEighthPeriod) {
+        } else if (ledTime < ledThreeEighthPeriod) {
             state = 1U;
         }
         break;
     case LedState::ThreePulses:
-        if (delta < ledEighthPeriod) {
+        if (ledTime < ledEighthPeriod) {
             state = 1U;
-        } else if (delta < ledQuarterPeriod) {
+        } else if (ledTime < ledQuarterPeriod) {
             state = 0;
-        } else if (delta < ledThreeEighthPeriod) {
+        } else if (ledTime < ledThreeEighthPeriod) {
             state = 1U;
-        } else if (delta < ledHalfPeriod) {
+        } else if (ledTime < ledHalfPeriod) {
             state = 0U;
-        } else if (delta < ledFiveEighthPeriod) {
+        } else if (ledTime < ledFiveEighthPeriod) {
             state = 1U;
         }
         break;
     case LedState::FasterBlink:
-        if (delta < ledEighthPeriod) {
+        if (ledTime < ledEighthPeriod) {
             state = 1U;
-        } else if (delta < ledQuarterPeriod) {
+        } else if (ledTime < ledQuarterPeriod) {
             state = 0;
-        } else if (delta < ledThreeEighthPeriod) {
+        } else if (ledTime < ledThreeEighthPeriod) {
             state = 1U;
-        } else if (delta < ledHalfPeriod) {
+        } else if (ledTime < ledHalfPeriod) {
             state = 0;
-        } else if (delta < ledFiveEighthPeriod) {
+        } else if (ledTime < ledFiveEighthPeriod) {
             state = 1U;
-        } else if (delta < ledThreeQuarterPeriod) {
+        } else if (ledTime < ledThreeQuarterPeriod) {
             state = 0;
-        } else if (delta < ledSevenEighthPeriod) {
+        } else if (ledTime < ledSevenEighthPeriod) {
             state = 1U;
         }
         break;
     }
     digitalWrite(LED_BUILTIN, static_cast<uint8_t>(1U - state));
-    if (delta > ledPeriod) {
-        ledTime = timestamp;
+    if (ledTime > ledPeriod) {
+        ledTime = 0;
     }
 }
 
 bool StatusLed::treatCommand(const command& cmd) {
     if (cmd.isCmd(F("led"))) {
         String buf{cmd.getParams()};
-        if (buf == F("off")) {
+        if (buf.isEmpty()) {
+            printCurrentState();
+        } else if (buf == F("off")) {
             setState();
         } else if (buf == F("solid")) {
             setState(LedState::Solid);
@@ -129,7 +131,8 @@ void StatusLed::printHelp() {
     if (getParent() == nullptr)
         return;
     getParentPrint()->println(F("Help on led state"));
-    getParentPrint()->println(F("led <state>   change the state of the led. valid state are:"));
+    getParentPrint()->println(F("led           Print the current LED status"));
+    getParentPrint()->println(F("led <state>   Change the state of the led. valid state are:"));
     getParentPrint()->println(F("              off         led off"));
     getParentPrint()->println(F("              solid       led on"));
     getParentPrint()->println(F("              blink       led is slowly blinking"));
@@ -137,6 +140,34 @@ void StatusLed::printHelp() {
     getParentPrint()->println(F("              twopulse    led do 2 pulses then wait"));
     getParentPrint()->println(F("              threepulse  led do 3 pulses then wait"));
     getParentPrint()->println(F("              fasterblink lest is continuously pulsing"));
+}
+
+void StatusLed::printCurrentState() {
+    if (getParent() == nullptr)
+        return;
+    switch (ledState) {
+    case LedState::Off:
+        getParentPrint()->println(F("LED state: off"));
+        break;
+    case LedState::Solid:
+        getParentPrint()->println(F("LED state: solid"));
+        break;
+    case LedState::Blink:
+        getParentPrint()->println(F("LED state: blink"));
+        break;
+    case LedState::FastBlink:
+        getParentPrint()->println(F("LED state: fastblink"));
+        break;
+    case LedState::TwoPulse:
+        getParentPrint()->println(F("LED state: twopulse"));
+        break;
+    case LedState::ThreePulses:
+        getParentPrint()->println(F("LED state: threepulse"));
+        break;
+    case LedState::FasterBlink:
+        getParentPrint()->println(F("LED state: fasterblink"));
+        break;
+    }
 }
 
 }// namespace obd::core

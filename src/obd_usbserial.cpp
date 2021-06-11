@@ -22,7 +22,7 @@ void UsbSerial::init() {
     }
 }
 
-void UsbSerial::update(uint64_t /*timestamp*/) {
+void UsbSerial::update(int64_t /*timestamp*/) {
     if (Serial.available() > 0) {
         delay(10);
         command cmd(source::USB);

@@ -40,8 +40,9 @@ public:
 
     /**
      * @brief procedure called each frame
+     * @param delta the time delta from last update
      */
-    void update(uint64_t timestamp) override;
+    void update(int64_t delta) override;
 
     /**
      * @brief display driver help on commands
