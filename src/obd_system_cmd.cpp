@@ -31,6 +31,8 @@ void command::printCmd(Print& st) const {
 }
 
 String command::getParams() const {
+    if (cmdline.indexOf(' ') < 0)
+        return String();
     return cmdline.substring(cmdline.indexOf(' ') + 1);
 }
 

@@ -8,6 +8,7 @@
 #include "obd_basedriver.h"
 #include <TZ.h>
 
+
 namespace obd::time {
 
 /**
@@ -16,8 +17,15 @@ namespace obd::time {
  */
 time_t timeCb();
 
+/**
+ * @brief base driver for the clock
+ */
 class clock : public core::baseDriver {
 public:
+    /**
+     * @brief constructor with parent system
+     * @param p the parent system
+     */
     explicit clock(core::system* p = nullptr) :
         baseDriver{p}, timeZone{TZ_Europe_Paris} {}
 

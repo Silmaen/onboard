@@ -1,6 +1,7 @@
-//
-// Created by damien.lachouette on 12/05/2021.
-//
+/**
+ * @author Silmaen
+ * @date 12/05/2021
+ */
 
 #pragma once
 #include "obd_basedriver.h"
@@ -8,11 +9,6 @@
 #include <FS.h>
 #include <Print.h>
 
-
-/**
- * @namespace obd::filesystem
- * @brief namespace for the file system
- */
 namespace obd::filesystem {
 
 /**
@@ -34,7 +30,6 @@ public:
 
     /**
      * @brief print the file system information in the given stream
-     * @param output the stream onto write
      */
     void printInfo() override;
 
@@ -82,7 +77,6 @@ public:
 
     /**
      * @brief print working directory
-     * @param output the console where to write
      */
     void pwd();
 
@@ -128,6 +122,7 @@ public:
      * @param cb the time call back
      */
     void setTimeCb(time_t (*cb)());
+
 private:
     /**
      * @brief the current file path

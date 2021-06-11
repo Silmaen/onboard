@@ -18,9 +18,6 @@ constexpr char version[]{"1.0"};
 /// base length of a command line
 constexpr uint8_t commandBufferLength = 30;
 
-/// maximum length of a file system path
-constexpr uint8_t maxPathLength = 30;
-
 /// default led state period
 constexpr uint16_t ledPeriod = 2000;
 

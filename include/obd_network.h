@@ -10,10 +10,6 @@
 #include <obd_system_cmd.h>
 #include <queue>
 
-/**
- * @namespace obd::network
- * @brief namespace for the network system
- */
 namespace obd::network {
 
 /**
@@ -93,7 +89,7 @@ public:
      * @brief return the actual status of network
      * @return the status
      */
-    [[nodiscard]] Status getCurrentStatus()const{return currentStatus;}
+    [[nodiscard]] Status getCurrentStatus() const { return currentStatus; }
 
 private:
     /// direct link to the status led
@@ -104,6 +100,7 @@ private:
     WiFiServer telnetServer{23};
     /// the wifi client
     WiFiClient client;
+
     /**
      * @brief display network status
      */

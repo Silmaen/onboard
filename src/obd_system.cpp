@@ -56,7 +56,6 @@ void system::treatCommands() {
             commands.pop();
             return;
         }
-        outputs.println("system");
         if (cmd.isCmd(F("dmesg"))) {
             printSystemInfo();
         } else if (cmd.isCmd(F("help"))) {
@@ -187,6 +186,12 @@ void system::printHelp(const String& param) {
             driver->printHelp();
             return;
         }
+    }
+    outputs.println(F("invalid category given."));
+    outputs.println(F("valid categories are:"));
+    outputs.println(F("kernel"));
+    for (auto* driver : drivers) {
+        outputs.println(driver->getName());
     }
 }
 
