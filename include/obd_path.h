@@ -36,6 +36,7 @@ public:
         _path += "/" + app;
         return *this;
     }
+
     /**
      * @brief append to path with folder separator
      * @param app the part to append
@@ -97,10 +98,10 @@ public:
             simplify();
         }
         int idx = _path.indexOf("/../");
-        if (idx >= 0){
-            String base = _path.substring(0,idx);
-            base = base.substring(0, base.lastIndexOf(F("/")));
-            _path = base + _path.substring(idx + 3);
+        if (idx >= 0) {
+            String base = _path.substring(0, idx);
+            base        = base.substring(0, base.lastIndexOf(F("/")));
+            _path       = base + _path.substring(idx + 3);
             simplify();
         }
     }

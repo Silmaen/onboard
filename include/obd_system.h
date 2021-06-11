@@ -10,14 +10,6 @@
 #include <obd_system_cmd.h>
 #include <queue>
 
-/**
- * @namespace obd
- * @brief base namespace of the project
- */
-/**
- * @namespace obd::core
- * @brief namespace for the base system
- */
 namespace obd::core {
 
 /**
@@ -25,12 +17,11 @@ namespace obd::core {
  */
 class system {
 public:
+    /**
+     * @brief default constructor
+     */
     system();
-    ~system()             = default;
-    system(const system&) = default;
-    system(system&&)      = default;
-    system& operator=(const system&) = default;
-    system& operator=(system&&) = default;
+
     /**
      * @brief initialize the system
      */

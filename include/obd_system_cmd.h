@@ -20,18 +20,11 @@ enum class source {
     TELNET ///< Telnet source
 };
 
-
 /**
  * @brief class to handle command message
  */
 class command {
 public:
-    command()               = default;
-    ~command()              = default;
-    command(const command&) = default;
-    command(command&&)      = default;
-    command& operator=(const command&) = default;
-    command& operator=(command&&) = default;
     /**
      * @brief constructor with source
      * @param src the source of the message

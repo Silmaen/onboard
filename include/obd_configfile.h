@@ -19,7 +19,9 @@ public:
      * @brief Constructor with parent filesystem
      * @param p the parent file system
      */
-    explicit configFile(filesystem::driver* p = nullptr):fs{p}{}
+    explicit configFile(filesystem::driver* p = nullptr) :
+        fs{p} {}
+
     /**
      * @brief Constructor with parent
      * @param p the parent system
@@ -43,7 +45,7 @@ public:
      * @brief save into file the given data
      * @param driverName the name of the driver to save
      */
-    void saveConfig(const String& driverName)const;
+    void saveConfig(const String& driverName) const;
 
     /**
      * @brief add a parameter to the list
@@ -71,12 +73,16 @@ public:
      */
     void clear();
 
-    void printContent()const;
+    /**
+     * @brief display the content of a config file
+     */
+    void printContent() const;
+
 private:
     /// link to the filesystem
     filesystem::driver* fs = nullptr;
     /// list of the file items
-    std::map<String,String> fileContent;
+    std::map<String, String> fileContent;
 };
 
 }// namespace obd::filesystem
