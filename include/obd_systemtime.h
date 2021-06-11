@@ -19,7 +19,7 @@ time_t timeCb();
 class clock : public core::baseDriver {
 public:
     explicit clock(core::system* p = nullptr) :
-        baseDriver{p} {}
+        baseDriver{p}, timeZone{TZ_Europe_Paris} {}
 
     /**
      * @brief retrieve the name of the driver
@@ -76,6 +76,18 @@ public:
      * @return the posix time
      */
     [[nodiscard]] time_t getDate() const;
+
+    /**
+     * @brief define the pool driver
+     * @param pool the new pool driver
+     */
+    void setPoolServer(const String& pool);
+
+    /**
+     * @brief define the time zone
+     * @param tz the new time zone
+     */
+    void setTimeZone(const String& tz);
 private:
     /**
      * @brief display the current date and time of the system
@@ -84,6 +96,8 @@ private:
 
     /// the pool server name to query
     String poolServerName = "pool.ntp.org";
+    /// Timezone configuration string
+    String timeZone;
 };
 
 }// namespace obd::time

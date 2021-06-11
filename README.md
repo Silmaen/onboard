@@ -82,7 +82,9 @@ valid sates are:
 
 If the device is connected to the internet, then it internal time can be synchronized by NTP protocol.
 
- | command | parameter | description |
- | ------- | :-------: | ----------: |
- |`date`   | n/a       | Print the current date |
-
+ | command     | parameter | description |
+ | ----------- | :-------: | ----------: |
+ |`date`       | n/a       | Print the current date |
+ | `clockinfo` |           | print time system infos |
+ | `clockpool` | `<pool>`  | change the name of the pool server |
+ | `clocktz  ` | `<tz>`    | change the time zone (see TZ.h for the format) |
