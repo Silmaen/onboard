@@ -7,44 +7,32 @@
 #include "obd_systemtime.h"
 #include "obd_network.h"
 #include "obd_system.h"
-#include <WiFiUdp.h>
+#include <ctime>
 
 namespace obd::time {
 
 void clock::init() {
-    if (getParent() != nullptr)
-        net = getParent()->getDriverAs<network::driver>("Network");
-    if (net != nullptr)
-        udpConn = new WiFiUDP();
-    if (udpConn != nullptr)
-        udpConn->begin(port);
+    configTime(TZ_Europe_Paris, poolServerName.c_str());
 }
 
 void clock::printInfo() {
+    if (getParentPrint() == nullptr)
+        return;
+    getParentPrint()->println(F("System Clock informations"));
+    getParentPrint()->print(F("Max Number of servers: "));
+    getParentPrint()->println(SNTP_MAX_SERVERS);
 }
 
 void clock::update(int64_t delta) {
-    timer += delta;
-    internalTimer += delta;
-    bool synchro = false;
-    if (timer == 0 || timer > updateInterval) {
-        if (updateNTP())
-            synchro = true;
-        timer = 0;
-        if (synchro)
-            internalTimer = 0;
-    }
-    if (!synchro){
-        if (internalTimer >= 1000){
-            currentEpoch += internalTimer/1000;
-            internalTimer = 0;
-        }
-    }
 }
 
 bool clock::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("date"))) {
         printDate();
+        return true;
+    }
+    if (cmd.isCmd(F("clockinfo"))) {
+        printInfo();
         return true;
     }
     return false;
@@ -67,64 +55,17 @@ void clock::printDate() {
     getParentPrint()->println(getDateFormatted());
 }
 
-void clock::sendNTPPacket() {
-    uint8_t packetBuffer[NtpPacketSize];
-    // set all bytes in the buffer to 0
-    memset(static_cast<uint8_t*>(packetBuffer), 0, NtpPacketSize);
-    // Initialize values needed to form NTP request
-    // (see URL above for details on the packets)
-    packetBuffer[0] = 0b11100011;// LI, Version, Mode
-    packetBuffer[1] = 0;         // Stratum, or type of clock
-    packetBuffer[2] = 6;         // Polling Interval
-    packetBuffer[3] = 0xEC;      // Peer Clock Precision
-    // 8 bytes of zero for Root Delay & Root Dispersion
-    packetBuffer[12] = 49;
-    packetBuffer[13] = 0x4E;
-    packetBuffer[14] = 49;
-    packetBuffer[15] = 52;
-
-    // all NTP fields have been given values, now
-    // you can send a packet requesting a timestamp:
-    udpConn->beginPacket(poolServerName.c_str(), 123);//NTP requests are to port 123
-    udpConn->write(static_cast<uint8_t*>(packetBuffer), NtpPacketSize);
-    udpConn->endPacket();
-}
-
-bool clock::updateNTP() {
-    if (!checkNetworkState()) // if no network, don't waste time
-        return false;
-    // send request
-    sendNTPPacket();
-    // wait for reply
-    uint8_t timeout = 0;
-    int cb          = 0;
-    do {
-        delay(10);
-        cb = udpConn->parsePacket();
-        if (timeout > 100) return false;// timeout after 1000ms
-        ++timeout;
-    } while (cb == 0);
-    // parse reply
-    uint8_t packetBuffer[NtpPacketSize];
-    udpConn->read(static_cast<uint8_t*>(packetBuffer), NtpPacketSize);
-    // seconds since Jan 1 1900
-    currentEpoch = packetBuffer[40] << 24 | packetBuffer[41] << 16 | packetBuffer[42] << 8 | packetBuffer[43];
-    // convert to seconds since Jan 1 1970;
-    currentEpoch -= SevenZyYears;
-    return true;
-}
-
-bool clock::checkNetworkState() {
-    if (net == nullptr)
-        return false;
-    return net->getCurrentStatus() == network::Status::Connected || net->getCurrentStatus() == network::Status::ConnectedClient;
-}
-
-String clock::getDateFormatted(bool utc) {
-    String tStr = ctime(&currentEpoch);
+String clock::getDateFormatted() {
+    time_t tv   = getDate();
+    String tStr = ctime(&tv);
     tStr.replace("\n", "");
     tStr.replace("\r", "");
     return tStr;
+}
+time_t clock::getDate() const {
+    timeval tv;
+    gettimeofday(&tv, nullptr);
+    return tv.tv_sec;
 }
 
 }// namespace obd::time

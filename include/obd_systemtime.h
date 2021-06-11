@@ -6,19 +6,9 @@
 
 #pragma once
 #include "obd_basedriver.h"
-#include <Udp.h>
-#include <ctime>
+#include <TZ.h>
 
 namespace obd::time {
-
-/// size of a ntp packet
-constexpr uint16_t NtpPacketSize = 48U;
-/// default local udp port number
-constexpr uint16_t NtpDefaultLocalPort = 1337;
-/// default update interval in ms
-constexpr uint64_t defaultUpdateInterval = 60000;
-/// seconds between Jan 1 1900 and Jan 1 1970
-constexpr time_t SevenZyYears = 2208988800UL;
 
 /**
  * @brief get time for call back function
@@ -77,54 +67,23 @@ public:
 
     /**
      * @brief get the date as a string
-     * @param utc return utc time if true or local time
      * @return the time as string
      */
-    String getDateFormatted(bool utc = false);
+    String getDateFormatted();
 
     /**
      * @brief get the current time as posix time
      * @return the posix time
      */
-    [[nodiscard]] time_t getDate() const{return currentEpoch;}
+    [[nodiscard]] time_t getDate() const;
 private:
     /**
      * @brief display the current date and time of the system
      */
     void printDate();
-    /**
-     * @brief send NTP requested to the pool
-     */
-    void sendNTPPacket();
 
-    /**
-     * @brief update value from NTP server
-     * @return true if UDP request successfully replied
-     */
-    bool updateNTP();
-
-    /**
-     * @brief check if the network is in a state that allow NTP communication
-     * @return true if NTP request is possible
-     */
-    bool checkNetworkState();
-
-    ///link to the network driver
-    network::driver* net = nullptr;
-    /// port to communicate with NTP Servers
-    UDP* udpConn = nullptr;
     /// the pool server name to query
-    String poolServerName;
-    /// port number
-    uint16_t port = NtpDefaultLocalPort;
-    /// chronometer in ms
-    uint64_t timer = 0;
-    /// internal looping timer
-    uint64_t internalTimer = 0;
-    /// update interval in ms
-    uint64_t updateInterval = defaultUpdateInterval;
-    /// value of time
-    time_t currentEpoch = 0;
+    String poolServerName = "pool.ntp.org";
 };
 
 }// namespace obd::time
