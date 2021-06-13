@@ -36,19 +36,20 @@ void driver::init() {
 void driver::printInfo() {
     if (getParentPrint() == nullptr)
         return;
+    getParentPrint()->println(F(" ----- NETWORK INFORMATIONS -----"));
     const String modes[] = {
             F("Off"),
             F("Station"),
             F("Access Point"),
             F("Both")};
-    getParentPrint()->print(F("Operation Mode      : "));
+    getParentPrint()->print(F("Operation Mode    : "));
     getParentPrint()->println(modes[wifi_get_opmode()]);
     const String phyModes[] = {
             F(""),
             F("b"),
             F("g"),
             F("n")};
-    getParentPrint()->print(F("PHY mode            : 802.11"));
+    getParentPrint()->print(F("PHY mode          : 802.11"));
     getParentPrint()->println(phyModes[static_cast<int>(wifi_get_phy_mode())]);
 
     if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
@@ -58,13 +59,13 @@ void driver::printInfo() {
     if ((wifi_get_opmode() == 1) || (wifi_get_opmode() == 3)) {
         // station Infos
         getParentPrint()->println(F("Station informations"));
-        getParentPrint()->print(F("Access point id     : "));
+        getParentPrint()->print(F("Access point id   : "));
         getParentPrint()->println(wifi_station_get_current_ap_id());
-        getParentPrint()->print(F("Access point SSID   : "));
+        getParentPrint()->print(F("Access point SSID : "));
         getParentPrint()->println(WiFi.SSID());
-        getParentPrint()->print(F("Channel             : "));
+        getParentPrint()->print(F("Channel           : "));
         getParentPrint()->println(WiFi.channel());
-        getParentPrint()->print(F("Connexion Status    : "));
+        getParentPrint()->print(F("Connexion Status  : "));
         String connStatus[] = {
                 F("idle"),
                 F("connecting"),
@@ -74,19 +75,19 @@ void driver::printInfo() {
                 F("got IP")};
         getParentPrint()->println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
 
-        getParentPrint()->print(F("MAC address         : "));
+        getParentPrint()->print(F("MAC address       : "));
         getParentPrint()->println(WiFi.macAddress());
 
-        getParentPrint()->print(F("hostname            : "));
+        getParentPrint()->print(F("hostname          : "));
         getParentPrint()->println(WiFi.hostname());
         if (WiFi.status() == WL_CONNECTED) {
-            getParentPrint()->print(F("IP address          : "));
+            getParentPrint()->print(F("IP address        : "));
             getParentPrint()->println(WiFi.localIP().toString());
-            getParentPrint()->print(F("Net Mask            : "));
+            getParentPrint()->print(F("Net Mask          : "));
             getParentPrint()->println(WiFi.subnetMask().toString());
-            getParentPrint()->print(F("Gateway             : "));
+            getParentPrint()->print(F("Gateway           : "));
             getParentPrint()->println(WiFi.gatewayIP().toString());
-            getParentPrint()->print(F("Dns                 : "));
+            getParentPrint()->print(F("Dns               : "));
             getParentPrint()->println(WiFi.dnsIP().toString());
         }
     }

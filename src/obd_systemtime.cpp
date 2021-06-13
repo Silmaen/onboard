@@ -4,29 +4,55 @@
  */
 
 #include <Arduino.h>
-
 #include "obd_systemtime.h"
 #include "obd_configfile.h"
 #include "obd_system.h"
 #include <sys/time.h>
+#include "obd_filesystem.h"
 
 namespace obd::time {
 
+const String tsSave{"/dev/time"};
+
 void clock::init() {
+    if (getParent() != nullptr)
+        fs = getParent()->getDriverAs<filesystem::driver>(F("FileSystem"));
+    // restore time (not the true time but nearer than 1 jan 1970!)
+    if (fs != nullptr) {
+        if (fs->exists(tsSave)){
+            auto f = fs->open(tsSave, F("r"));
+            time_t ts = f.readString().toInt();
+            f.close();
+            timeval tv{ts,0};
+            settimeofday(&tv,nullptr);
+
+        }
+    }
     configTime(timeZone.c_str(), poolServerName.c_str());
 }
 
 void clock::printInfo() {
     if (getParentPrint() == nullptr)
         return;
-    getParentPrint()->println(F("System Clock informations"));
-    getParentPrint()->print(F("Pool server: "));
+    getParentPrint()->println(F(" ----- CLOCK INFORMATIONS -----"));
+    getParentPrint()->print(F("Pool server       : "));
     getParentPrint()->println(poolServerName);
-    getParentPrint()->print(F("Time Zone  : "));
+    getParentPrint()->print(F("Time Zone         : "));
     getParentPrint()->println(timeZone);
 }
 
 void clock::update(int64_t delta) {
+    chrono += delta;
+    if (chrono >= saveInterval ) {
+        chrono = 0;
+        // save current time so next boot will be loaded
+        if (fs != nullptr) {
+            auto f = fs->open(tsSave, F("w"));
+            time_t a = getDate();
+            f.write(a);
+            f.close();
+        }
+    }
 }
 
 bool clock::treatCommand(const core::command& cmd) {

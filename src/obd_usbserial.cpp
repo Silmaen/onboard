@@ -7,7 +7,7 @@
 #include <obd_system.h>
 #include <obd_usbserial.h>
 
-namespace obd::core {
+namespace obd::network {
 
 void UsbSerial::init() {
     Serial.begin(115200);
@@ -25,7 +25,7 @@ void UsbSerial::init() {
 void UsbSerial::update(int64_t /*timestamp*/) {
     if (Serial.available() > 0) {
         delay(10);
-        command cmd(source::USB);
+        core::command cmd(core::source::USB);
         while (Serial.available() > 0) {
             char c = static_cast<char>(Serial.read());
             if (c == '\n') break;
@@ -40,10 +40,6 @@ void UsbSerial::update(int64_t /*timestamp*/) {
     }
 }
 
-void UsbSerial::printInfo() {
-    if (getParent() != nullptr) {
-        getParent()->printKernelInfo();
-    }
-}
+void UsbSerial::printInfo() {}
 
-}// namespace obd::core
+}// namespace obd::network
