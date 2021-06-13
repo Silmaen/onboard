@@ -17,6 +17,9 @@ namespace obd::time {
  */
 time_t timeCb();
 
+/// interval between 2 save of the timestamp
+constexpr uint64_t saveInterval = 60000;
+
 /**
  * @brief base driver for the clock
  */
@@ -102,10 +105,15 @@ private:
      */
     void printDate();
 
+    /// link to filesystem
+    filesystem::driver* fs;
+
     /// the pool server name to query
     String poolServerName = "pool.ntp.org";
     /// Timezone configuration string
     String timeZone;
+    /// internal timer
+    uint64_t chrono = 0;
 };
 
 }// namespace obd::time

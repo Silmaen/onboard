@@ -6,12 +6,12 @@
 #pragma once
 #include <obd_basedriver.h>
 
-namespace obd::core {
+namespace obd::network {
 
 /**
  * @brief class to handle communication through USB
  */
-class UsbSerial : public baseDriver {
+class UsbSerial : public core::baseDriver {
 public:
     /**
      * @brief Constructor with parent
@@ -62,4 +62,4 @@ public:
 private:
 };
 
-}// namespace obd::core
+}// namespace obd::network

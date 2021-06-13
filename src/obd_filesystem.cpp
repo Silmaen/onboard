@@ -19,19 +19,20 @@ void driver::init() {
 void driver::printInfo() {
     if (getParent() == nullptr)
         return;
+    getParentPrint()->println(F(" ----- FILESYSTEM INFORMATIONS -----"));
     FSInfo64 infos{};
     LittleFS.info64(infos);
-    getParentPrint()->print(F("File System Size: "));
+    getParentPrint()->print(F("File System Size  : "));
     getParentPrint()->println(static_cast<int>(infos.totalBytes));
-    getParentPrint()->print(F("File System used: "));
+    getParentPrint()->print(F("File System used  : "));
     getParentPrint()->println(static_cast<int>(infos.usedBytes));
-    getParentPrint()->print(F("FS block Size:    "));
+    getParentPrint()->print(F("FS block Size     : "));
     getParentPrint()->println(static_cast<int>(infos.blockSize));
-    getParentPrint()->print(F("FS page Size:     "));
+    getParentPrint()->print(F("FS page Size      : "));
     getParentPrint()->println(static_cast<int>(infos.pageSize));
-    getParentPrint()->print(F("Max open files:   "));
+    getParentPrint()->print(F("Max open files:   : "));
     getParentPrint()->println(static_cast<int>(infos.maxOpenFiles));
-    getParentPrint()->print(F("Max path length:  "));
+    getParentPrint()->print(F("Max path length:  : "));
     getParentPrint()->println(static_cast<int>(infos.maxPathLength));
 }
 
@@ -162,12 +163,12 @@ void driver::printHelp() {
     if (getParent() == nullptr)
         return;
     getParentPrint()->println(F("Help for Filesystem"));
-    getParentPrint()->println(F("pwd     print the working directory"));
-    getParentPrint()->println(F("ls      list the content of the current directory"));
-    getParentPrint()->println(F("cd      change current directory"));
-    getParentPrint()->println(F("mkdir   make a new directory"));
-    getParentPrint()->println(F("rm      remove a file or directory"));
-    getParentPrint()->println(F("cat     display the content of a file"));
+    getParentPrint()->println(F("pwd           print the working directory"));
+    getParentPrint()->println(F("ls            list the content of the current directory"));
+    getParentPrint()->println(F("cd    <dir>   change current directory"));
+    getParentPrint()->println(F("mkdir <dir>   make a new directory"));
+    getParentPrint()->println(F("rm    <path>  remove a file or directory"));
+    getParentPrint()->println(F("cat   <file>  display the content of a file"));
     getParentPrint()->println();
 }
 

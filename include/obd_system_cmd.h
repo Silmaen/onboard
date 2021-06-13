@@ -5,20 +5,11 @@
 
 #pragma once
 #include "classfwd.h"
+#include "obd_inputsource.h"
 #include <Print.h>
 #include <string>
 
 namespace obd::core {
-
-/**
- * @brief type of the sources
- */
-enum class source {
-    NONE,  ///< no source
-    USB,   ///< USB source
-    UART_0,///< Serial source
-    TELNET ///< Telnet source
-};
 
 /**
  * @brief class to handle command message
@@ -29,14 +20,14 @@ public:
      * @brief constructor with source
      * @param src the source of the message
      */
-    explicit command(const source& src) :
+    explicit command(const network::source& src) :
         from{src} { clear(); }
 
     /**
      * @brief define the source of the command
      * @param src the new source of the command
      */
-    [[maybe_unused]] void setSource(const source& src) { from = src; }
+    [[maybe_unused]] void setSource(const network::source& src) { from = src; }
 
     /**
      * @brief reset the command line
@@ -79,7 +70,7 @@ public:
 
 private:
     /// the source of the command
-    source from = source::NONE;
+    network::source from = network::source::NONE;
     /// the string of the command line
     String cmdline;
 };

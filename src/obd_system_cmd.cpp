@@ -12,20 +12,7 @@ bool command::isCmd(const String& cmp) const {
 }
 
 void command::printCmd(Print& st) const {
-    switch (from) {
-    case source::NONE:
-        st.print(F(" none   > '"));
-        break;
-    case source::USB:
-        st.print(F(" usb    > '"));
-        break;
-    case source::UART_0:
-        st.print(F(" uart   > '"));
-        break;
-    case source::TELNET:
-        st.print(F(" telnet > '"));
-        break;
-    }
+    sourceToStrPrompt(from);
     st.print(cmdline.c_str());
     st.println(F("'"));
 }
