@@ -6,19 +6,23 @@
 #include <Arduino.h>
 #include <obd_status_led.h>
 #include <obd_system.h>
+
+namespace obd::config {
+constexpr uint16_t ledHalfPeriod         = ledPeriod / 2;     ///< half period time
+constexpr uint16_t ledQuarterPeriod      = ledPeriod / 4;     ///< quarter period time
+constexpr uint16_t ledThreeQuarterPeriod = 3 * ledPeriod / 4; ///< 3 quarters period time
+constexpr uint16_t ledEighthPeriod       = ledPeriod / 8;     ///< Eighth period time
+constexpr uint16_t ledThreeEighthPeriod  = 3 * ledPeriod / 8; ///< 3 Eighth period time
+constexpr uint16_t ledFiveEighthPeriod   = 5 * ledPeriod / 8; ///< 5 Eighth period time
+constexpr uint16_t ledSevenEighthPeriod  = 7 * ledPeriod / 8; ///< 7 Eighth period time
+}// namespace obd::config
+
 namespace obd::core {
 
 void StatusLed::init() {
     pinMode(LED_BUILTIN, OUTPUT);
 }
 
-constexpr uint16_t ledHalfPeriod         = ledPeriod / 2;
-constexpr uint16_t ledQuarterPeriod      = ledPeriod / 4;
-constexpr uint16_t ledThreeQuarterPeriod = 3 * ledPeriod / 4;
-constexpr uint16_t ledEighthPeriod       = ledPeriod / 8;
-constexpr uint16_t ledThreeEighthPeriod  = 3 * ledPeriod / 8;
-constexpr uint16_t ledFiveEighthPeriod   = 5 * ledPeriod / 8;
-constexpr uint16_t ledSevenEighthPeriod  = 7 * ledPeriod / 8;
 
 void StatusLed::update(int64_t delta) {
     if (getParent() == nullptr)
@@ -32,59 +36,59 @@ void StatusLed::update(int64_t delta) {
         state = 1;
         break;
     case LedState::Blink:
-        state = static_cast<uint8_t>((ledTime < ledHalfPeriod) ? 1U : 0U);
+        state = static_cast<uint8_t>((ledTime < config::ledHalfPeriod) ? 1U : 0U);
         break;
     case LedState::FastBlink:
-        if (ledTime < ledQuarterPeriod) {
+        if (ledTime < config::ledQuarterPeriod) {
             state = 1U;
-        } else if (ledTime < ledHalfPeriod) {
+        } else if (ledTime < config::ledHalfPeriod) {
             state = 0;
-        } else if (ledTime < ledThreeQuarterPeriod) {
+        } else if (ledTime < config::ledThreeQuarterPeriod) {
             state = 1U;
         }
         break;
     case LedState::TwoPulse:
-        if (ledTime < ledEighthPeriod) {
+        if (ledTime < config::ledEighthPeriod) {
             state = 1U;
-        } else if (ledTime < ledQuarterPeriod) {
+        } else if (ledTime < config::ledQuarterPeriod) {
             state = 0;
-        } else if (ledTime < ledThreeEighthPeriod) {
+        } else if (ledTime < config::ledThreeEighthPeriod) {
             state = 1U;
         }
         break;
     case LedState::ThreePulses:
-        if (ledTime < ledEighthPeriod) {
+        if (ledTime < config::ledEighthPeriod) {
             state = 1U;
-        } else if (ledTime < ledQuarterPeriod) {
+        } else if (ledTime < config::ledQuarterPeriod) {
             state = 0;
-        } else if (ledTime < ledThreeEighthPeriod) {
+        } else if (ledTime < config::ledThreeEighthPeriod) {
             state = 1U;
-        } else if (ledTime < ledHalfPeriod) {
+        } else if (ledTime < config::ledHalfPeriod) {
             state = 0U;
-        } else if (ledTime < ledFiveEighthPeriod) {
+        } else if (ledTime < config::ledFiveEighthPeriod) {
             state = 1U;
         }
         break;
     case LedState::FasterBlink:
-        if (ledTime < ledEighthPeriod) {
+        if (ledTime < config::ledEighthPeriod) {
             state = 1U;
-        } else if (ledTime < ledQuarterPeriod) {
+        } else if (ledTime < config::ledQuarterPeriod) {
             state = 0;
-        } else if (ledTime < ledThreeEighthPeriod) {
+        } else if (ledTime < config::ledThreeEighthPeriod) {
             state = 1U;
-        } else if (ledTime < ledHalfPeriod) {
+        } else if (ledTime < config::ledHalfPeriod) {
             state = 0;
-        } else if (ledTime < ledFiveEighthPeriod) {
+        } else if (ledTime < config::ledFiveEighthPeriod) {
             state = 1U;
-        } else if (ledTime < ledThreeQuarterPeriod) {
+        } else if (ledTime < config::ledThreeQuarterPeriod) {
             state = 0;
-        } else if (ledTime < ledSevenEighthPeriod) {
+        } else if (ledTime < config::ledSevenEighthPeriod) {
             state = 1U;
         }
         break;
     }
     digitalWrite(LED_BUILTIN, static_cast<uint8_t>(1U - state));
-    if (ledTime > ledPeriod) {
+    if (ledTime > config::ledPeriod) {
         ledTime = 0;
     }
 }

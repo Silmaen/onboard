@@ -46,7 +46,7 @@ public:
      */
     bool putChar(char c) {
         cmdline += c;
-        return cmdline.length() < commandBufferLength;
+        return cmdline.length() < config::commandBufferLength;
     }
 
     /**

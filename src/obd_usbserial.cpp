@@ -25,7 +25,7 @@ void UsbSerial::init() {
 void UsbSerial::update(int64_t /*timestamp*/) {
     if (Serial.available() > 0) {
         delay(10);
-        core::command cmd(core::source::USB);
+        core::command cmd(source::USB);
         while (Serial.available() > 0) {
             char c = static_cast<char>(Serial.read());
             if (c == '\n') break;

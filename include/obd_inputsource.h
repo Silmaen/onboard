@@ -17,6 +17,11 @@ enum class source {
     TELNET ///< Telnet source
 };
 
+/**
+ * @brief convert a source enum to a string valuer
+ * @param e the input source enum
+ * @return the corresponding string
+ */
 String sourceToStrPrompt(const source& e);
 
 }//namespace obd::network

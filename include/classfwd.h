@@ -11,6 +11,12 @@
 namespace obd {
 
 /**
+ * @brief configuration
+ */
+namespace config {
+}// namespace config
+
+/**
  * @brief namespace for the base system
  */
 namespace core {
