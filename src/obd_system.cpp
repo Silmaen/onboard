@@ -15,7 +15,7 @@ namespace obd::core {
 
 system::system() {
     drivers.push_back(new StatusLed(this));
-    drivers.push_back(new UsbSerial(this));
+    drivers.push_back(new network::UsbSerial(this));
     drivers.push_back(new filesystem::driver(this));
     drivers.push_back(new network::driver(this));
     drivers.push_back(new time::clock(this));

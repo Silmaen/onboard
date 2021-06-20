@@ -12,15 +12,13 @@
 
 namespace obd::time {
 
-const String tsSave{"/dev/time"};
-
 void clock::init() {
     if (getParent() != nullptr)
         fs = getParent()->getDriverAs<filesystem::driver>(F("FileSystem"));
     // restore time (not the true time but nearer than 1 jan 1970!)
     if (fs != nullptr) {
-        if (fs->exists(tsSave)){
-            auto f = fs->open(tsSave, F("r"));
+        if (fs->exists(config::tsSave)){
+            auto f = fs->open(config::tsSave, F("r"));
             time_t ts = f.readString().toInt();
             f.close();
             timeval tv{ts,0};
@@ -43,11 +41,11 @@ void clock::printInfo() {
 
 void clock::update(int64_t delta) {
     chrono += delta;
-    if (chrono >= saveInterval ) {
+    if (chrono >= config::saveInterval ) {
         chrono = 0;
         // save current time so next boot will be loaded
         if (fs != nullptr) {
-            auto f = fs->open(tsSave, F("w"));
+            auto f = fs->open(config::tsSave, F("w"));
             time_t a = getDate();
             f.write(a);
             f.close();

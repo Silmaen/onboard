@@ -26,7 +26,7 @@ void driver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
     WiFi.mode(WIFI_STA);
-    WiFi.hostname(defaultHostname);
+    WiFi.hostname(config::defaultHostname);
     loadConfigFile();
     WiFi.begin();
     if (getParentPrint() != nullptr)
@@ -212,7 +212,7 @@ void driver::listenTelnet() {
 
     if (client.available() > 0) {
         delay(10);
-        core::command cmd(core::source::TELNET);
+        core::command cmd(source::TELNET);
         while (client.available() > 0) {
             char c = static_cast<char>(client.read());
             if (c == '\n') break;
@@ -262,9 +262,9 @@ void driver::printWelcome() {
     client.println(F(" |_______||__|__||______/|_____|___._|__| |_____|"));
     client.println(F("--------------------------------------------------"));
     client.print(F(" obd version: "));
-    client.print(version);
+    client.print(config::version);
     client.print(F(" Author: "));
-    client.println(author);
+    client.println(config::author);
     client.println(F("--------------------------------------------------"));
 }
 

@@ -17,9 +17,6 @@ namespace obd::time {
  */
 time_t timeCb();
 
-/// interval between 2 save of the timestamp
-constexpr uint64_t saveInterval = 60000;
-
 /**
  * @brief base driver for the clock
  */
@@ -106,7 +103,7 @@ private:
     void printDate();
 
     /// link to filesystem
-    filesystem::driver* fs;
+    filesystem::driver* fs = nullptr;
 
     /// the pool server name to query
     String poolServerName = "pool.ntp.org";

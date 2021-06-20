@@ -7,7 +7,7 @@
 #include <WString.h>
 #include <cstdint>
 
-namespace obd {
+namespace obd::config {
 
 /// the name of the author
 constexpr char author[]{"Damien Lachouette"};
@@ -24,4 +24,10 @@ constexpr uint16_t ledPeriod = 2000;
 /// default name for the device
 constexpr char defaultHostname[]{"Onboard12a85a"};
 
-}// namespace obd
+/// interval between 2 save of the timestamp
+constexpr uint64_t saveInterval = 60000;
+
+/// name of the file to store time
+constexpr char tsSave[]{"/dev/time"};
+
+}// namespace obd::config

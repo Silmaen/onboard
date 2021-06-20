@@ -18,6 +18,7 @@ String sourceToStrPrompt(const source& e){
     case network::source::TELNET:
         return(F(" telnet > '"));
     }
+    return(F(""));
 }
 
 }//namespace obd::network
