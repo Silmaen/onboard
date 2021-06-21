@@ -4,8 +4,9 @@
  */
 
 #include "obd_webserver.h"
-#include "obd_system.h"
 #include "obd_filesystem.h"
+#include "obd_system.h"
+#include "obd_systemtime.h"
 
 namespace obd::webserver {
 
@@ -13,7 +14,7 @@ namespace obd::webserver {
 void driver::init() {
     if (getParent() != nullptr)
         fs = getParent()->getDriverAs<filesystem::driver>(F("FileSystem"));
-    server.onNotFound([=](){this->fileFb();}); // fallback if not an previous url
+    server.onNotFound([=]() { this->fileFb(); });// fallback if not an previous url
     server.begin();
 }
 
@@ -59,40 +60,11 @@ void driver::replyServerError(const String& msg) {
     server.send(500, F("text/plain"), msg + "\r\n");
 }
 
-void driver::hroot() {
-    char temp[400];
-    int sec = millis() / 1000;
-    int min = sec / 60;
-    int hr = min / 60;
-
-    snprintf(temp, 400,
-
-             "<html>\
-  <head>\
-    <meta http-equiv='refresh' content='5'/>\
-    <title>ESP8266 Demo</title>\
-    <style>\
-      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-    </style>\
-  </head>\
-  <body>\
-    <h1>Hello from ESP8266!</h1>\
-    <p>Uptime: %02d:%02d:%02d</p>\
-    <img src=\"/test.svg\" />\
-  </body>\
-</html>",
-
-             hr, min % 60, sec % 60
-    );
-    server.send(200, "text/html", temp);
-}
-
 void driver::fileFb() {
-    String uri = ESP8266WebServer::urlDecode(server.uri()); // required to read paths with blanks
+    String uri = ESP8266WebServer::urlDecode(server.uri());// required to read paths with blanks
     if (handleReadFile(uri)) {
         return;
     }
-
     // Dump debug data
     String message;
     message.reserve(100);
@@ -127,18 +99,34 @@ bool driver::handleReadFile(const String& path) {
         toDisplay += "index.htm";
     }
     String contentType = mime::getContentType(toDisplay);
+
     toDisplay = config::baseWeb + toDisplay;
-    if (!fs->exists(toDisplay)) { // let's try in gz format
+
+    if (!fs->exists(toDisplay)) {// let's try in gz format
         toDisplay += ".gz";
     }
     if (!fs->exists(toDisplay)) {
         getParentPrint()->println(F("Webserver: no file '") + toDisplay + F("'"));
         return false;
     }
+    getParentPrint()->println(F("Webserver Response to : ") + path);
     File file = fs->open(toDisplay, F("r"));
-    server.streamFile(file, contentType);
+    if (contentType != F("text/html")) {
+        server.streamFile(file, contentType);
+    }else{
+        String content = file.readString();
+        StrParse(content);
+        server.send(200, contentType, content);
+    }
     file.close();
     return true;
+}
+void driver::StrParse(String& toParse) {
+    if (getParent() != nullptr) {
+        auto clock = getParent()->getDriverAs<time::clock>("SystemClock");
+        if (clock != nullptr)
+            toParse.replace("{{date}}", clock->getDateFormatted());
+    }
 }
 
 }// namespace obd::webserver

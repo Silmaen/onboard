@@ -73,27 +73,48 @@ private:
     /// link to the filesystem
     std::shared_ptr<filesystem::driver> fs = nullptr;
 
+    /**
+     * @brief sed an OK reply.
+     */
     void replyOK();
 
+    /**
+     * @brief send an OK reply with a message
+     * @param msg the message to reply
+     */
     void replyOKWithMsg(const String& msg);
 
+    /**
+     * @brief send a message with 'not Found' error code
+     * @param msg the message to reply
+     */
     void replyNotFound(const String& msg) ;
 
+    /**
+     * @brief send a 'bad request' error code with a message
+     * @param msg the message to reply
+     */
     void replyBadRequest(const String& msg) ;
 
+    /**
+     * @brief send an 'internal server error' with a message
+     * @param msg the message to reply
+     */
     void replyServerError(const String& msg);
 
     /**
-     * @brief handle root
-     */
-    void hroot();
-    /**
-     * @brief default uridecode
+     * @brief default uri decode
      */
     void fileFb();
 
     /**
-     * @brief readand stream file
+     * @brief take the string and replace the keywords in it.
+     * @param toParse the String to transform
+     */
+    void StrParse(String& toParse);
+
+    /**
+     * @brief read and stream file
      * @param path the path in the url
      * @return true if the file is streamed
      */
