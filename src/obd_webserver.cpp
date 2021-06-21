@@ -21,7 +21,7 @@ void driver::init() {
 void driver::printInfo() {
 }
 
-void driver::update(int64_t delta) {
+void driver::update(int64_t  /*delta*/) {
     server.handleClient();
 }
 
@@ -38,26 +38,8 @@ void driver::loadConfigFile() {
 void driver::saveConfigFile() const {
 }
 
-void driver::replyOK() {
-    server.send(200, F("text/plain"), "");
-}
-
-void driver::replyOKWithMsg(const String& msg) {
-    server.send(200, F("text/plain"), msg);
-}
-
 void driver::replyNotFound(const String& msg) {
     server.send(404, F("text/plain"), msg);
-}
-
-void driver::replyBadRequest(const String& msg) {
-    getParentPrint()->println(msg);
-    server.send(400, F("text/plain"), msg + "\r\n");
-}
-
-void driver::replyServerError(const String& msg) {
-    getParentPrint()->println(msg);
-    server.send(500, F("text/plain"), msg + "\r\n");
 }
 
 void driver::fileFb() {
@@ -75,7 +57,7 @@ void driver::fileFb() {
     message += F("\nArguments: ");
     message += server.args();
     message += '\n';
-    for (uint8_t i = 0; i < server.args(); i++) {
+    for (int i = 0; i < server.args(); i++) {
         message += F(" NAME:");
         message += server.argName(i);
         message += F("\n VALUE:");

@@ -74,33 +74,10 @@ private:
     std::shared_ptr<filesystem::driver> fs = nullptr;
 
     /**
-     * @brief sed an OK reply.
-     */
-    void replyOK();
-
-    /**
-     * @brief send an OK reply with a message
-     * @param msg the message to reply
-     */
-    void replyOKWithMsg(const String& msg);
-
-    /**
      * @brief send a message with 'not Found' error code
      * @param msg the message to reply
      */
     void replyNotFound(const String& msg) ;
-
-    /**
-     * @brief send a 'bad request' error code with a message
-     * @param msg the message to reply
-     */
-    void replyBadRequest(const String& msg) ;
-
-    /**
-     * @brief send an 'internal server error' with a message
-     * @param msg the message to reply
-     */
-    void replyServerError(const String& msg);
 
     /**
      * @brief default uri decode
