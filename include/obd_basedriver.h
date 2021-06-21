@@ -7,6 +7,7 @@
 #include "classfwd.h"
 #include "obd_system_cmd.h"
 #include <Print.h>
+#include <memory>
 
 namespace obd::core {
 

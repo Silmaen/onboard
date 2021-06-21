@@ -12,7 +12,7 @@ bool command::isCmd(const String& cmp) const {
 }
 
 void command::printCmd(Print& st) const {
-    sourceToStrPrompt(from);
+    st.print(network::sourceToStrPrompt(from));
     st.print(cmdline.c_str());
     st.println(F("'"));
 }

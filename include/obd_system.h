@@ -61,7 +61,7 @@ public:
      * @param name the name of the driver
      * @return the driver (nullptr if not exists)
      */
-    baseDriver* getDriver(const String& name);
+    std::shared_ptr<baseDriver> getDriver(const String& name);
 
     /**
      * @brief get the driver by its name and convert it to desired type
@@ -70,13 +70,13 @@ public:
      * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
      */
     template<class T>
-    T* getDriverAs(const String& name) {
+    std::shared_ptr<T> getDriverAs(const String& name) {
         if (!std::is_base_of<baseDriver, T>::value)
             return nullptr;
-        baseDriver* a = getDriver(name);
+        std::shared_ptr<baseDriver> a = getDriver(name);
         if (a == nullptr)
             return nullptr;
-        return static_cast<T*>(a);
+        return std::static_pointer_cast<T>(a);
     }
 
     /**
@@ -131,7 +131,7 @@ private:
     MultiPrint outputs;
 
     /// list of the drivers
-    std::vector<baseDriver*> drivers;
+    std::vector<std::shared_ptr<baseDriver>> drivers;
 
     /// queue of the commands
     std::queue<command> commands;

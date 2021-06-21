@@ -7,6 +7,7 @@
 #include "obd_basedriver.h"
 #include "obd_path.h"
 #include <map>
+#include <utility>
 
 namespace obd::filesystem {
 
@@ -19,8 +20,8 @@ public:
      * @brief Constructor with parent filesystem
      * @param p the parent file system
      */
-    explicit configFile(filesystem::driver* p = nullptr) :
-        fs{p} {}
+    explicit configFile(std::shared_ptr<filesystem::driver>  p = nullptr) :
+        fs{std::move(p)} {}
 
     /**
      * @brief Constructor with parent
@@ -80,7 +81,7 @@ public:
 
 private:
     /// link to the filesystem
-    filesystem::driver* fs = nullptr;
+    std::shared_ptr<filesystem::driver> fs = nullptr;
     /// list of the file items
     std::map<String, String> fileContent;
 };

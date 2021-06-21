@@ -7,7 +7,7 @@ static obd::core::system hardware;
 
 namespace obd::time {
 time_t timeCb() {
-    auto* cl = hardware.getDriverAs<clock>("SystemClock");
+    auto cl = hardware.getDriverAs<clock>("SystemClock");
     if (cl != nullptr)
         return cl->getDate();
     return 0;

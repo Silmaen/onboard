@@ -1,0 +1,20 @@
+@charset "UTF-8";
+@import url(https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css);
+/* global default */
+html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing: border-box}
+*,*::before,*::after{box-sizing:inherit}img,video {height:auto;max-width:100%}
+iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}td:not([align]),th:not([align]){text-align:left}
+body{
+display:flex;
+flex-direction:column;
+text-align:center;
+font-family:"Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+font-size:14px;
+min-height:100%;
+background-color:#E4E6E9;
+color:#393939;
+}
+h1{font-size:27px;}h2{font-size:25px;}h3{font-size:23px;}h4{font-size:21px;}h5{font-size:17px;}h6{font-size:15px;}
+@media all and (max-width: 1000px){body{font-size:2.1vw;}h1{font-size:4.05vw;}h2{font-size:3.75vw;}h3{font-size:3.45vw;}h4{font-size:3.15vw;}h5{font-size:2.55vw;}h6{font-size:2.25vw;}}
+.title{background-color:cornflowerblue}

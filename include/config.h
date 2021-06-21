@@ -30,4 +30,7 @@ constexpr uint64_t saveInterval = 60000;
 /// name of the file to store time
 constexpr char tsSave[]{"/dev/time"};
 
+/// base path for webserver
+constexpr char baseWeb[]{"/www"};
+
 }// namespace obd::config
