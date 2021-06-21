@@ -29,14 +29,14 @@ void driver::init() {
     WiFi.hostname(config::defaultHostname);
     loadConfigFile();
     WiFi.begin();
-    if (getParentPrint() != nullptr)
-        WiFi.printDiag(*getParentPrint());
 }
 
 void driver::printInfo() {
     if (getParentPrint() == nullptr)
         return;
     getParentPrint()->println(F(" ----- NETWORK INFORMATIONS -----"));
+    if (getParentPrint() != nullptr)
+        WiFi.printDiag(*getParentPrint());
     const String modes[] = {
             F("Off"),
             F("Station"),

@@ -93,7 +93,7 @@ public:
 
 private:
     /// direct link to the status led
-    core::StatusLed* statusLed = nullptr;
+    std::shared_ptr<core::StatusLed> statusLed = nullptr;
     /// the status of the network
     Status currentStatus = Status::Disabled;
     /// the telnet server

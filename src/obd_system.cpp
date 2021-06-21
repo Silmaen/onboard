@@ -9,20 +9,22 @@
 #include <obd_system.h>
 #include <obd_usbserial.h>
 #include <obd_systemtime.h>
+#include <obd_webserver.h>
 #include <user_interface.h>
 
 namespace obd::core {
 
 system::system() {
-    drivers.push_back(new StatusLed(this));
-    drivers.push_back(new network::UsbSerial(this));
-    drivers.push_back(new filesystem::driver(this));
-    drivers.push_back(new network::driver(this));
-    drivers.push_back(new time::clock(this));
+    drivers.push_back(std::make_shared<core::StatusLed>(this));
+    drivers.push_back(std::make_shared<network::UsbSerial>(this));
+    drivers.push_back(std::make_shared<filesystem::driver>(this));
+    drivers.push_back(std::make_shared<network::driver>(this));
+    drivers.push_back(std::make_shared<time::clock>(this));
+    drivers.push_back(std::make_shared<webserver::driver>(this));
 }
 
 void system::init() {
-    for (auto* driver : drivers) {
+    for (const auto& driver : drivers) {
         driver->init();
         driver->printInfo();
     }
@@ -34,7 +36,7 @@ void system::update() {
     int64_t delta = ts - timestamp ;
     timestamp = ts;
     // update drivers
-    for (auto* driver : drivers) {
+    for (const auto& driver : drivers) {
         driver->update(delta);
     }
     // treat the command queue
@@ -47,7 +49,7 @@ void system::treatCommands() {
         auto& cmd = commands.front();
         cmd.printCmd(outputs);
         bool treated = false;
-        for (auto* driver : drivers) {
+        for (const auto& driver : drivers) {
             treated = driver->treatCommand(cmd);
             if (treated)
                 break;
@@ -151,13 +153,13 @@ void system::printKernelInfo() {
 
 void system::printSystemInfo() {
     printKernelInfo();
-    for (auto* driver : drivers) {
+    for (const auto& driver : drivers) {
         driver->printInfo();
     }
 }
 
-baseDriver* system::getDriver(const String& name) {
-    for (auto* driver : drivers) {
+std::shared_ptr<baseDriver> system::getDriver(const String& name) {
+    for (const auto& driver : drivers) {
         if (driver->getName() == name) {
             return driver;
         }
@@ -171,7 +173,7 @@ void system::printHelp(const String& param) {
         outputs.println(F("please give a subcategory for the specific help."));
         outputs.println(F("valid categories are:"));
         outputs.println(F(" - kernel"));
-        for (auto* driver : drivers) {
+        for (const auto& driver : drivers) {
             outputs.print(F(" - "));
             outputs.println(driver->getName());
         }
@@ -184,7 +186,7 @@ void system::printHelp(const String& param) {
         outputs.println(F("cfgLoad        load configuration from files"));
         return;
     }
-    for (auto* driver : drivers) {
+    for (const auto& driver : drivers) {
         if (param == driver->getName()) {
             driver->printHelp();
             return;
@@ -193,7 +195,7 @@ void system::printHelp(const String& param) {
     outputs.println(F("invalid category given."));
     outputs.println(F("valid categories are:"));
     outputs.println(F(" - kernel"));
-    for (auto* driver : drivers) {
+    for (const auto& driver : drivers) {
         outputs.print(F(" - "));
         outputs.println(driver->getName());
     }
@@ -203,7 +205,7 @@ void system::printHelp(const String& param) {
 void system::loadAllConfig() {
     // load for the system
     // load for the drivers
-    for (auto* driver : drivers) {
+    for (const auto& driver : drivers) {
         driver->loadConfigFile();
     }
 }
@@ -211,7 +213,7 @@ void system::loadAllConfig() {
 void system::saveAllConfig() {
     // save for the system
     // save for the drivers
-    for (auto* driver : drivers) {
+    for (const auto& driver : drivers) {
         driver->saveConfigFile();
     }
 }
