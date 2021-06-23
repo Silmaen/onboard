@@ -2,8 +2,8 @@
  * @author Silmaen
  * @date 26/05/2021
  */
-
 #pragma once
+
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <obd_basedriver.h>
@@ -27,13 +27,13 @@ enum class Status {
 /**
  * @brief network driver
  */
-class driver : public core::baseDriver {
+class netDriver : public core::baseDriver {
 public:
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit driver(core::system* p = nullptr);
+    explicit netDriver(core::system* p = nullptr);
 
     /**
      * @brief initialize file system
@@ -94,10 +94,13 @@ public:
 private:
     /// direct link to the status led
     std::shared_ptr<core::StatusLed> statusLed = nullptr;
+
     /// the status of the network
     Status currentStatus = Status::Disabled;
+
     /// the telnet server
     WiFiServer telnetServer{23};
+
     /// the wifi client
     WiFiClient client;
 

@@ -11,15 +11,19 @@
 namespace obd::filesystem {
 
 
-void driver::init() {
+void fsDriver::init() {
     LittleFS.begin();
-    LittleFS.setTimeCallback(time::timeCb);
+    if (getParent() != nullptr) {
+        auto cl = getParent()->getDriverAs<time::clock>("SystemClock");
+        if (cl != nullptr)
+            setTimeCb(cl->getDate);
+    }
 }
 
-void driver::printInfo() {
+void fsDriver::printInfo() {
     if (getParent() == nullptr)
         return;
-    getParentPrint()->println(F(" ----- FILESYSTEM INFORMATIONS -----"));
+    getParentPrint()->println(F(" ----- FILESYSTEM INFORMATION -----"));
     FSInfo64 infos{};
     LittleFS.info64(infos);
     getParentPrint()->print(F("File System Size  : "));
@@ -36,13 +40,13 @@ void driver::printInfo() {
     getParentPrint()->println(static_cast<int>(infos.maxPathLength));
 }
 
-void driver::pwd() {
+void fsDriver::pwd() {
     if (getParent() == nullptr)
         return;
     getParentPrint()->println(curPath.get());
 }
 
-void driver::ls(const String& /*options*/) {
+void fsDriver::ls(const String& /*options*/) {
     if (getParent() == nullptr)
         return;
     auto d = LittleFS.openDir(curPath.get());
@@ -56,17 +60,13 @@ void driver::ls(const String& /*options*/) {
         }
         getParentPrint()->print(static_cast<int>(d.fileSize()));
         getParentPrint()->print(F(" "));
-        time_t t = d.fileTime();
-        String fileTime(ctime(&t));
-        fileTime.replace("\n","");
-        fileTime.replace("\r","");
-        getParentPrint()->print(fileTime);
+        getParentPrint()->print(time::clock::formatTime(d.fileTime()));
         getParentPrint()->print(F(" "));
         getParentPrint()->println(d.fileName());
     }
 }
 
-void driver::cd(const String& where) {
+void fsDriver::cd(const String& where) {
     if (getParent() == nullptr)
         return;
     if (where.isEmpty()) {
@@ -90,12 +90,12 @@ void driver::cd(const String& where) {
     curPath = tempPath;
 }
 
-File driver::open(const String& filename, const String& mode) {
+File fsDriver::open(const String& filename, const String& mode) {
     makePath(filename);
     return LittleFS.open(tempPath.get().c_str(), mode.c_str());
 }
 
-void driver::mkdir(const String& directory) {
+void fsDriver::mkdir(const String& directory) {
     if (directory.isEmpty()) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("mkdir: Invalid Void path"));
@@ -113,7 +113,7 @@ void driver::mkdir(const String& directory) {
     LittleFS.mkdir(tempPath.get());
 }
 
-void driver::rm(const String& _path) {
+void fsDriver::rm(const String& _path) {
     if (_path.isEmpty()) {
         if (getParent() != nullptr)
             getParentPrint()->println(F("rm: Invalid Void path"));
@@ -131,7 +131,7 @@ void driver::rm(const String& _path) {
     LittleFS.remove(tempPath.get());
 }
 
-bool driver::treatCommand(const core::command& cmd) {
+bool fsDriver::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("pwd"))) {
         pwd();
         return true;
@@ -159,7 +159,7 @@ bool driver::treatCommand(const core::command& cmd) {
     return false;
 }
 
-void driver::printHelp() {
+void fsDriver::printHelp() {
     if (getParent() == nullptr)
         return;
     getParentPrint()->println(F("Help for Filesystem"));
@@ -172,12 +172,12 @@ void driver::printHelp() {
     getParentPrint()->println();
 }
 
-bool driver::exists(const String& _path) {
+bool fsDriver::exists(const String& _path) {
     makePath(_path);
     return LittleFS.exists(tempPath.get());
 }
 
-void driver::cat(const String& _path) {
+void fsDriver::cat(const String& _path) {
     makePath(_path);
     if (!exists(tempPath.get())) {
         if (getParent() != nullptr) {
@@ -201,13 +201,13 @@ void driver::cat(const String& _path) {
     getParentPrint()->println();
 }
 
-void driver::makePath(const String& _path) {
+void fsDriver::makePath(const String& _path) {
     tempPath = path{_path};
     tempPath.makeAbsolute(curPath.get());
     tempPath.simplify();
 }
 
-void driver::setTimeCb(time_t (*cb)()){
+void fsDriver::setTimeCb(time_t (*cb)()){
     LittleFS.setTimeCallback(cb);
 }
 

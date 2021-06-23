@@ -1,9 +1,9 @@
 /**
- * @author argawaen
+ * @author Silmaen
  * @date 20/06/2021
  */
-
 #pragma once
+
 #include "obd_basedriver.h"
 #include <ESP8266WebServer.h>
 
@@ -12,14 +12,14 @@ namespace obd::webserver {
 /**
  * @brief base driver for webserver management
  */
-class driver: public core::baseDriver {
+class webDriver : public core::baseDriver {
 public:
 
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit driver(core::system* p = nullptr) :
+    explicit webDriver(core::system* p = nullptr) :
     baseDriver(p){};
 
     /**
@@ -70,8 +70,9 @@ public:
 private:
     /// The web server
     ESP8266WebServer server{80};
+
     /// link to the filesystem
-    std::shared_ptr<filesystem::driver> fs = nullptr;
+    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
 
     /**
      * @brief send a message with 'not Found' error code

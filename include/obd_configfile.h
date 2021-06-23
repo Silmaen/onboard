@@ -2,8 +2,8 @@
  * @author Silmaen
  * @date 07/06/2021
  */
-
 #pragma once
+
 #include "obd_basedriver.h"
 #include "obd_path.h"
 #include <map>
@@ -20,7 +20,7 @@ public:
      * @brief Constructor with parent filesystem
      * @param p the parent file system
      */
-    explicit configFile(std::shared_ptr<filesystem::driver>  p = nullptr) :
+    explicit configFile(std::shared_ptr<filesystem::fsDriver>  p = nullptr) :
         fs{std::move(p)} {}
 
     /**
@@ -74,14 +74,11 @@ public:
      */
     void clear();
 
-    /**
-     * @brief display the content of a config file
-     */
-    void printContent() const;
 
 private:
     /// link to the filesystem
-    std::shared_ptr<filesystem::driver> fs = nullptr;
+    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
+
     /// list of the file items
     std::map<String, String> fileContent;
 };

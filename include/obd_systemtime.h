@@ -1,21 +1,13 @@
 /**
- * \author argawaen 
- * \date 08/06/2021
- *
+ * @author Silmaen
+ * @date 08/06/2021
  */
-
 #pragma once
+
 #include "obd_basedriver.h"
 #include <TZ.h>
 
-
 namespace obd::time {
-
-/**
- * @brief get time for call back function
- * @return current time
- */
-time_t timeCb();
 
 /**
  * @brief base driver for the clock
@@ -74,16 +66,23 @@ public:
     void saveConfigFile() const override;
 
     /**
+     * @brief formatting a given time
+     * @param time the time to format
+     * @return the formatted string
+     */
+    static String formatTime(const time_t& time);
+
+    /**
      * @brief get the date as a string
      * @return the time as string
      */
-    String getDateFormatted();
+    static String getDateFormatted();
 
     /**
      * @brief get the current time as posix time
      * @return the posix time
      */
-    [[nodiscard]] time_t getDate() const;
+    [[nodiscard]] static time_t getDate() ;
 
     /**
      * @brief define the pool driver
@@ -103,14 +102,16 @@ private:
     void printDate();
 
     /// link to filesystem
-    std::shared_ptr<filesystem::driver> fs = nullptr;
+    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
 
     /// the pool server name to query
     String poolServerName = "pool.ntp.org";
+
     /// Timezone configuration string
     String timeZone;
+
     /// internal timer
-    uint64_t chrono = 0;
+    uint64_t chronometer = 0;
 };
 
 }// namespace obd::time

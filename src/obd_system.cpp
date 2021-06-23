@@ -17,10 +17,10 @@ namespace obd::core {
 system::system() {
     drivers.push_back(std::make_shared<core::StatusLed>(this));
     drivers.push_back(std::make_shared<network::UsbSerial>(this));
-    drivers.push_back(std::make_shared<filesystem::driver>(this));
-    drivers.push_back(std::make_shared<network::driver>(this));
+    drivers.push_back(std::make_shared<filesystem::fsDriver>(this));
+    drivers.push_back(std::make_shared<network::netDriver>(this));
     drivers.push_back(std::make_shared<time::clock>(this));
-    drivers.push_back(std::make_shared<webserver::driver>(this));
+    drivers.push_back(std::make_shared<webserver::webDriver>(this));
 }
 
 void system::init() {
@@ -32,8 +32,8 @@ void system::init() {
 
 void system::update() {
     // update timestamp
-    uint64_t ts = millis();
-    int64_t delta = ts - timestamp ;
+    int64_t ts = millis();
+    int64_t delta = ts - static_cast<int64_t>(timestamp);
     timestamp = ts;
     // update drivers
     for (const auto& driver : drivers) {
@@ -75,7 +75,7 @@ void system::treatCommands() {
 
 void system::printKernelInfo() {
     // general info on chipset
-    outputs.println(F(" ----- KERNEL INFORMATIONS -----"));
+    outputs.println(F(" ----- KERNEL INFORMATION -----"));
     outputs.print(F("Chip Id           : 0x"));
     outputs.println(EspClass::getChipId(), HEX);
     outputs.print(F("Core Version      : "));
@@ -159,12 +159,11 @@ void system::printSystemInfo() {
 }
 
 std::shared_ptr<baseDriver> system::getDriver(const String& name) {
-    for (const auto& driver : drivers) {
-        if (driver->getName() == name) {
-            return driver;
-        }
-    }
-    return nullptr;
+    auto res = std::find_if(drivers.begin(),drivers.end(),
+                            [name](const std::shared_ptr<obd::core::baseDriver>& b){return b->getName()==name;});
+    if (res == drivers.end())
+        return nullptr;
+    return *res;
 }
 
 void system::printHelp(const String& param) {
@@ -186,11 +185,11 @@ void system::printHelp(const String& param) {
         outputs.println(F("cfgLoad        load configuration from files"));
         return;
     }
-    for (const auto& driver : drivers) {
-        if (param == driver->getName()) {
-            driver->printHelp();
-            return;
-        }
+    auto res = std::find_if(drivers.begin(),drivers.end(),
+                            [param](const std::shared_ptr<obd::core::baseDriver>& b){return b->getName()==param;});
+    if (res != drivers.end()){
+        (*res)->printHelp();
+        return;
     }
     outputs.println(F("invalid category given."));
     outputs.println(F("valid categories are:"));

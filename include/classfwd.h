@@ -3,6 +3,7 @@
  * @date 29/05/2021
  */
 #pragma once
+
 #include "config.h"
 
 /**
@@ -30,14 +31,14 @@ class StatusLed;
  * @brief namespace for the file system
  */
 namespace filesystem {
-class driver;
+class fsDriver;
 }// namespace filesystem
 
 /**
  * @brief namespace for the network system
  */
 namespace network {
-class driver;
+class netDriver;
 }// namespace network
 
 /**
@@ -46,5 +47,12 @@ class driver;
 namespace time {
 class clock;
 }// namespace time
+
+/**
+ * @brief Namespace for managing the web server
+ */
+namespace webserver {
+class webDriver;
+}// namespace webserver
 
 }// namespace obd

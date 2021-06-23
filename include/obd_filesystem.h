@@ -14,13 +14,13 @@ namespace obd::filesystem {
 /**
  * @brief driver for the filesystem
  */
-class driver : public core::baseDriver {
+class fsDriver : public core::baseDriver {
 public:
     /**
      * @brief constructor with parent
      * @param p the parent system
      */
-    explicit driver(core::system* p = nullptr) :
+    explicit fsDriver(core::system* p = nullptr) :
         baseDriver(p), curPath{F("/")} {};
 
     /**
@@ -37,7 +37,7 @@ public:
      * @brief listen to network for commands
      * @param delta the time delta from last update
      */
-    void update(int64_t delta) override {}
+    void update([[maybe_unused]]int64_t delta) override {}
 
     /**
      * @brief try to treat the given command
@@ -121,7 +121,7 @@ public:
      * @brief set time callback
      * @param cb the time call back
      */
-    void setTimeCb(time_t (*cb)());
+    static void setTimeCb(time_t (*cb)());
 
 private:
     /**

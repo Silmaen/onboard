@@ -11,9 +11,11 @@ Checks: '
     -fuchsia-overloaded-operator,
     -cppcoreguidelines-pro-type-reinterpret-cast,
     -hicpp-signed-bitwise,
+    -hicpp-no-array-decay,
     -readability-magic-numbers,
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-pro-bounds-constant-array-index,
+    -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
 '
 WarningsAsErrors: ''
 HeaderFilterRegex: ''

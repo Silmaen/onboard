@@ -2,27 +2,28 @@
  * @author Silmaen
  * @date 26/05/2021
  */
+
 #include <obd_configfile.h>
 #include <obd_network.h>
 #include <obd_system.h>
 
 namespace obd::network {
 
-driver::driver(core::system* p) :
+netDriver::netDriver(core::system* p) :
     baseDriver(p) {
     if (p != nullptr) {
         statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
 }
 
-void driver::attachParent(core::system* p) {
+void netDriver::attachParent(core::system* p) {
     baseDriver::attachParent(p);
     if (p != nullptr) {
         statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
 }
 
-void driver::init() {
+void netDriver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
     WiFi.mode(WIFI_STA);
@@ -31,10 +32,10 @@ void driver::init() {
     WiFi.begin();
 }
 
-void driver::printInfo() {
+void netDriver::printInfo() {
     if (getParentPrint() == nullptr)
         return;
-    getParentPrint()->println(F(" ----- NETWORK INFORMATIONS -----"));
+    getParentPrint()->println(F(" ----- NETWORK INFORMATION -----"));
     if (getParentPrint() != nullptr)
         WiFi.printDiag(*getParentPrint());
     const String modes[] = {
@@ -54,11 +55,11 @@ void driver::printInfo() {
 
     if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
         // access point Infos
-        getParentPrint()->println(F("Access point informations"));
+        getParentPrint()->println(F("Access point information"));
     }
     if ((wifi_get_opmode() == 1) || (wifi_get_opmode() == 3)) {
         // station Infos
-        getParentPrint()->println(F("Station informations"));
+        getParentPrint()->println(F("Station information"));
         getParentPrint()->print(F("Access point id   : "));
         getParentPrint()->println(wifi_station_get_current_ap_id());
         getParentPrint()->print(F("Access point SSID : "));
@@ -93,7 +94,7 @@ void driver::printInfo() {
     }
 }
 
-void driver::update(int64_t /*delta*/) {
+void netDriver::update(int64_t /*delta*/) {
     if (updateStatus()) {
         updateLED();
         // do nothing more if status changed
@@ -107,7 +108,7 @@ void driver::update(int64_t /*delta*/) {
     listenTelnet();
 }
 
-bool driver::treatCommand(const core::command& cmd) {
+bool netDriver::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("netinfo"))) {
         printInfo();
         return true;
@@ -119,7 +120,7 @@ bool driver::treatCommand(const core::command& cmd) {
     return false;
 }
 
-void driver::printHelp() {
+void netDriver::printHelp() {
     if (getParentPrint() == nullptr)
         return;
     getParentPrint()->println(F("Help on network interface"));
@@ -128,7 +129,7 @@ void driver::printHelp() {
     getParentPrint()->println();
 }
 
-bool driver::updateStatus() {
+bool netDriver::updateStatus() {
     Status cal = Status::Connecting;
     if (WiFi.status() == WL_IDLE_STATUS) {
         cal = Status::Disabled;
@@ -152,7 +153,7 @@ bool driver::updateStatus() {
     return false;
 }
 
-void driver::updateServerState() {
+void netDriver::updateServerState() {
     if (currentStatus == Status::Connected || currentStatus == Status::Hotspot) {
         getParent()->getOutput()->removePrint(&client);
         if (telnetServer.status() == 0U) {
@@ -166,7 +167,7 @@ void driver::updateServerState() {
     }
 }
 
-bool driver::updateClientConnexion() {
+bool netDriver::updateClientConnexion() {
     if (telnetServer.hasClient() && (!client || (client.connected() == 0U))) {
         if (client) {
             client.stop();
@@ -181,7 +182,7 @@ bool driver::updateClientConnexion() {
     return false;
 }
 
-void driver::updateLED() {
+void netDriver::updateLED() {
     if (statusLed == nullptr)
         return;
     switch (currentStatus) {
@@ -206,7 +207,7 @@ void driver::updateLED() {
     }
 }
 
-void driver::listenTelnet() {
+void netDriver::listenTelnet() {
     if (currentStatus != Status::HotspotClient && currentStatus != Status::ConnectedClient)
         return;
 
@@ -227,7 +228,7 @@ void driver::listenTelnet() {
     }
 }
 
-void driver::printStatus() {
+void netDriver::printStatus() {
     if (getParent() == nullptr)
         return;
     getParentPrint()->print(F("Network status:    "));
@@ -253,7 +254,7 @@ void driver::printStatus() {
     }
 }
 
-void driver::printWelcome() {
+void netDriver::printWelcome() {
     client.println();
     client.println(F("Welcome on board!"));
     client.println(F("  _______         ______                      __ "));
@@ -268,7 +269,7 @@ void driver::printWelcome() {
     client.println(F("--------------------------------------------------"));
 }
 
-void driver::loadConfigFile() {
+void netDriver::loadConfigFile() {
     filesystem::configFile file(getParent());
     file.loadConfig(getName());
     // parameters to load:
@@ -277,7 +278,7 @@ void driver::loadConfigFile() {
     }
 }
 
-void driver::saveConfigFile() const {
+void netDriver::saveConfigFile() const {
     filesystem::configFile file(getParent());
     // parameter to save
     file.addConfigParameter("host", WiFi.hostname());

@@ -12,7 +12,7 @@ namespace obd::filesystem {
 configFile::configFile(core::system* p) {
     if (p == nullptr)
         return;
-    fs = p->getDriverAs<filesystem::driver>("FileSystem");
+    fs = p->getDriverAs<filesystem::fsDriver>("FileSystem");
 }
 
 bool configFile::configExists(const String& driverName) const {
@@ -81,17 +81,6 @@ const String& configFile::getKey(const String& key) const {
 
 void configFile::clear() {
     fileContent.clear();
-}
-
-void configFile::printContent()const {
-    fs->getParentPrint()->println(F("File content"));
-    for(const auto& it: fileContent){
-        fs->getParentPrint()->print("'");
-        fs->getParentPrint()->print(it.first);
-        fs->getParentPrint()->print("'='");
-        fs->getParentPrint()->print(it.second);
-        fs->getParentPrint()->println("'");
-    }
 }
 
 }// namespace obd::filesystem
