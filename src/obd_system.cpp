@@ -17,10 +17,10 @@ namespace obd::core {
 system::system() {
     drivers.push_back(std::make_shared<core::StatusLed>(this));
     drivers.push_back(std::make_shared<network::UsbSerial>(this));
-    drivers.push_back(std::make_shared<filesystem::fs_driver>(this));
-    drivers.push_back(std::make_shared<network::net_driver>(this));
+    drivers.push_back(std::make_shared<filesystem::fsDriver>(this));
+    drivers.push_back(std::make_shared<network::netDriver>(this));
     drivers.push_back(std::make_shared<time::clock>(this));
-    drivers.push_back(std::make_shared<webserver::driver>(this));
+    drivers.push_back(std::make_shared<webserver::webDriver>(this));
 }
 
 void system::init() {
@@ -159,12 +159,11 @@ void system::printSystemInfo() {
 }
 
 std::shared_ptr<baseDriver> system::getDriver(const String& name) {
-    for (const auto& driver : drivers) {
-        if (driver->getName() == name) {
-            return driver;
-        }
-    }
-    return nullptr;
+    auto res = std::find_if(drivers.begin(),drivers.end(),
+                            [name](const std::shared_ptr<obd::core::baseDriver>& b){return b->getName()==name;});
+    if (res == drivers.end())
+        return nullptr;
+    return *res;
 }
 
 void system::printHelp(const String& param) {
@@ -186,11 +185,11 @@ void system::printHelp(const String& param) {
         outputs.println(F("cfgLoad        load configuration from files"));
         return;
     }
-    for (const auto& driver : drivers) {
-        if (param == driver->getName()) {
-            driver->printHelp();
-            return;
-        }
+    auto res = std::find_if(drivers.begin(),drivers.end(),
+                            [param](const std::shared_ptr<obd::core::baseDriver>& b){return b->getName()==param;});
+    if (res != drivers.end()){
+        (*res)->printHelp();
+        return;
     }
     outputs.println(F("invalid category given."));
     outputs.println(F("valid categories are:"));

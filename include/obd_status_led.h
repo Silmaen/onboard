@@ -89,6 +89,30 @@ private:
      */
     void printCurrentState();
 
+    /**
+     * @brief callback function for giving the led fast blinking light according to the ledTimer
+     * @return Led light value
+     */
+    [[nodiscard]] uint8_t fastBlinkCb() const;
+
+    /**
+     * @brief callback function for giving the led two pulses light according to the ledTimer
+     * @return Led light value
+     */
+    [[nodiscard]] uint8_t twoPulsesCb() const;
+
+    /**
+     * @brief callback function for giving the led three pulses light according to the ledTimer
+     * @return Led light value
+     */
+    [[nodiscard]] uint8_t threePulsesCb() const;
+
+    /**
+     * @brief callback function for giving the led faster blinking light according to the ledTimer
+     * @return Led light value
+     */
+    [[nodiscard]] uint8_t fasterBlinkCb() const;
+
     /// current state of the led
     LedState ledState = LedState::Off;
 

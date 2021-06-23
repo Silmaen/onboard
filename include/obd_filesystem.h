@@ -14,13 +14,13 @@ namespace obd::filesystem {
 /**
  * @brief driver for the filesystem
  */
-class fs_driver : public core::baseDriver {
+class fsDriver : public core::baseDriver {
 public:
     /**
      * @brief constructor with parent
      * @param p the parent system
      */
-    explicit fs_driver(core::system* p = nullptr) :
+    explicit fsDriver(core::system* p = nullptr) :
         baseDriver(p), curPath{F("/")} {};
 
     /**

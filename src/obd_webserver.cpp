@@ -11,38 +11,38 @@
 namespace obd::webserver {
 
 
-void driver::init() {
+void webDriver::init() {
     if (getParent() != nullptr)
-        fs = getParent()->getDriverAs<filesystem::fs_driver>(F("FileSystem"));
+        fs = getParent()->getDriverAs<filesystem::fsDriver>(F("FileSystem"));
     server.onNotFound([=]() { this->fileFb(); });// fallback if not an previous url
     server.begin();
 }
 
-void driver::printInfo() {
+void webDriver::printInfo() {
 }
 
-void driver::update(int64_t  /*delta*/) {
+void webDriver::update(int64_t  /*delta*/) {
     server.handleClient();
 }
 
-bool driver::treatCommand(const core::command& cmd) {
+bool webDriver::treatCommand(const core::command& cmd) {
     return baseDriver::treatCommand(cmd);
 }
 
-void driver::printHelp() {
+void webDriver::printHelp() {
 }
 
-void driver::loadConfigFile() {
+void webDriver::loadConfigFile() {
 }
 
-void driver::saveConfigFile() const {
+void webDriver::saveConfigFile() const {
 }
 
-void driver::replyNotFound(const String& msg) {
+void webDriver::replyNotFound(const String& msg) {
     server.send(404, F("text/plain"), msg);
 }
 
-void driver::fileFb() {
+void webDriver::fileFb() {
     String uri = ESP8266WebServer::urlDecode(server.uri());// required to read paths with blanks
     if (handleReadFile(uri)) {
         return;
@@ -71,7 +71,7 @@ void driver::fileFb() {
     return replyNotFound(message);
 }
 
-bool driver::handleReadFile(const String& path) {
+bool webDriver::handleReadFile(const String& path) {
     if (fs == nullptr) {
         getParentPrint()->println(F("Webserver: no filesystem"));
         return false;
@@ -103,7 +103,7 @@ bool driver::handleReadFile(const String& path) {
     file.close();
     return true;
 }
-void driver::StrParse(String& toParse) {
+void webDriver::StrParse(String& toParse) {
     if (getParent() != nullptr) {
         auto clock = getParent()->getDriverAs<time::clock>("SystemClock");
         if (clock != nullptr)

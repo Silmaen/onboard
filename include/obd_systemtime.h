@@ -102,7 +102,7 @@ private:
     void printDate();
 
     /// link to filesystem
-    std::shared_ptr<filesystem::fs_driver> fs = nullptr;
+    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
 
     /// the pool server name to query
     String poolServerName = "pool.ntp.org";

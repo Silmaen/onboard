@@ -12,14 +12,14 @@ namespace obd::webserver {
 /**
  * @brief base driver for webserver management
  */
-class driver: public core::baseDriver {
+class webDriver : public core::baseDriver {
 public:
 
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit driver(core::system* p = nullptr) :
+    explicit webDriver(core::system* p = nullptr) :
     baseDriver(p){};
 
     /**
@@ -72,7 +72,7 @@ private:
     ESP8266WebServer server{80};
 
     /// link to the filesystem
-    std::shared_ptr<filesystem::fs_driver> fs = nullptr;
+    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
 
     /**
      * @brief send a message with 'not Found' error code

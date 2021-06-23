@@ -14,7 +14,7 @@ namespace obd::time {
 
 void clock::init() {
     if (getParent() != nullptr)
-        fs = getParent()->getDriverAs<filesystem::fs_driver>(F("FileSystem"));
+        fs = getParent()->getDriverAs<filesystem::fsDriver>(F("FileSystem"));
     // restore time (not the true time but nearer than 1 jan 1970!)
     if (fs != nullptr) {
         if (fs->exists(config::tsSave)){

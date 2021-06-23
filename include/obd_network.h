@@ -27,13 +27,13 @@ enum class Status {
 /**
  * @brief network driver
  */
-class net_driver : public core::baseDriver {
+class netDriver : public core::baseDriver {
 public:
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit net_driver(core::system* p = nullptr);
+    explicit netDriver(core::system* p = nullptr);
 
     /**
      * @brief initialize file system

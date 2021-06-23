@@ -9,21 +9,21 @@
 
 namespace obd::network {
 
-net_driver::net_driver(core::system* p) :
+netDriver::netDriver(core::system* p) :
     baseDriver(p) {
     if (p != nullptr) {
         statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
 }
 
-void net_driver::attachParent(core::system* p) {
+void netDriver::attachParent(core::system* p) {
     baseDriver::attachParent(p);
     if (p != nullptr) {
         statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
     }
 }
 
-void net_driver::init() {
+void netDriver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
     WiFi.mode(WIFI_STA);
@@ -32,7 +32,7 @@ void net_driver::init() {
     WiFi.begin();
 }
 
-void net_driver::printInfo() {
+void netDriver::printInfo() {
     if (getParentPrint() == nullptr)
         return;
     getParentPrint()->println(F(" ----- NETWORK INFORMATION -----"));
@@ -94,7 +94,7 @@ void net_driver::printInfo() {
     }
 }
 
-void net_driver::update(int64_t /*delta*/) {
+void netDriver::update(int64_t /*delta*/) {
     if (updateStatus()) {
         updateLED();
         // do nothing more if status changed
@@ -108,7 +108,7 @@ void net_driver::update(int64_t /*delta*/) {
     listenTelnet();
 }
 
-bool net_driver::treatCommand(const core::command& cmd) {
+bool netDriver::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("netinfo"))) {
         printInfo();
         return true;
@@ -120,7 +120,7 @@ bool net_driver::treatCommand(const core::command& cmd) {
     return false;
 }
 
-void net_driver::printHelp() {
+void netDriver::printHelp() {
     if (getParentPrint() == nullptr)
         return;
     getParentPrint()->println(F("Help on network interface"));
@@ -129,7 +129,7 @@ void net_driver::printHelp() {
     getParentPrint()->println();
 }
 
-bool net_driver::updateStatus() {
+bool netDriver::updateStatus() {
     Status cal = Status::Connecting;
     if (WiFi.status() == WL_IDLE_STATUS) {
         cal = Status::Disabled;
@@ -153,7 +153,7 @@ bool net_driver::updateStatus() {
     return false;
 }
 
-void net_driver::updateServerState() {
+void netDriver::updateServerState() {
     if (currentStatus == Status::Connected || currentStatus == Status::Hotspot) {
         getParent()->getOutput()->removePrint(&client);
         if (telnetServer.status() == 0U) {
@@ -167,7 +167,7 @@ void net_driver::updateServerState() {
     }
 }
 
-bool net_driver::updateClientConnexion() {
+bool netDriver::updateClientConnexion() {
     if (telnetServer.hasClient() && (!client || (client.connected() == 0U))) {
         if (client) {
             client.stop();
@@ -182,7 +182,7 @@ bool net_driver::updateClientConnexion() {
     return false;
 }
 
-void net_driver::updateLED() {
+void netDriver::updateLED() {
     if (statusLed == nullptr)
         return;
     switch (currentStatus) {
@@ -207,7 +207,7 @@ void net_driver::updateLED() {
     }
 }
 
-void net_driver::listenTelnet() {
+void netDriver::listenTelnet() {
     if (currentStatus != Status::HotspotClient && currentStatus != Status::ConnectedClient)
         return;
 
@@ -228,7 +228,7 @@ void net_driver::listenTelnet() {
     }
 }
 
-void net_driver::printStatus() {
+void netDriver::printStatus() {
     if (getParent() == nullptr)
         return;
     getParentPrint()->print(F("Network status:    "));
@@ -254,7 +254,7 @@ void net_driver::printStatus() {
     }
 }
 
-void net_driver::printWelcome() {
+void netDriver::printWelcome() {
     client.println();
     client.println(F("Welcome on board!"));
     client.println(F("  _______         ______                      __ "));
@@ -269,7 +269,7 @@ void net_driver::printWelcome() {
     client.println(F("--------------------------------------------------"));
 }
 
-void net_driver::loadConfigFile() {
+void netDriver::loadConfigFile() {
     filesystem::configFile file(getParent());
     file.loadConfig(getName());
     // parameters to load:
@@ -278,7 +278,7 @@ void net_driver::loadConfigFile() {
     }
 }
 
-void net_driver::saveConfigFile() const {
+void netDriver::saveConfigFile() const {
     filesystem::configFile file(getParent());
     // parameter to save
     file.addConfigParameter("host", WiFi.hostname());

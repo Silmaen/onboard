@@ -31,14 +31,14 @@ class StatusLed;
  * @brief namespace for the file system
  */
 namespace filesystem {
-class fs_driver;
+class fsDriver;
 }// namespace filesystem
 
 /**
  * @brief namespace for the network system
  */
 namespace network {
-class net_driver;
+class netDriver;
 }// namespace network
 
 /**
@@ -47,5 +47,12 @@ class net_driver;
 namespace time {
 class clock;
 }// namespace time
+
+/**
+ * @brief Namespace for managing the web server
+ */
+namespace webserver {
+class webDriver;
+}// namespace webserver
 
 }// namespace obd

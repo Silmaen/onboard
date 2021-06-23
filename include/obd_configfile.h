@@ -20,7 +20,7 @@ public:
      * @brief Constructor with parent filesystem
      * @param p the parent file system
      */
-    explicit configFile(std::shared_ptr<filesystem::fs_driver>  p = nullptr) :
+    explicit configFile(std::shared_ptr<filesystem::fsDriver>  p = nullptr) :
         fs{std::move(p)} {}
 
     /**
@@ -77,7 +77,7 @@ public:
 
 private:
     /// link to the filesystem
-    std::shared_ptr<filesystem::fs_driver> fs = nullptr;
+    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
 
     /// list of the file items
     std::map<String, String> fileContent;
