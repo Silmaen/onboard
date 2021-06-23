@@ -2,8 +2,8 @@
  * @author Silmaen
  * @date 13/06/2021
  */
-
 #pragma once
+
 #include <WString.h>
 
 namespace obd::network {

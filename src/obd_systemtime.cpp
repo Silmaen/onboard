@@ -1,20 +1,20 @@
 /**
- * \author argawaen 
- * \date 08/06/2021
+ * @author Silmaen
+ * @date 08/06/2021
  */
 
 #include <Arduino.h>
 #include "obd_systemtime.h"
 #include "obd_configfile.h"
 #include "obd_system.h"
-#include <sys/time.h>
+#include <sys/time.h> // NOLINT(hicpp-deprecated-headers,modernize-deprecated-headers)
 #include "obd_filesystem.h"
 
 namespace obd::time {
 
 void clock::init() {
     if (getParent() != nullptr)
-        fs = getParent()->getDriverAs<filesystem::driver>(F("FileSystem"));
+        fs = getParent()->getDriverAs<filesystem::fs_driver>(F("FileSystem"));
     // restore time (not the true time but nearer than 1 jan 1970!)
     if (fs != nullptr) {
         if (fs->exists(config::tsSave)){
@@ -32,7 +32,7 @@ void clock::init() {
 void clock::printInfo() {
     if (getParentPrint() == nullptr)
         return;
-    getParentPrint()->println(F(" ----- CLOCK INFORMATIONS -----"));
+    getParentPrint()->println(F(" ----- CLOCK INFORMATION -----"));
     getParentPrint()->print(F("Pool server       : "));
     getParentPrint()->println(poolServerName);
     getParentPrint()->print(F("Time Zone         : "));
@@ -40,9 +40,9 @@ void clock::printInfo() {
 }
 
 void clock::update(int64_t delta) {
-    chrono += delta;
-    if (chrono >= config::saveInterval ) {
-        chrono = 0;
+    chronometer += delta;
+    if (chronometer >= config::saveInterval ) {
+        chronometer = 0;
         // save current time so next boot will be loaded
         if (fs != nullptr) {
             auto f = fs->open(config::tsSave, F("w"));
@@ -111,15 +111,11 @@ void clock::printDate() {
 }
 
 String clock::getDateFormatted() {
-    time_t tv   = getDate();
-    String tStr = ctime(&tv);
-    tStr.replace("\n", "");
-    tStr.replace("\r", "");
-    return tStr;
+    return formatTime(getDate());
 }
 
-time_t clock::getDate() const {
-    timeval tv;
+time_t clock::getDate() {
+    timeval tv{};
     gettimeofday(&tv, nullptr);
     return tv.tv_sec;
 }
@@ -132,6 +128,13 @@ void clock::setPoolServer(const String& pool) {
 void clock::setTimeZone(const String& tz) {
     timeZone = tz;
     init();
+}
+
+String clock::formatTime(const time_t& time) {
+    String tStr = ctime(&time);
+    tStr.replace("\n", "");
+    tStr.replace("\r", "");
+    return tStr;
 }
 
 }// namespace obd::time

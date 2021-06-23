@@ -2,8 +2,8 @@
  * @author Silmaen
  * @date 11/05/2021
  */
-
 #pragma once
+
 #include "classfwd.h"
 #include "obd_inputsource.h"
 #include <Print.h>
@@ -71,6 +71,7 @@ public:
 private:
     /// the source of the command
     network::source from = network::source::NONE;
+
     /// the string of the command line
     String cmdline;
 };

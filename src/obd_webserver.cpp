@@ -1,5 +1,5 @@
 /**
- * @author argawaen
+ * @author Silmaen
  * @date 20/06/2021
  */
 
@@ -13,7 +13,7 @@ namespace obd::webserver {
 
 void driver::init() {
     if (getParent() != nullptr)
-        fs = getParent()->getDriverAs<filesystem::driver>(F("FileSystem"));
+        fs = getParent()->getDriverAs<filesystem::fs_driver>(F("FileSystem"));
     server.onNotFound([=]() { this->fileFb(); });// fallback if not an previous url
     server.begin();
 }

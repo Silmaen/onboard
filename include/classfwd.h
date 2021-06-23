@@ -3,6 +3,7 @@
  * @date 29/05/2021
  */
 #pragma once
+
 #include "config.h"
 
 /**
@@ -30,14 +31,14 @@ class StatusLed;
  * @brief namespace for the file system
  */
 namespace filesystem {
-class driver;
+class fs_driver;
 }// namespace filesystem
 
 /**
  * @brief namespace for the network system
  */
 namespace network {
-class driver;
+class net_driver;
 }// namespace network
 
 /**

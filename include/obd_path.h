@@ -2,8 +2,8 @@
  * @author Silmaen
  * @date 06/06/2021
  */
-
 #pragma once
+
 #include <WString.h>
 #include <utility>
 

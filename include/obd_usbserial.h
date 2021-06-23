@@ -2,8 +2,8 @@
  * @author Silmaen
  * @date 30/05/2021
  */
-
 #pragma once
+
 #include <obd_basedriver.h>
 
 namespace obd::network {

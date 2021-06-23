@@ -2,8 +2,8 @@
  * @author Silmaen
  * @date 13/05/2021
  */
-
 #pragma once
+
 #include <Print.h>
 #include <algorithm>
 #include <vector>

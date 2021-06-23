@@ -17,8 +17,8 @@ namespace obd::core {
 system::system() {
     drivers.push_back(std::make_shared<core::StatusLed>(this));
     drivers.push_back(std::make_shared<network::UsbSerial>(this));
-    drivers.push_back(std::make_shared<filesystem::driver>(this));
-    drivers.push_back(std::make_shared<network::driver>(this));
+    drivers.push_back(std::make_shared<filesystem::fs_driver>(this));
+    drivers.push_back(std::make_shared<network::net_driver>(this));
     drivers.push_back(std::make_shared<time::clock>(this));
     drivers.push_back(std::make_shared<webserver::driver>(this));
 }
@@ -32,8 +32,8 @@ void system::init() {
 
 void system::update() {
     // update timestamp
-    uint64_t ts = millis();
-    int64_t delta = ts - timestamp ;
+    int64_t ts = millis();
+    int64_t delta = ts - static_cast<int64_t>(timestamp);
     timestamp = ts;
     // update drivers
     for (const auto& driver : drivers) {
@@ -75,7 +75,7 @@ void system::treatCommands() {
 
 void system::printKernelInfo() {
     // general info on chipset
-    outputs.println(F(" ----- KERNEL INFORMATIONS -----"));
+    outputs.println(F(" ----- KERNEL INFORMATION -----"));
     outputs.print(F("Chip Id           : 0x"));
     outputs.println(EspClass::getChipId(), HEX);
     outputs.print(F("Core Version      : "));

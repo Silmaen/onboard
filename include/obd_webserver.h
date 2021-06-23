@@ -1,9 +1,9 @@
 /**
- * @author argawaen
+ * @author Silmaen
  * @date 20/06/2021
  */
-
 #pragma once
+
 #include "obd_basedriver.h"
 #include <ESP8266WebServer.h>
 
@@ -70,8 +70,9 @@ public:
 private:
     /// The web server
     ESP8266WebServer server{80};
+
     /// link to the filesystem
-    std::shared_ptr<filesystem::driver> fs = nullptr;
+    std::shared_ptr<filesystem::fs_driver> fs = nullptr;
 
     /**
      * @brief send a message with 'not Found' error code
