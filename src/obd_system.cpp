@@ -10,6 +10,7 @@
 #include <obd_usbserial.h>
 #include <obd_systemtime.h>
 #include <obd_webserver.h>
+#include <obd_runcam.h>
 #include <user_interface.h>
 
 namespace obd::core {
@@ -21,6 +22,7 @@ system::system() {
     drivers.push_back(std::make_shared<network::netDriver>(this));
     drivers.push_back(std::make_shared<time::clock>(this));
     drivers.push_back(std::make_shared<webserver::webDriver>(this));
+    drivers.push_back(std::make_shared<video::RunCam>(this));
 }
 
 void system::init() {
