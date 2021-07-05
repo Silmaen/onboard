@@ -117,10 +117,13 @@ Valid commands are:
 
 Valid keys are:
 
- | key     | description |
- | ------- | ----------- |
- | `set`   | Simulate the push on button |
- | `left`  | Simulate the left direction |
- | `right` | Simulate the right direction |
- | `up`    | Simulate the up direction |
- | `down`  | Simulate the down direction |
+ | key       | description |
+ | --------- | ----------- |
+ | `open`    | Begin connexion to the 5key pad |
+ | `close`   | Close connexion to the 5key pad |
+ | `set`     | Simulate the push on button |
+ | `left`    | Simulate the left direction |
+ | `right`   | Simulate the right direction |
+ | `up`      | Simulate the up direction |
+ | `down`    | Simulate the down direction |
+ | `release` | Simulate the down direction |

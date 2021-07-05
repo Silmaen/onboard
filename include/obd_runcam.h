@@ -89,6 +89,9 @@ public:
         RCDEVICE_PROTOCOL_5KEY_SIMULATION_RIGHT = 0x03, ///< Simulate the right key of the 5 key remote control
         RCDEVICE_PROTOCOL_5KEY_SIMULATION_UP    = 0x04, ///< Simulate the up key of the 5 key remote control
         RCDEVICE_PROTOCOL_5KEY_SIMULATION_DOWN  = 0x05, ///< Simulate the down key of the 5 key remote control
+        RCDEVICE_PROTOCOL_5KEY_SIMULATION_RELEASE = 0x06, ///< Simulate the release of the button
+        RCDEVICE_PROTOCOL_5KEY_FUNCTION_OPEN = 0x07, ///< Initiate a handshake action to the camera
+        RCDEVICE_PROTOCOL_5KEY_FUNCTION_CLOSE = 0x08, ///< Initiate a disconnection action to the camera
     };
 
     /**
@@ -105,6 +108,8 @@ private:
         RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO = 0x00, ///< request device info
         RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL  = 0x01, ///< Send Camera action command
         RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS = 0x02, ///< Send the Press event of the 5 key remote control to the camera
+        RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE = 0x03, ///< Send the release event of the 5 key remote control to the camera
+        RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION = 0x04, ///< Send handshake events and disconnected events to the camera
     };
 
     /**
@@ -125,6 +130,9 @@ private:
 
     /// if the device is connected
     bool isConnected = false;
+
+    /// if a session to the 5 key pad is active
+    bool is5keyConnected = false;
 
     /// if we need some debug prints
     bool debugPrint = true;
@@ -171,6 +179,12 @@ private:
      * @param ptr the bool value
      */
     void printBool(bool ptr);
+
+    /**
+     * @brief try to handshake or disconnect device
+     * @param open true: connexion, false: disconnection
+     */
+    void OpenClose(bool open =  true);
 
     /**
      * @brief parse a command string into an instruction and send it to camera

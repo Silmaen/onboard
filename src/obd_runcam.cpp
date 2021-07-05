@@ -27,26 +27,17 @@ void RunCam::printInfo() {
     getParentPrint()->print("Debug print: ");
     printBool(debugPrint);
     if (isConnected) {
-        getParentPrint()->print(F("RunCam Protocol version: ............... "));
-        getParentPrint()->println(DeviceInfo.ProtocolVersion);
-        getParentPrint()->print(F("RunCam Feature Simulate Power Button: .. "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON);
-        getParentPrint()->print(F("RunCam Feature Simulate wifi Button: ... "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON);
-        getParentPrint()->print(F("RunCam Feature Change mode: ............ "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE);
-        getParentPrint()->print(F("RunCam Feature Simulate 5 key osb cable: "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE);
-        getParentPrint()->print(F("RunCam Feature Device settings access: . "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS);
-        getParentPrint()->print(F("RunCam Feature display port: ........... "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT);
-        getParentPrint()->print(F("RunCam Feature Start recording: ........ "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_START_RECORDING);
-        getParentPrint()->print(F("RunCam Feature Stop recording: ......... "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING);
-        getParentPrint()->print(F("RunCam Feature FC attitude: ............ "));
-        printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE);
+        getParentPrint()->print(F("RunCam 5Key pad connected: ............. "));printBool(is5keyConnected);
+        getParentPrint()->print(F("RunCam Protocol version: ............... "));getParentPrint()->println(DeviceInfo.ProtocolVersion);
+        getParentPrint()->print(F("RunCam Feature Simulate Power Button: .. "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON);
+        getParentPrint()->print(F("RunCam Feature Simulate wifi Button: ... "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON);
+        getParentPrint()->print(F("RunCam Feature Change mode: ............ "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE);
+        getParentPrint()->print(F("RunCam Feature Simulate 5 key osb cable: "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE);
+        getParentPrint()->print(F("RunCam Feature Device settings access: . "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS);
+        getParentPrint()->print(F("RunCam Feature display port: ........... "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT);
+        getParentPrint()->print(F("RunCam Feature Start recording: ........ "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_START_RECORDING);
+        getParentPrint()->print(F("RunCam Feature Stop recording: ......... "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING);
+        getParentPrint()->print(F("RunCam Feature FC attitude: ............ "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE);
     } else {
         getParentPrint()->println(F("Device not connected."));
     }
@@ -100,11 +91,14 @@ void RunCam::printHelp() {
     getParentPrint()->println(F("                start  Start Camera"));
     getParentPrint()->println(F("                stop   Stop Camera"));
     getParentPrint()->println(F("runcam5key     Send a 5 key action to the connected device. Valid parameters are:"));
-    getParentPrint()->println(F("                set    Simulate the push on button"));
-    getParentPrint()->println(F("                left   Simulate the left direction"));
-    getParentPrint()->println(F("                right  Simulate the right direction"));
-    getParentPrint()->println(F("                up     Simulate the up direction"));
-    getParentPrint()->println(F("                down   Simulate the down direction"));
+    getParentPrint()->println(F("                open    Begin connexion to the 5key pad"));
+    getParentPrint()->println(F("                close   Close connexion to the 5key pad"));
+    getParentPrint()->println(F("                set     Simulate the push on button"));
+    getParentPrint()->println(F("                left    Simulate the left direction"));
+    getParentPrint()->println(F("                right   Simulate the right direction"));
+    getParentPrint()->println(F("                up      Simulate the up direction"));
+    getParentPrint()->println(F("                down    Simulate the down direction"));
+    getParentPrint()->println(F("                release Simulate the down direction"));
 }
 
 void RunCam::loadConfigFile() {
@@ -280,7 +274,13 @@ void RunCam::simulate5keyRemoteControl(const RunCam::RunCam5keyControl& command)
         return;
     if (!DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)
         return;
-    std::vector<uint8_t> response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL, std::vector<uint8_t>{static_cast<uint8_t>(command)});
+    std::vector<uint8_t> response;
+    if (command == RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_RELEASE) {
+        response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE, std::vector<uint8_t>{});
+    }else {
+        if (is5keyConnected)
+            response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS, std::vector<uint8_t>{static_cast<uint8_t>(command)});
+    }
     if (!response.empty()){
         if (getParentPrint() != nullptr)
             getParentPrint()->println(F("RunCam parseCmd: bad response length."));
@@ -298,8 +298,33 @@ void RunCam::parse5Key(const String& cmd){
         simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_UP);
     }else if (cmd == F("down")) {
         simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_DOWN);
+    }else if (cmd == F("release")) {
+        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_RELEASE);
+    }else if (cmd == F("open")) {
+        OpenClose(true);
+    }else if (cmd == F("close")) {
+        OpenClose(false);
     }
 }
 
+void RunCam::OpenClose(bool open) {
+    if (!isConnected)
+        return;
+    if (!DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)
+        return;
+    uint8_t cmd = open?0x01:0x02;
+    std::vector<uint8_t> response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION, std::vector<uint8_t>{cmd});
+    if (response.size() != 1){
+        if (getParentPrint() != nullptr)
+            getParentPrint()->println(F("RunCam OpenClose: bad response length."));
+        return;
+    }
+    if (response[0] == ((cmd << 4U) + 1)){
+        is5keyConnected = open;
+    }else{
+        if (getParentPrint() != nullptr)
+            getParentPrint()->println(F("RunCam OpenClose: Unable to complete operation."));
+    }
+}
 
 }// namespace obd::video
