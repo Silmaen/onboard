@@ -66,29 +66,43 @@ public:
      */
     void saveConfigFile() const override;
 
+    enum struct RunCamControlCommand {
+        RCDEVICE_PROTOCOL_SIMULATE_WIFI_BTN      = 0x00, ///< Simulation Click the Wi-Fi button
+        RCDEVICE_PROTOCOL_SIMULATE_POWER_BTN     = 0x01, ///< Simulation Click the Power button
+        RCDEVICE_PROTOCOL_CHANGE_MODE            = 0x02, ///< Switch the camera mode
+        RCDEVICE_PROTOCOL_CHANGE_START_RECORDING = 0x03, ///< Control the camera to start recording
+        RCDEVICE_PROTOCOL_CHANGE_STOP_RECORDING  = 0x04, ///< Control the camera to stop recording
+    };
+
+    /**
+     * @brief send a control action to the device
+     * @param command the command to send
+     */
+    void CameraControl(const RunCamControlCommand& command);
+
 private:
     /**
      * @brief list of RunCam device protocol supported functions
      */
     enum struct RunCamCommand {
-        RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO = 0x00,///< request device info
-
+        RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO = 0x00, ///< request device info
+        RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL  = 0x01, ///< Send Camera action command
     };
 
     /**
      * @brief information about camera
      */
     struct RunCamInformation {
-        uint8_t ProtocolVersion                                 = 0;
-        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON    = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON     = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE              = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS   = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT            = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_START_RECORDING          = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING           = false;
-        bool RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE              = false;
+        uint8_t ProtocolVersion                                 = 0; ///< version of the protocol
+        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON    = false; ///< if the defice can simultate power button
+        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON     = false; ///< if the device can simulate wifi button
+        bool RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE              = false; ///< if the device can change camera mode
+        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE = false; ///< if the device can simulate the 5-key pad
+        bool RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS   = false; ///< if the device gives access to settings
+        bool RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT            = false; ///< The device is identified as a DisplayPort device by flying controller and receives the OSD data display from the flight controller
+        bool RCDEVICE_PROTOCOL_FEATURE_START_RECORDING          = false; ///< Control the camera to start recording video
+        bool RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING           = false; ///< Control the camera to stop recording video
+        bool RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE              = false; ///< If the device support requests attitude of the remote device(like Betaflight flight controller), it should contain this flag when initializing on the remote device.
     } DeviceInfo;
 
     /// if the device is connected
@@ -110,9 +124,10 @@ private:
      * @brief send command with its parameters, wait for response
      * @param cmd the command to send
      * @param params the list of parameter
+     * @param expectResponse if the command will receive a response
      * @return the content of the response
      */
-    std::vector<uint8_t> sendCommand(RunCamCommand cmd, const std::vector<uint8_t>& params);
+    std::vector<uint8_t> sendCommand(RunCamCommand cmd, const std::vector<uint8_t>& params, bool expectResponse = true);
 
     /**
      * @brief retrieve camera information throw Serial communication
@@ -138,6 +153,12 @@ private:
      * @param ptr the bool value
      */
     void printBool(bool ptr);
+
+    /**
+     * @brief parse a command string into an instruction and send it to camera
+     * @param cmd the command string to parse
+     */
+    void parseCmd(const String& cmd);
 };
 
 }// namespace obd::video

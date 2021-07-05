@@ -94,6 +94,8 @@ If the device is connected to the internet, then it internal time can be synchro
 It is possible to plug a device that runs with the runcam protocol.
 Wire the RX pin of the runcam device to the D5 pin of the Wemos and the TX to D6.
 
+The RunCam protocol can be found [here](https://support.runcam.com/hc/en-us/articles/360014537794-RunCam-Device-Protocol). 
+
 The device is automatically detected.
 
  | command       | parameter | description |
