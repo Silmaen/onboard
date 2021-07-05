@@ -5,6 +5,7 @@
 
 #pragma once
 #include "obd_basedriver.h"
+#include <SoftwareSerial.h>
 #include <vector>
 
 namespace obd::video {
@@ -35,7 +36,7 @@ public:
      * @brief listen to network for commands
      * @param delta the time delta from last update
      */
-    void update([[maybe_unused]] int64_t delta) override {}
+    void update([[maybe_unused]] int64_t delta) override;
 
     /**
      * @brief try to treat the given command
@@ -74,6 +75,9 @@ private:
 
     };
 
+    /**
+     * @brief information about camera
+     */
     struct RunCamInformation {
         uint8_t ProtocolVersion                                 = 0;
         bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON    = false;
@@ -85,13 +89,22 @@ private:
         bool RCDEVICE_PROTOCOL_FEATURE_START_RECORDING          = false;
         bool RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING           = false;
         bool RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE              = false;
-    } __attribute__((aligned(16))) DeviceInfo;
+    } DeviceInfo;
 
     /// if the device is connected
     bool isConnected = false;
 
+    /// if we need some debug prints
+    bool debugPrint = true;
+
     /// current message crc
     uint8_t current_crc = 0;
+
+    /// internal chronometer
+    uint64_t chrono = 0;
+
+    /// connexion
+    SoftwareSerial uart{D5, D6};
 
     /**
      * @brief send command with its parameters, wait for response
@@ -119,6 +132,12 @@ private:
         current_crc ^= a;
         for (int ii = 0; ii < 8; ++ii) current_crc = ((current_crc & 0x80) != 0) ? (current_crc << 1) ^ 0xD5 : current_crc << 1;
     }
+
+    /**
+     * @brief Print a bool value
+     * @param ptr the bool value
+     */
+    void printBool(bool ptr);
 };
 
 }// namespace obd::video

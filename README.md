@@ -84,7 +84,21 @@ If the device is connected to the internet, then it internal time can be synchro
 
  | command     | parameter | description |
  | ----------- | :-------: | ----------: |
- |`date`       | n/a       | Print the current date |
+ | `date`      | n/a       | Print the current date |
  | `clockinfo` |           | print time system infos |
  | `clockpool` | `<pool>`  | change the name of the pool server |
  | `clocktz  ` | `<tz>`    | change the time zone (see TZ.h for the format) |
+
+### RunCam commands
+
+It is possible to plug a device that runs with the runcam protocol.
+Wire the RX pin of the runcam device to the D5 pin of the Wemos and the TX to D6.
+
+The device is automatically detected.
+
+ | command       | parameter | description |
+ | ------------- | :-------: | ----------: |
+ | `runcamDebug` | n/a       | Toggle the debug print in the Multi-Stream. |
+ | `runcamInfo`  |           | Print informations about the device. |
+
+
