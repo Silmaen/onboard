@@ -80,6 +80,10 @@ bool RunCam::treatCommand(const core::command& cmd) {
         parseCmd(cmd.getParams());
         return true;
     }
+    if (cmd.isCmd(F("runcam5key"))) {
+        parse5Key(cmd.getParams());
+        return true;
+    }
     return false;
 }
 
@@ -95,6 +99,12 @@ void RunCam::printHelp() {
     getParentPrint()->println(F("                mode   Change camera mode"));
     getParentPrint()->println(F("                start  Start Camera"));
     getParentPrint()->println(F("                stop   Stop Camera"));
+    getParentPrint()->println(F("runcam5key     Send a 5 key action to the connected device. Valid parameters are:"));
+    getParentPrint()->println(F("                set    Simulate the push on button"));
+    getParentPrint()->println(F("                left   Simulate the left direction"));
+    getParentPrint()->println(F("                right  Simulate the right direction"));
+    getParentPrint()->println(F("                up     Simulate the up direction"));
+    getParentPrint()->println(F("                down   Simulate the down direction"));
 }
 
 void RunCam::loadConfigFile() {
@@ -264,5 +274,32 @@ void RunCam::parseCmd(const String& cmd){
         CameraControl(RunCamControlCommand::RCDEVICE_PROTOCOL_CHANGE_START_RECORDING);
     }
 }
+
+void RunCam::simulate5keyRemoteControl(const RunCam::RunCam5keyControl& command) {
+    if (!isConnected)
+        return;
+    if (!DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)
+        return;
+    std::vector<uint8_t> response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL, std::vector<uint8_t>{static_cast<uint8_t>(command)});
+    if (!response.empty()){
+        if (getParentPrint() != nullptr)
+            getParentPrint()->println(F("RunCam parseCmd: bad response length."));
+    }
+}
+
+void RunCam::parse5Key(const String& cmd){
+    if (cmd == F("set")) {
+        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_SET);
+    }else if (cmd == F("left")) {
+        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_LEFT);
+    }else if (cmd == F("right")) {
+        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_RIGHT);
+    }else if (cmd == F("up")) {
+        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_UP);
+    }else if (cmd == F("down")) {
+        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_DOWN);
+    }
+}
+
 
 }// namespace obd::video

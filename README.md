@@ -85,7 +85,7 @@ If the device is connected to the internet, then it internal time can be synchro
  | command     | parameter | description |
  | ----------- | :-------: | ----------: |
  | `date`      | n/a       | Print the current date |
- | `clockinfo` |           | print time system infos |
+ | `clockinfo` | n/a       | print time system infos |
  | `clockpool` | `<pool>`  | change the name of the pool server |
  | `clocktz  ` | `<tz>`    | change the time zone (see TZ.h for the format) |
 
@@ -98,9 +98,29 @@ The RunCam protocol can be found [here](https://support.runcam.com/hc/en-us/arti
 
 The device is automatically detected.
 
- | command       | parameter | description |
- | ------------- | :-------: | ----------: |
- | `runcamDebug` | n/a       | Toggle the debug print in the Multi-Stream. |
- | `runcamInfo`  |           | Print informations about the device. |
+ | command       | parameter   | description |
+ | ------------- | :---------: | ----------: |
+ | `runcamDebug` | n/a         | Toggle the debug print in the Multi-Stream. |
+ | `runcamInfo`  | n/a         | Print informations about the device. |
+ | `runcamCmd`   | `<command>` |   Send a command to the connected device. |
+ | `runcam5key`  | `<key>`     |   Send a 5 key action to the connected device. |
 
+Valid commands are:
 
+ | command | description |
+ | ------- | ----------- |
+ | `wifi`  | Simulate the wifi button |
+ | `power` | Simulate the power button |
+ | `mode`  | Change camera mode |
+ | `start` | Start Camera |
+ | `stop`  | Stop Camera |
+
+Valid keys are:
+
+ | key     | description |
+ | ------- | ----------- |
+ | `set`   | Simulate the push on button |
+ | `left`  | Simulate the left direction |
+ | `right` | Simulate the right direction |
+ | `up`    | Simulate the up direction |
+ | `down`  | Simulate the down direction |

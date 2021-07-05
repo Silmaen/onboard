@@ -80,6 +80,23 @@ public:
      */
     void CameraControl(const RunCamControlCommand& command);
 
+    /**
+     * @brief the 5 possible action of the pad
+     */
+    enum struct RunCam5keyControl {
+        RCDEVICE_PROTOCOL_5KEY_SIMULATION_SET   = 0x01, ///< Simulate the confirmation key of the 5 key remote control
+        RCDEVICE_PROTOCOL_5KEY_SIMULATION_LEFT  = 0x02, ///< Simulate the left key of the 5 key remote control
+        RCDEVICE_PROTOCOL_5KEY_SIMULATION_RIGHT = 0x03, ///< Simulate the right key of the 5 key remote control
+        RCDEVICE_PROTOCOL_5KEY_SIMULATION_UP    = 0x04, ///< Simulate the up key of the 5 key remote control
+        RCDEVICE_PROTOCOL_5KEY_SIMULATION_DOWN  = 0x05, ///< Simulate the down key of the 5 key remote control
+    };
+
+    /**
+     * @brief Send the device command simulating action on 5 key pad
+     * @param command the command to send
+     */
+    void simulate5keyRemoteControl(const RunCam5keyControl& command);
+
 private:
     /**
      * @brief list of RunCam device protocol supported functions
@@ -87,6 +104,7 @@ private:
     enum struct RunCamCommand {
         RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO = 0x00, ///< request device info
         RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL  = 0x01, ///< Send Camera action command
+        RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS = 0x02, ///< Send the Press event of the 5 key remote control to the camera
     };
 
     /**
@@ -159,6 +177,12 @@ private:
      * @param cmd the command string to parse
      */
     void parseCmd(const String& cmd);
+
+    /**
+     * @brief parse a command string into an 5key pad and send it to camera
+     * @param cmd the command string to parse
+     */
+    void parse5Key(const String& cmd);
 };
 
 }// namespace obd::video
