@@ -8,9 +8,9 @@
 
 namespace obd::video {
 
-constexpr uint8_t RC_HEADER        = 0xCC; ///< runCam protocol header
-constexpr uint64_t ResponseTimeout = 1000; ///< timeout for message reception
-constexpr uint64_t ConnexionCheckInterval = 5000; ///< interval between 2 checks for device
+constexpr uint8_t RC_HEADER               = 0xCC;///< runCam protocol header
+constexpr uint64_t ResponseTimeout        = 1000;///< timeout for message reception
+constexpr uint64_t ConnexionCheckInterval = 5000;///< interval between 2 checks for device
 
 void RunCam::init() {
     uart.begin(115200);
@@ -21,32 +21,41 @@ void RunCam::init() {
 }
 
 void RunCam::printInfo() {
-    if (getParent() == nullptr)
-        return;
-    getParentPrint()->println(F(" ----- RUNCAM INFORMATION -----"));
-    getParentPrint()->print("Debug print: ");
+    println(F(" ----- RUNCAM INFORMATION -----"));
+    print(F("Debug print: "));
     printBool(debugPrint);
     if (isConnected) {
-        getParentPrint()->print(F("RunCam 5Key pad connected: ............. "));printBool(is5keyConnected);
-        getParentPrint()->print(F("RunCam Protocol version: ............... "));getParentPrint()->println(DeviceInfo.ProtocolVersion);
-        getParentPrint()->print(F("RunCam Feature Simulate Power Button: .. "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON);
-        getParentPrint()->print(F("RunCam Feature Simulate wifi Button: ... "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON);
-        getParentPrint()->print(F("RunCam Feature Change mode: ............ "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE);
-        getParentPrint()->print(F("RunCam Feature Simulate 5 key osb cable: "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE);
-        getParentPrint()->print(F("RunCam Feature Device settings access: . "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS);
-        getParentPrint()->print(F("RunCam Feature display port: ........... "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT);
-        getParentPrint()->print(F("RunCam Feature Start recording: ........ "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_START_RECORDING);
-        getParentPrint()->print(F("RunCam Feature Stop recording: ......... "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING);
-        getParentPrint()->print(F("RunCam Feature FC attitude: ............ "));printBool(DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE);
+        print(F("RunCam 5Key pad connected: ............. "));
+        printBool(is5keyConnected);
+        print(F("RunCam Protocol version: ............... "));
+        println(DeviceInfo.ProtocolVersion);
+        print(F("RunCam Feature Simulate Power Button: .. "));
+        printBool(DeviceInfo.hasFeature(Feature::SIMULATE_POWER_BUTTON));
+        print(F("RunCam Feature Simulate wifi Button: ... "));
+        printBool(DeviceInfo.hasFeature(Feature::SIMULATE_WIFI_BUTTON));
+        print(F("RunCam Feature Change mode: ............ "));
+        printBool(DeviceInfo.hasFeature(Feature::CHANGE_MODE));
+        print(F("RunCam Feature Simulate 5 key osb cable: "));
+        printBool(DeviceInfo.hasFeature(Feature::SIMULATE_5_KEY_OSD_CABLE));
+        print(F("RunCam Feature Device settings access: . "));
+        printBool(DeviceInfo.hasFeature(Feature::DEVICE_SETTINGS_ACCESS));
+        print(F("RunCam Feature display port: ........... "));
+        printBool(DeviceInfo.hasFeature(Feature::DISPLAYP_PORT));
+        print(F("RunCam Feature Start recording: ........ "));
+        printBool(DeviceInfo.hasFeature(Feature::START_RECORDING));
+        print(F("RunCam Feature Stop recording: ......... "));
+        printBool(DeviceInfo.hasFeature(Feature::STOP_RECORDING));
+        print(F("RunCam Feature FC attitude: ............ "));
+        printBool(DeviceInfo.hasFeature(Feature::FC_ATTITUDE));
     } else {
-        getParentPrint()->println(F("Device not connected."));
+        println(F("Device not connected."));
     }
 }
 
 void RunCam::update(int64_t delta) {
     chrono += delta;
-    if(!isConnected){
-        if (chrono > ConnexionCheckInterval){
+    if (!isConnected) {
+        if (chrono > ConnexionCheckInterval) {
             chrono = 0;
             getCameraInfo();
         }
@@ -81,24 +90,24 @@ bool RunCam::treatCommand(const core::command& cmd) {
 void RunCam::printHelp() {
     if (getParentPrint() == nullptr)
         return;
-    getParentPrint()->println(F("Help for RunCam driver"));
-    getParentPrint()->println(F("runcamDebug    toggle the debug printing into the multiStream"));
-    getParentPrint()->println(F("runcamInfo     Print the info of the connected device"));
-    getParentPrint()->println(F("runcamCmd      Send a command to the connected device. Valid command are:"));
-    getParentPrint()->println(F("                wifi   Simulate the wifi button"));
-    getParentPrint()->println(F("                power  Simulate the power button"));
-    getParentPrint()->println(F("                mode   Change camera mode"));
-    getParentPrint()->println(F("                start  Start Camera"));
-    getParentPrint()->println(F("                stop   Stop Camera"));
-    getParentPrint()->println(F("runcam5key     Send a 5 key action to the connected device. Valid parameters are:"));
-    getParentPrint()->println(F("                open    Begin connexion to the 5key pad"));
-    getParentPrint()->println(F("                close   Close connexion to the 5key pad"));
-    getParentPrint()->println(F("                set     Simulate the push on button"));
-    getParentPrint()->println(F("                left    Simulate the left direction"));
-    getParentPrint()->println(F("                right   Simulate the right direction"));
-    getParentPrint()->println(F("                up      Simulate the up direction"));
-    getParentPrint()->println(F("                down    Simulate the down direction"));
-    getParentPrint()->println(F("                release Simulate the down direction"));
+    println(F("Help for RunCam driver"));
+    println(F("runcamDebug    toggle the debug printing into the multiStream"));
+    println(F("runcamInfo     Print the info of the connected device"));
+    println(F("runcamCmd      Send a command to the connected device. Valid command are:"));
+    println(F("                wifi   Simulate the wifi button"));
+    println(F("                power  Simulate the power button"));
+    println(F("                mode   Change camera mode"));
+    println(F("                start  Start Camera"));
+    println(F("                stop   Stop Camera"));
+    println(F("runcam5key     Send a 5 key action to the connected device. Valid parameters are:"));
+    println(F("                open    Begin connexion to the 5key pad"));
+    println(F("                close   Close connexion to the 5key pad"));
+    println(F("                set     Simulate the push on button"));
+    println(F("                left    Simulate the left direction"));
+    println(F("                right   Simulate the right direction"));
+    println(F("                up      Simulate the up direction"));
+    println(F("                down    Simulate the down direction"));
+    println(F("                release Simulate the down direction"));
 }
 
 void RunCam::loadConfigFile() {
@@ -108,29 +117,21 @@ void RunCam::saveConfigFile() const {
 }
 
 void RunCam::getCameraInfo() {
-    std::vector<uint8_t> response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO, std::vector<uint8_t>());
+    std::vector<uint8_t> response = sendCommand(Command::GET_DEVICE_INFO, std::vector<uint8_t>());
     if (!isConnected)
         return;
-    if (response.size() != 3){
+    if (response.size() != 3) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam GetInfo: bad response length."));
+            println(F("RunCam GetInfo: bad response length."));
     }
     DeviceInfo.ProtocolVersion = response[0];
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON = (response[2] & 1 << 0) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON = (response[2] & 1 << 1) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE = (response[2] & 1 << 2) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE = (response[2] & 1 << 3) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS = (response[2] & 1 << 4) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT = (response[2] & 1 << 5) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_START_RECORDING = (response[2] & 1 << 6) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING = (response[2] & 1 << 7) != 0;
-    DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE = (response[1] & 1 << 1) != 0;
+    DeviceInfo.Features        = (response[1] << 8U) | response[2];
 }
 
-std::vector<uint8_t> RunCam::sendCommand(RunCamCommand cmd, const std::vector<uint8_t>& params, bool expectResponse) {
+std::vector<uint8_t> RunCam::sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse) {
     // only the get info command is allowed if not connected: it allow to determine if the device is connected
-    if (!isConnected && (cmd != RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO)) {
-        getParentPrint()->println(F("RunCam sendCommand: no connexion for this command."));
+    if (!isConnected && (cmd != Command::GET_DEVICE_INFO)) {
+        println(F("RunCam sendCommand: no connexion for this command."));
         return std::vector<uint8_t>();
     }
     // creation of the message to send
@@ -153,30 +154,30 @@ std::vector<uint8_t> RunCam::sendCommand(RunCamCommand cmd, const std::vector<ui
     // wait for a response
     uint64_t start = millis();
     while (uart.available() == 0) {
-        getParentPrint()->print(F("."));
+        print(F("."));
         if (millis() - start > ResponseTimeout) {
             isConnected = false;
-            getParentPrint()->print(F(" response timeout."));
+            print(F(" response timeout."));
             return std::vector<uint8_t>();
         }
         delay(10);// 10ms
     }
-    getParentPrint()->println();
+    println();
     // read the message
     resetCrc();
-    bool msg = false;
+    bool msg   = false;
     bool valid = false;
     while (uart.available() != 0) {
         uint8_t c = uart.read();
         if (debugPrint) {
-            getParentPrint()->print(c, HEX);
-            getParentPrint()->print(" / ");
-            getParentPrint()->println(current_crc, HEX);
+            print(c, HEX);
+            print(" / ");
+            println(current_crc, HEX);
         }
         if (!msg) {
-            if (c == RC_HEADER){
+            if (c == RC_HEADER) {
                 msg = true;
-            }else{
+            } else {
                 delay(10);
                 continue;
             }
@@ -191,18 +192,18 @@ std::vector<uint8_t> RunCam::sendCommand(RunCamCommand cmd, const std::vector<ui
         full_message.push_back(c);
     }
     // active connexion
-    if (cmd == RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO)
+    if (cmd == Command::GET_DEVICE_INFO)
         isConnected = true;
     // message verification
     if (!valid)
         return std::vector<uint8_t>();
     if (debugPrint) {
-        getParentPrint()->print(F("message: "));
+        print(F("message: "));
         for (auto c : full_message) {
-            getParentPrint()->print(c, HEX);
-            getParentPrint()->print(" ");
+            print(c, HEX);
+            print(" ");
         }
-        getParentPrint()->println();
+        println();
     }
     // return message content
     return full_message;
@@ -212,97 +213,96 @@ void RunCam::printBool(bool ptr) {
     if (getParentPrint() == nullptr)
         return;
     if (ptr) {
-        getParentPrint()->println(F("true"));
-    }else{
-        getParentPrint()->println(F("false"));
+        println(F("true"));
+    } else {
+        println(F("false"));
     }
 }
 
-void RunCam::CameraControl(const RunCamControlCommand& command) {
+void RunCam::CameraControl(const ControlCommand& command) {
     if (!isConnected)
         return;
-    if (command == RunCamControlCommand::RCDEVICE_PROTOCOL_SIMULATE_WIFI_BTN && !DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON ){
+    if (command == ControlCommand::SIMULATE_WIFI_BTN && !DeviceInfo.hasFeature(Feature::SIMULATE_WIFI_BUTTON)) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam CameraControl: Unable to simulate Wifi Button, no feature."));
+            println(F("RunCam CameraControl: Unable to simulate Wifi Button, no feature."));
         return;
     }
-    if (command == RunCamControlCommand::RCDEVICE_PROTOCOL_SIMULATE_POWER_BTN && !DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON ){
+    if (command == ControlCommand::SIMULATE_POWER_BTN && !DeviceInfo.hasFeature(Feature::SIMULATE_POWER_BUTTON)) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam CameraControl: Unable to simulate power Button, no feature."));
+            println(F("RunCam CameraControl: Unable to simulate power Button, no feature."));
         return;
     }
-    if (command == RunCamControlCommand::RCDEVICE_PROTOCOL_CHANGE_MODE && !DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE ){
+    if (command == ControlCommand::CHANGE_MODE && !DeviceInfo.hasFeature(Feature::CHANGE_MODE)) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam CameraControl: Unable to change mode, no feature."));
+            println(F("RunCam CameraControl: Unable to change mode, no feature."));
         return;
     }
-    if (command == RunCamControlCommand::RCDEVICE_PROTOCOL_CHANGE_START_RECORDING && !DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_START_RECORDING ){
+    if (command == ControlCommand::CHANGE_START_RECORDING && !DeviceInfo.hasFeature(Feature::START_RECORDING)) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam CameraControl: Unable to start camera, no feature."));
+            println(F("RunCam CameraControl: Unable to start camera, no feature."));
         return;
     }
-    if (command == RunCamControlCommand::RCDEVICE_PROTOCOL_CHANGE_START_RECORDING && !DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING ){
+    if (command == ControlCommand::CHANGE_START_RECORDING && !DeviceInfo.hasFeature(Feature::STOP_RECORDING)) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam CameraControl: Unable to stop camera, no feature."));
+            println(F("RunCam CameraControl: Unable to stop camera, no feature."));
         return;
     }
 
-    std::vector<uint8_t> response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL, std::vector<uint8_t>{static_cast<uint8_t>(command)}, false);
-    if (!response.empty()){
+    std::vector<uint8_t> response = sendCommand(Command::CAMERA_CONTROL, std::vector<uint8_t>{static_cast<uint8_t>(command)}, false);
+    if (!response.empty()) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam CameraControl: bad response length."));
+            println(F("RunCam CameraControl: bad response length."));
     }
-
 }
 
-void RunCam::parseCmd(const String& cmd){
+void RunCam::parseCmd(const String& cmd) {
     if (cmd == F("wifi")) {
-        CameraControl(RunCamControlCommand::RCDEVICE_PROTOCOL_SIMULATE_WIFI_BTN);
-    }else if (cmd == F("power")) {
-        CameraControl(RunCamControlCommand::RCDEVICE_PROTOCOL_SIMULATE_POWER_BTN);
-    }else if (cmd == F("mode")) {
-        CameraControl(RunCamControlCommand::RCDEVICE_PROTOCOL_CHANGE_MODE);
-    }else if (cmd == F("start")) {
-        CameraControl(RunCamControlCommand::RCDEVICE_PROTOCOL_CHANGE_START_RECORDING);
-    }else if (cmd == F("stop")) {
-        CameraControl(RunCamControlCommand::RCDEVICE_PROTOCOL_CHANGE_START_RECORDING);
+        CameraControl(ControlCommand::SIMULATE_WIFI_BTN);
+    } else if (cmd == F("power")) {
+        CameraControl(ControlCommand::SIMULATE_POWER_BTN);
+    } else if (cmd == F("mode")) {
+        CameraControl(ControlCommand::CHANGE_MODE);
+    } else if (cmd == F("start")) {
+        CameraControl(ControlCommand::CHANGE_START_RECORDING);
+    } else if (cmd == F("stop")) {
+        CameraControl(ControlCommand::CHANGE_STOP_RECORDING);
     }
 }
 
-void RunCam::simulate5keyRemoteControl(const RunCam::RunCam5keyControl& command) {
+void RunCam::simulate5keyRemoteControl(const RunCam::key5Control& command) {
     if (!isConnected)
         return;
-    if (!DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)
+    if (!DeviceInfo.hasFeature(Feature::SIMULATE_5_KEY_OSD_CABLE))
         return;
     std::vector<uint8_t> response;
-    if (command == RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_RELEASE) {
-        response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE, std::vector<uint8_t>{});
-    }else {
+    if (command == key5Control::SIMULATION_RELEASE) {
+        response = sendCommand(Command::KEY5_SIMULATION_RELEASE, std::vector<uint8_t>{});
+    } else {
         if (is5keyConnected)
-            response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS, std::vector<uint8_t>{static_cast<uint8_t>(command)});
+            response = sendCommand(Command::KEY5_SIMULATION_PRESS, std::vector<uint8_t>{static_cast<uint8_t>(command)});
     }
-    if (!response.empty()){
+    if (!response.empty()) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam parseCmd: bad response length."));
+            println(F("RunCam parseCmd: bad response length."));
     }
 }
 
-void RunCam::parse5Key(const String& cmd){
+void RunCam::parse5Key(const String& cmd) {
     if (cmd == F("set")) {
-        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_SET);
-    }else if (cmd == F("left")) {
-        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_LEFT);
-    }else if (cmd == F("right")) {
-        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_RIGHT);
-    }else if (cmd == F("up")) {
-        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_UP);
-    }else if (cmd == F("down")) {
-        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_DOWN);
-    }else if (cmd == F("release")) {
-        simulate5keyRemoteControl(RunCam5keyControl::RCDEVICE_PROTOCOL_5KEY_SIMULATION_RELEASE);
-    }else if (cmd == F("open")) {
+        simulate5keyRemoteControl(key5Control::SIMULATION_SET);
+    } else if (cmd == F("left")) {
+        simulate5keyRemoteControl(key5Control::SIMULATION_LEFT);
+    } else if (cmd == F("right")) {
+        simulate5keyRemoteControl(key5Control::SIMULATION_RIGHT);
+    } else if (cmd == F("up")) {
+        simulate5keyRemoteControl(key5Control::SIMULATION_UP);
+    } else if (cmd == F("down")) {
+        simulate5keyRemoteControl(key5Control::SIMULATION_DOWN);
+    } else if (cmd == F("release")) {
+        simulate5keyRemoteControl(key5Control::SIMULATION_RELEASE);
+    } else if (cmd == F("open")) {
         OpenClose(true);
-    }else if (cmd == F("close")) {
+    } else if (cmd == F("close")) {
         OpenClose(false);
     }
 }
@@ -310,20 +310,20 @@ void RunCam::parse5Key(const String& cmd){
 void RunCam::OpenClose(bool open) {
     if (!isConnected)
         return;
-    if (!DeviceInfo.RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)
+    if (!DeviceInfo.hasFeature(Feature::SIMULATE_5_KEY_OSD_CABLE))
         return;
-    uint8_t cmd = open?0x01:0x02;
-    std::vector<uint8_t> response = sendCommand(RunCamCommand::RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION, std::vector<uint8_t>{cmd});
-    if (response.size() != 1){
+    uint8_t cmd                   = open ? 0x01 : 0x02;
+    std::vector<uint8_t> response = sendCommand(Command::KEY5_CONNECTION, std::vector<uint8_t>{cmd});
+    if (response.size() != 1) {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam OpenClose: bad response length."));
+            println(F("RunCam OpenClose: bad response length."));
         return;
     }
-    if (response[0] == ((cmd << 4U) + 1)){
+    if (response[0] == ((cmd << 4U) + 1)) {
         is5keyConnected = open;
-    }else{
+    } else {
         if (getParentPrint() != nullptr)
-            getParentPrint()->println(F("RunCam OpenClose: Unable to complete operation."));
+            println(F("RunCam OpenClose: Unable to complete operation."));
     }
 }
 

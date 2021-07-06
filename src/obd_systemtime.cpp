@@ -13,8 +13,7 @@
 namespace obd::time {
 
 void clock::init() {
-    if (getParent() != nullptr)
-        fs = getParent()->getDriverAs<filesystem::fsDriver>(F("FileSystem"));
+    fs = getDriverAs<filesystem::fsDriver>(F("FileSystem"));
     // restore time (not the true time but nearer than 1 jan 1970!)
     if (fs != nullptr) {
         if (fs->exists(config::tsSave)){
@@ -30,13 +29,11 @@ void clock::init() {
 }
 
 void clock::printInfo() {
-    if (getParentPrint() == nullptr)
-        return;
-    getParentPrint()->println(F(" ----- CLOCK INFORMATION -----"));
-    getParentPrint()->print(F("Pool server       : "));
-    getParentPrint()->println(poolServerName);
-    getParentPrint()->print(F("Time Zone         : "));
-    getParentPrint()->println(timeZone);
+    println(F(" ----- CLOCK INFORMATION -----"));
+    print(F("Pool server       : "));
+    println(poolServerName);
+    print(F("Time Zone         : "));
+    println(timeZone);
 }
 
 void clock::update(int64_t delta) {
@@ -74,13 +71,11 @@ bool clock::treatCommand(const core::command& cmd) {
 }
 
 void clock::printHelp() {
-    if (getParentPrint() == nullptr)
-        return;
-    getParentPrint()->println(F("Help on system time"));
-    getParentPrint()->println(F("date             print date and time of the system"));
-    getParentPrint()->println(F("clockinfo        print time system infos"));
-    getParentPrint()->println(F("clockpool <pool> change the name of the pool server"));
-    getParentPrint()->println(F("clocktz   <tz>   change the time zone (see TZ.h for the format)"));
+    println(F("Help on system time"));
+    println(F("date             print date and time of the system"));
+    println(F("clockinfo        print time system infos"));
+    println(F("clockpool <pool> change the name of the pool server"));
+    println(F("clocktz   <tz>   change the time zone (see TZ.h for the format)"));
 }
 
 void clock::loadConfigFile() {
@@ -105,9 +100,7 @@ void clock::saveConfigFile() const {
 }
 
 void clock::printDate() {
-    if (getParentPrint() == nullptr)
-        return;
-    getParentPrint()->println(getDateFormatted());
+    println(getDateFormatted());
 }
 
 String clock::getDateFormatted() {

@@ -55,4 +55,11 @@ namespace webserver {
 class webDriver;
 }// namespace webserver
 
+/**
+ * @brief Namespace for managing the video
+ */
+namespace video {
+class RunCam;
+}// namespace video
+
 }// namespace obd

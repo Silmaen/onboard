@@ -66,66 +66,72 @@ public:
      */
     void saveConfigFile() const override;
 
-    enum struct RunCamControlCommand {
-        RCDEVICE_PROTOCOL_SIMULATE_WIFI_BTN      = 0x00, ///< Simulation Click the Wi-Fi button
-        RCDEVICE_PROTOCOL_SIMULATE_POWER_BTN     = 0x01, ///< Simulation Click the Power button
-        RCDEVICE_PROTOCOL_CHANGE_MODE            = 0x02, ///< Switch the camera mode
-        RCDEVICE_PROTOCOL_CHANGE_START_RECORDING = 0x03, ///< Control the camera to start recording
-        RCDEVICE_PROTOCOL_CHANGE_STOP_RECORDING  = 0x04, ///< Control the camera to stop recording
+    enum struct ControlCommand {
+        SIMULATE_WIFI_BTN      = 0x00,///< Simulation Click the Wi-Fi button
+        SIMULATE_POWER_BTN     = 0x01,///< Simulation Click the Power button
+        CHANGE_MODE            = 0x02,///< Switch the camera mode
+        CHANGE_START_RECORDING = 0x03,///< Control the camera to start recording
+        CHANGE_STOP_RECORDING  = 0x04,///< Control the camera to stop recording
     };
 
     /**
      * @brief send a control action to the device
      * @param command the command to send
      */
-    void CameraControl(const RunCamControlCommand& command);
+    void CameraControl(const ControlCommand& command);
 
     /**
      * @brief the 5 possible action of the pad
      */
-    enum struct RunCam5keyControl {
-        RCDEVICE_PROTOCOL_5KEY_SIMULATION_SET   = 0x01, ///< Simulate the confirmation key of the 5 key remote control
-        RCDEVICE_PROTOCOL_5KEY_SIMULATION_LEFT  = 0x02, ///< Simulate the left key of the 5 key remote control
-        RCDEVICE_PROTOCOL_5KEY_SIMULATION_RIGHT = 0x03, ///< Simulate the right key of the 5 key remote control
-        RCDEVICE_PROTOCOL_5KEY_SIMULATION_UP    = 0x04, ///< Simulate the up key of the 5 key remote control
-        RCDEVICE_PROTOCOL_5KEY_SIMULATION_DOWN  = 0x05, ///< Simulate the down key of the 5 key remote control
-        RCDEVICE_PROTOCOL_5KEY_SIMULATION_RELEASE = 0x06, ///< Simulate the release of the button
-        RCDEVICE_PROTOCOL_5KEY_FUNCTION_OPEN = 0x07, ///< Initiate a handshake action to the camera
-        RCDEVICE_PROTOCOL_5KEY_FUNCTION_CLOSE = 0x08, ///< Initiate a disconnection action to the camera
+    enum struct key5Control {
+        SIMULATION_SET     = 0x01,///< Simulate the confirmation key of the 5 key remote control
+        SIMULATION_LEFT    = 0x02,///< Simulate the left key of the 5 key remote control
+        SIMULATION_RIGHT   = 0x03,///< Simulate the right key of the 5 key remote control
+        SIMULATION_UP      = 0x04,///< Simulate the up key of the 5 key remote control
+        SIMULATION_DOWN    = 0x05,///< Simulate the down key of the 5 key remote control
+        SIMULATION_RELEASE = 0x06,///< Simulate the release of the button
     };
 
     /**
      * @brief Send the device command simulating action on 5 key pad
      * @param command the command to send
      */
-    void simulate5keyRemoteControl(const RunCam5keyControl& command);
+    void simulate5keyRemoteControl(const key5Control& command);
 
 private:
     /**
      * @brief list of RunCam device protocol supported functions
      */
-    enum struct RunCamCommand {
-        RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO = 0x00, ///< request device info
-        RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL  = 0x01, ///< Send Camera action command
-        RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS = 0x02, ///< Send the Press event of the 5 key remote control to the camera
-        RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE = 0x03, ///< Send the release event of the 5 key remote control to the camera
-        RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION = 0x04, ///< Send handshake events and disconnected events to the camera
+    enum struct Command {
+        GET_DEVICE_INFO         = 0x00,///< request device info
+        CAMERA_CONTROL          = 0x01,///< Send Camera action command
+        KEY5_SIMULATION_PRESS   = 0x02,///< Send the Press event of the 5 key remote control to the camera
+        KEY5_SIMULATION_RELEASE = 0x03,///< Send the release event of the 5 key remote control to the camera
+        KEY5_CONNECTION         = 0x04,///< Send handshake events and disconnected events to the camera
+    };
+
+    enum struct Feature {
+        SIMULATE_POWER_BUTTON    = 0,///< if the defice can simultate power button
+        SIMULATE_WIFI_BUTTON     = 0,///< if the device can simulate wifi button
+        CHANGE_MODE              = 0,///< if the device can change camera mode
+        SIMULATE_5_KEY_OSD_CABLE = 0,///< if the device can simulate the 5-key pad
+        DEVICE_SETTINGS_ACCESS   = 0,///< if the device gives access to settings
+        DISPLAYP_PORT            = 0,///< The device is identified as a DisplayPort device by flying controller and receives the OSD data display from the flight controller
+        START_RECORDING          = 0,///< Control the camera to start recording video
+        STOP_RECORDING           = 0,///< Control the camera to stop recording video
+        FC_ATTITUDE              = 0,///< If the device support requests attitude of the remote device(like Betaflight flight controller), it should contain this flag when initializing on the remote device.
     };
 
     /**
      * @brief information about camera
      */
     struct RunCamInformation {
-        uint8_t ProtocolVersion                                 = 0; ///< version of the protocol
-        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON    = false; ///< if the defice can simultate power button
-        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON     = false; ///< if the device can simulate wifi button
-        bool RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE              = false; ///< if the device can change camera mode
-        bool RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE = false; ///< if the device can simulate the 5-key pad
-        bool RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS   = false; ///< if the device gives access to settings
-        bool RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT            = false; ///< The device is identified as a DisplayPort device by flying controller and receives the OSD data display from the flight controller
-        bool RCDEVICE_PROTOCOL_FEATURE_START_RECORDING          = false; ///< Control the camera to start recording video
-        bool RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING           = false; ///< Control the camera to stop recording video
-        bool RCDEVICE_PROTOCOL_FEATURE_FC_ATTITUDE              = false; ///< If the device support requests attitude of the remote device(like Betaflight flight controller), it should contain this flag when initializing on the remote device.
+        uint8_t ProtocolVersion = 0;///< version of the protocol
+        uint16_t Features       = 0;///< list of features
+
+        [[nodiscard]] bool hasFeature(const Feature& f) const {
+            return (Features & (1U << static_cast<uint8_t>(f))) != 0;
+        }
     } DeviceInfo;
 
     /// if the device is connected
@@ -153,7 +159,7 @@ private:
      * @param expectResponse if the command will receive a response
      * @return the content of the response
      */
-    std::vector<uint8_t> sendCommand(RunCamCommand cmd, const std::vector<uint8_t>& params, bool expectResponse = true);
+    std::vector<uint8_t> sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse = true);
 
     /**
      * @brief retrieve camera information throw Serial communication
@@ -184,7 +190,7 @@ private:
      * @brief try to handshake or disconnect device
      * @param open true: connexion, false: disconnection
      */
-    void OpenClose(bool open =  true);
+    void OpenClose(bool open = true);
 
     /**
      * @brief parse a command string into an instruction and send it to camera

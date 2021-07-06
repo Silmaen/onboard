@@ -12,8 +12,7 @@ namespace obd::webserver {
 
 
 void webDriver::init() {
-    if (getParent() != nullptr)
-        fs = getParent()->getDriverAs<filesystem::fsDriver>(F("FileSystem"));
+    fs = getDriverAs<filesystem::fsDriver>(F("FileSystem"));
     server.onNotFound([=]() { this->fileFb(); });// fallback if not an previous url
     server.begin();
 }
@@ -88,10 +87,10 @@ bool webDriver::handleReadFile(const String& path) {
         toDisplay += ".gz";
     }
     if (!fs->exists(toDisplay)) {
-        getParentPrint()->println(F("Webserver: no file '") + toDisplay + F("'"));
+        println(F("Webserver: no file '") + toDisplay + F("'"));
         return false;
     }
-    getParentPrint()->println(F("Webserver Response to : ") + path);
+    println(F("Webserver Response to : ") + path);
     File file = fs->open(toDisplay, F("r"));
     if (contentType != F("text/html")) {
         server.streamFile(file, contentType);
@@ -103,12 +102,11 @@ bool webDriver::handleReadFile(const String& path) {
     file.close();
     return true;
 }
+
 void webDriver::StrParse(String& toParse) {
-    if (getParent() != nullptr) {
-        auto clock = getParent()->getDriverAs<time::clock>("SystemClock");
-        if (clock != nullptr)
-            toParse.replace("{{date}}", clock->getDateFormatted());
-    }
+    auto clock = getParent()->getDriverAs<time::clock>("SystemClock");
+    if (clock != nullptr)
+        toParse.replace("{{date}}", clock->getDateFormatted());
 }
 
 }// namespace obd::webserver

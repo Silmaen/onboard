@@ -72,7 +72,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    virtual bool treatCommand([[maybe_unused]] const core::command& cmd) {
+    virtual bool treatCommand([[maybe_unused]] const command& cmd) {
         return false;
     }
 
@@ -90,6 +90,240 @@ public:
      * @brief save the driver parameter in file
      */
     virtual void saveConfigFile() const = 0;
+
+    /**
+     * @brief try to print in MultiStream
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t print(const __FlashStringHelper* in);
+
+    /**
+     * @brief try to print in MultiStream
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t print(const String& in);
+
+    /**
+     * @brief try to print in MultiStream
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t print(const char* in);
+
+    /**
+     * @brief try to print in MultiStream
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t print(char in);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(unsigned char in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(int16_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(uint16_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(int32_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(uint32_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(int64_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(uint64_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t print(double in, int format = 2);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t print(const Printable& in);
+
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t println(const __FlashStringHelper* in);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t println(const String& in);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t println(const char* in);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t println(char in);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(unsigned char in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(int16_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(uint16_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(int32_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(uint32_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(int64_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(uint64_t in, int format = DEC);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    size_t println(double in, int format = 2);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @return number of byte writen
+     */
+    size_t println(const Printable& in);
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @return number of byte writen
+     */
+    size_t println();
+
+    /**
+     * @brief try to add a command int eh parent
+     * @param cmd command to add
+     */
+    void pushCommand(const command& cmd) const;
+
+    /**
+     * @brief get a driver by its name
+     * @param name the name of the driver
+     * @return the driver (nullptr if not exists)
+     */
+    std::shared_ptr<baseDriver> getDriver(const String& name);
+
+    /**
+     * @brief get the driver by its name and convert it to desired type
+     * @tparam T the desired output type (must inherit from baseDriver)
+     * @param name the driver name
+     * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
+     */
+    template<class T>
+    std::shared_ptr<T> getDriverAs(const String& name){
+        if (!std::is_base_of<baseDriver, T>::value)
+            return nullptr;
+        std::shared_ptr<baseDriver> a = getDriver(name);
+        if (a == nullptr)
+            return nullptr;
+        return std::static_pointer_cast<T>(a);
+    }
 
 private:
     /// pointer to the parent system
