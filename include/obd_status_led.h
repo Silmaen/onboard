@@ -24,14 +24,14 @@ enum struct LedState {
 /**
  * @brief Class to handle the Internal LED
  */
-class StatusLed : public baseDriver {
+class StatusLed : public BaseDriver {
 public:
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit StatusLed(core::system* p = nullptr) :
-        baseDriver(p){};
+    explicit StatusLed(core::System* p = nullptr) :
+        BaseDriver(p){};
 
     /**
      * @brief initialize the driver
@@ -65,7 +65,7 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] String getName() const override { return F("StatusLed"); }
+    [[nodiscard]] core::DriverType getType() const override { return core::DriverType::StatusLed; }
 
     /**
      * @brief load and apply parameters in the config file

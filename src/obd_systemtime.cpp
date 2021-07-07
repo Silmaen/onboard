@@ -12,8 +12,8 @@
 
 namespace obd::time {
 
-void clock::init() {
-    fs = getDriverAs<filesystem::fsDriver>(F("FileSystem"));
+void Clock::init() {
+    fs = getDriverAs<file::FileSystem>(F("FileSystem"));
     // restore time (not the true time but nearer than 1 jan 1970!)
     if (fs != nullptr) {
         if (fs->exists(config::tsSave)){
@@ -28,7 +28,7 @@ void clock::init() {
     configTime(timeZone.c_str(), poolServerName.c_str());
 }
 
-void clock::printInfo() {
+void Clock::printInfo() {
     println(F(" ----- CLOCK INFORMATION -----"));
     print(F("Pool server       : "));
     println(poolServerName);
@@ -36,7 +36,7 @@ void clock::printInfo() {
     println(timeZone);
 }
 
-void clock::update(int64_t delta) {
+void Clock::update(int64_t delta) {
     chronometer += delta;
     if (chronometer >= config::saveInterval ) {
         chronometer = 0;
@@ -50,7 +50,7 @@ void clock::update(int64_t delta) {
     }
 }
 
-bool clock::treatCommand(const core::command& cmd) {
+bool Clock::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("date"))) {
         printDate();
         return true;
@@ -70,7 +70,7 @@ bool clock::treatCommand(const core::command& cmd) {
     return false;
 }
 
-void clock::printHelp() {
+void Clock::printHelp() {
     println(F("Help on system time"));
     println(F("date             print date and time of the system"));
     println(F("clockinfo        print time system infos"));
@@ -78,7 +78,7 @@ void clock::printHelp() {
     println(F("clocktz   <tz>   change the time zone (see TZ.h for the format)"));
 }
 
-void clock::loadConfigFile() {
+void Clock::loadConfigFile() {
     filesystem::configFile file(getParent());
     file.loadConfig(getName());
     // parameters to load:
@@ -90,7 +90,7 @@ void clock::loadConfigFile() {
     }
 }
 
-void clock::saveConfigFile() const {
+void Clock::saveConfigFile() const {
     filesystem::configFile file(getParent());
     // parameter to save
     file.addConfigParameter("pool", poolServerName);
@@ -99,31 +99,31 @@ void clock::saveConfigFile() const {
     file.saveConfig(getName());
 }
 
-void clock::printDate() {
+void Clock::printDate() {
     println(getDateFormatted());
 }
 
-String clock::getDateFormatted() {
+String Clock::getDateFormatted() {
     return formatTime(getDate());
 }
 
-time_t clock::getDate() {
+time_t Clock::getDate() {
     timeval tv{};
     gettimeofday(&tv, nullptr);
     return tv.tv_sec;
 }
 
-void clock::setPoolServer(const String& pool) {
+void Clock::setPoolServer(const String& pool) {
     poolServerName = pool;
     init();
 }
 
-void clock::setTimeZone(const String& tz) {
+void Clock::setTimeZone(const String& tz) {
     timeZone = tz;
     init();
 }
 
-String clock::formatTime(const time_t& time) {
+String Clock::formatTime(const time_t& time) {
     String tStr = ctime(&time);
     tStr.replace("\n", "");
     tStr.replace("\r", "");

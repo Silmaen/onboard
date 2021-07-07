@@ -8,40 +8,40 @@
 #include "obd_system.h"
 #include "obd_systemtime.h"
 
-namespace obd::webserver {
+namespace obd::network {
 
 
-void webDriver::init() {
-    fs = getDriverAs<filesystem::fsDriver>(F("FileSystem"));
+void WebServer::init() {
+    fs = getDriverAs<file::FileSystem>(F("FileSystem"));
     server.onNotFound([=]() { this->fileFb(); });// fallback if not an previous url
     server.begin();
 }
 
-void webDriver::printInfo() {
+void WebServer::printInfo() {
 }
 
-void webDriver::update(int64_t  /*delta*/) {
+void WebServer::update(int64_t /*delta*/) {
     server.handleClient();
 }
 
-bool webDriver::treatCommand(const core::command& cmd) {
-    return baseDriver::treatCommand(cmd);
+bool WebServer::treatCommand(const core::command& cmd) {
+    return BaseDriver::treatCommand(cmd);
 }
 
-void webDriver::printHelp() {
+void WebServer::printHelp() {
 }
 
-void webDriver::loadConfigFile() {
+void WebServer::loadConfigFile() {
 }
 
-void webDriver::saveConfigFile() const {
+void WebServer::saveConfigFile() const {
 }
 
-void webDriver::replyNotFound(const String& msg) {
+void WebServer::replyNotFound(const String& msg) {
     server.send(404, F("text/plain"), msg);
 }
 
-void webDriver::fileFb() {
+void WebServer::fileFb() {
     String uri = ESP8266WebServer::urlDecode(server.uri());// required to read paths with blanks
     if (handleReadFile(uri)) {
         return;
@@ -70,7 +70,7 @@ void webDriver::fileFb() {
     return replyNotFound(message);
 }
 
-bool webDriver::handleReadFile(const String& path) {
+bool WebServer::handleReadFile(const String& path) {
     if (fs == nullptr) {
         getParentPrint()->println(F("Webserver: no filesystem"));
         return false;
@@ -94,7 +94,7 @@ bool webDriver::handleReadFile(const String& path) {
     File file = fs->open(toDisplay, F("r"));
     if (contentType != F("text/html")) {
         server.streamFile(file, contentType);
-    }else{
+    } else {
         String content = file.readString();
         StrParse(content);
         server.send(200, contentType, content);
@@ -103,10 +103,10 @@ bool webDriver::handleReadFile(const String& path) {
     return true;
 }
 
-void webDriver::StrParse(String& toParse) {
-    auto clock = getParent()->getDriverAs<time::clock>("SystemClock");
+void WebServer::StrParse(String& toParse) {
+    auto clock = getParent()->getDriverAs<time::Clock>("SystemClock");
     if (clock != nullptr)
         toParse.replace("{{date}}", clock->getDateFormatted());
 }
 
-}// namespace obd::webserver
+}// namespace obd::network

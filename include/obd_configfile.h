@@ -9,25 +9,25 @@
 #include <map>
 #include <utility>
 
-namespace obd::filesystem {
+namespace obd::file {
 
 /**
  * @brief class to handle the config files
  */
-class configFile {
+class ConfigFile {
 public:
     /**
      * @brief Constructor with parent filesystem
      * @param p the parent file system
      */
-    explicit configFile(std::shared_ptr<filesystem::fsDriver>  p = nullptr) :
+    explicit ConfigFile(std::shared_ptr<FileSystem>  p = nullptr) :
         fs{std::move(p)} {}
 
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit configFile(core::system* p = nullptr);
+    explicit ConfigFile(core::System* p = nullptr);
 
     /**
      * @brief check if the config file for the given driver exists
@@ -74,13 +74,12 @@ public:
      */
     void clear();
 
-
 private:
     /// link to the filesystem
-    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
+    std::shared_ptr<FileSystem> fs = nullptr;
 
     /// list of the file items
     std::map<String, String> fileContent;
 };
 
-}// namespace obd::filesystem
+}// namespace obd::file

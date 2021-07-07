@@ -12,20 +12,20 @@ namespace obd::time {
 /**
  * @brief base driver for the clock
  */
-class clock : public core::baseDriver {
+class Clock : public core::BaseDriver {
 public:
     /**
      * @brief constructor with parent system
      * @param p the parent system
      */
-    explicit clock(core::system* p = nullptr) :
-        baseDriver{p}, timeZone{TZ_Europe_Paris} {}
+    explicit Clock(core::System* p = nullptr) :
+        BaseDriver{p}, timeZone{TZ_Europe_Paris} {}
 
     /**
      * @brief retrieve the name of the driver
      * @return name of the driver
      */
-    [[nodiscard]] String getName() const override { return F("SystemClock"); }
+    [[nodiscard]] core::DriverType getType() const override { return core::DriverType::Clock; }
 
     /**
      * @brief initialize the driver
@@ -102,7 +102,7 @@ private:
     void printDate();
 
     /// link to filesystem
-    std::shared_ptr<filesystem::fsDriver> fs = nullptr;
+    std::shared_ptr<file::FileSystem> fs = nullptr;
 
     /// the pool server name to query
     String poolServerName = "pool.ntp.org";

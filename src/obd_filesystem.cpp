@@ -8,17 +8,17 @@
 #include "obd_system.h"
 #include "obd_systemtime.h"
 
-namespace obd::filesystem {
+namespace obd::file {
 
 
-void fsDriver::init() {
+void FileSystem::init() {
     LittleFS.begin();
-    auto cl = getDriverAs<time::clock>("SystemClock");
+    auto cl = getDriverAs<time::Clock>();
     if (cl != nullptr)
         setTimeCb(cl->getDate);
 }
 
-void fsDriver::printInfo() {
+void FileSystem::printInfo() {
     if (getParent() == nullptr)
         return;
     println(F(" ----- FILESYSTEM INFORMATION -----"));
@@ -38,11 +38,11 @@ void fsDriver::printInfo() {
     println(static_cast<int>(infos.maxPathLength));
 }
 
-void fsDriver::pwd() {
+void FileSystem::pwd() {
     println(curPath.get());
 }
 
-void fsDriver::ls(const String& /*options*/) {
+void FileSystem::ls(const String& /*options*/) {
     if (getParent() == nullptr)
         return;
     auto d = LittleFS.openDir(curPath.get());
@@ -56,13 +56,13 @@ void fsDriver::ls(const String& /*options*/) {
         }
         print(static_cast<int>(d.fileSize()));
         print(F(" "));
-        print(time::clock::formatTime(d.fileTime()));
+        print(time::Clock::formatTime(d.fileTime()));
         print(F(" "));
         println(d.fileName());
     }
 }
 
-void fsDriver::cd(const String& where) {
+void FileSystem::cd(const String& where) {
     if (getParent() == nullptr)
         return;
     if (where.isEmpty()) {
@@ -81,12 +81,12 @@ void fsDriver::cd(const String& where) {
     curPath = tempPath;
 }
 
-File fsDriver::open(const String& filename, const String& mode) {
+File FileSystem::open(const String& filename, const String& mode) {
     makePath(filename);
     return LittleFS.open(tempPath.get().c_str(), mode.c_str());
 }
 
-void fsDriver::mkdir(const String& directory) {
+void FileSystem::mkdir(const String& directory) {
     if (directory.isEmpty()) {
         println(F("mkdir: Invalid Void path"));
         return;
@@ -101,7 +101,7 @@ void fsDriver::mkdir(const String& directory) {
     LittleFS.mkdir(tempPath.get());
 }
 
-void fsDriver::rm(const String& _path) {
+void FileSystem::rm(const String& _path) {
     if (_path.isEmpty()) {
         println(F("rm: Invalid Void path"));
         return;
@@ -116,7 +116,7 @@ void fsDriver::rm(const String& _path) {
     LittleFS.remove(tempPath.get());
 }
 
-bool fsDriver::treatCommand(const core::command& cmd) {
+bool FileSystem::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("pwd"))) {
         pwd();
         return true;
@@ -144,7 +144,7 @@ bool fsDriver::treatCommand(const core::command& cmd) {
     return false;
 }
 
-void fsDriver::printHelp() {
+void FileSystem::printHelp() {
     println(F("Help for Filesystem"));
     println(F("pwd           print the working directory"));
     println(F("ls            list the content of the current directory"));
@@ -155,12 +155,12 @@ void fsDriver::printHelp() {
     println();
 }
 
-bool fsDriver::exists(const String& _path) {
+bool FileSystem::exists(const String& _path) {
     makePath(_path);
     return LittleFS.exists(tempPath.get());
 }
 
-void fsDriver::cat(const String& _path) {
+void FileSystem::cat(const String& _path) {
     makePath(_path);
     if (!exists(tempPath.get())) {
         if (getParent() != nullptr) {
@@ -184,14 +184,14 @@ void fsDriver::cat(const String& _path) {
     println();
 }
 
-void fsDriver::makePath(const String& _path) {
-    tempPath = path{_path};
+void FileSystem::makePath(const String& _path) {
+    tempPath = Path{_path};
     tempPath.makeAbsolute(curPath.get());
     tempPath.simplify();
 }
 
-void fsDriver::setTimeCb(time_t (*cb)()){
+void FileSystem::setTimeCb(time_t (*cb)()){
     LittleFS.setTimeCallback(cb);
 }
 
-}// namespace obd::filesystem
+}// namespace obd::file

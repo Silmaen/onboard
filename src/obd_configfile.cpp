@@ -7,26 +7,26 @@
 #include <obd_filesystem.h>
 #include <obd_system.h>
 
-namespace obd::filesystem {
+namespace obd::file {
 
-configFile::configFile(core::system* p) {
+ConfigFile::ConfigFile(core::System* p) {
     if (p == nullptr)
         return;
-    fs = p->getDriverAs<filesystem::fsDriver>("FileSystem");
+    fs = p->getDriverAs<file::FileSystem>();
 }
 
-bool configFile::configExists(const String& driverName) const {
+bool ConfigFile::configExists(const String& driverName) const {
     if (fs == nullptr)
         return false;
-    path pp{driverName + F(".cfg")};
+    Path pp{driverName + F(".cfg")};
     pp.makeAbsolute(F("/config"));
     return fs->exists(pp.get());
 }
 
-void configFile::loadConfig(const String& driverName) {
+void ConfigFile::loadConfig(const String& driverName) {
     if (!configExists(driverName))
         return;
-    path pp{driverName + F(".cfg")};
+    Path pp{driverName + F(".cfg")};
     pp.makeAbsolute(F("/config"));
     File file = fs->open(pp.get(),F("r"));
     while(file.available() > 0){
@@ -49,12 +49,12 @@ void configFile::loadConfig(const String& driverName) {
     file.close();
 }
 
-void configFile::saveConfig(const String& driverName) const {
+void ConfigFile::saveConfig(const String& driverName) const {
     if (fs == nullptr)
         return;
     if (fileContent.empty())
         return;
-    path pp{driverName + F(".cfg")};
+    Path pp{driverName + F(".cfg")};
     pp.makeAbsolute(F("/config"));
     File file = fs->open(pp.get(),F("w"));
     for(const auto& it: fileContent){
@@ -65,22 +65,22 @@ void configFile::saveConfig(const String& driverName) const {
     file.close();
 }
 
-void configFile::addConfigParameter(const String& key, const String& val) {
+void ConfigFile::addConfigParameter(const String& key, const String& val) {
     fileContent.insert_or_assign(key, val);
 }
 
-bool configFile::hasKey(const String& key) const {
+bool ConfigFile::hasKey(const String& key) const {
     return fileContent.find(key) != fileContent.end();
 }
 
-const String& configFile::getKey(const String& key) const {
+const String& ConfigFile::getKey(const String& key) const {
     if (!hasKey(key))
         return emptyString;
     return fileContent.at(key);
 }
 
-void configFile::clear() {
+void ConfigFile::clear() {
     fileContent.clear();
 }
 
-}// namespace obd::filesystem
+}// namespace obd::file

@@ -11,21 +11,21 @@ namespace obd::network {
 /**
  * @brief class to handle communication through USB
  */
-class UsbSerial : public core::baseDriver {
+class UsbSerial : public core::BaseDriver {
 public:
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit UsbSerial(core::system* p = nullptr) :
-        baseDriver(p){};
+    explicit UsbSerial(core::System* p = nullptr) :
+        BaseDriver(p){};
 
     /**
      * @brief retrieve the name of the driver
      * @return name of the driver
      */
-    [[nodiscard]] String getName() const override {
-        return F("UsbSerial");
+    [[nodiscard]] core::DriverType getType() const override {
+        return core::DriverType::UsbSerial;
     }
 
     /**

@@ -9,19 +9,19 @@
 #include <FS.h>
 #include <Print.h>
 
-namespace obd::filesystem {
+namespace obd::file {
 
 /**
  * @brief driver for the filesystem
  */
-class fsDriver : public core::baseDriver {
+class FileSystem : public core::BaseDriver {
 public:
     /**
      * @brief constructor with parent
      * @param p the parent system
      */
-    explicit fsDriver(core::system* p = nullptr) :
-        baseDriver(p), curPath{F("/")} {};
+    explicit FileSystem(core::System* p = nullptr) :
+        BaseDriver(p), curPath{F("/")} {};
 
     /**
      * @brief initialize file system
@@ -55,7 +55,7 @@ public:
      * @brief get the name of the driver
      * @return driver name
      */
-    [[nodiscard]] String getName() const override { return F("FileSystem"); }
+    [[nodiscard]] core::DriverType getType() const override { return core::DriverType::FileSystem; }
 
     /**
      * @brief load and apply parameters in the config file
@@ -127,12 +127,12 @@ private:
     /**
      * @brief the current file path
      */
-    path curPath{"/"};
+    Path curPath{"/"};
 
     /**
      * @brief buffer path to make intermediate computations
      */
-    path tempPath{"/"};
+    Path tempPath{"/"};
 
     /**
      * @brief create and verify a path
@@ -141,4 +141,4 @@ private:
     void makePath(const String& _path);
 };
 
-}// namespace obd::filesystem
+}// namespace obd::file

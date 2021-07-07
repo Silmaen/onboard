@@ -5,34 +5,34 @@
 
 #include <obd_configfile.h>
 #include <obd_filesystem.h>
-#include <obd_network.h>
-#include <obd_system.h>
-#include <obd_usbserial.h>
-#include <obd_systemtime.h>
-#include <obd_webserver.h>
 #include <obd_runcam.h>
+#include <obd_system.h>
+#include <obd_systemtime.h>
+#include <obd_usbserial.h>
+#include <obd_webserver.h>
+#include <obd_wifidriver.h>
 #include <user_interface.h>
 
 namespace obd::core {
 
-system::system() {
+System::System() {
     drivers.push_back(std::make_shared<core::StatusLed>(this));
     drivers.push_back(std::make_shared<network::UsbSerial>(this));
-    drivers.push_back(std::make_shared<filesystem::fsDriver>(this));
-    drivers.push_back(std::make_shared<network::netDriver>(this));
-    drivers.push_back(std::make_shared<time::clock>(this));
-    drivers.push_back(std::make_shared<webserver::webDriver>(this));
+    drivers.push_back(std::make_shared<file::FileSystem>(this));
+    drivers.push_back(std::make_shared<network::WifiDriver>(this));
+    drivers.push_back(std::make_shared<time::Clock>(this));
+    drivers.push_back(std::make_shared<network::WebServer>(this));
     drivers.push_back(std::make_shared<video::RunCam>(this));
 }
 
-void system::init() {
+void System::init() {
     for (const auto& driver : drivers) {
         driver->init();
         driver->printInfo();
     }
 }
 
-void system::update() {
+void System::update() {
     // update timestamp
     int64_t ts = millis();
     int64_t delta = ts - static_cast<int64_t>(timestamp);
@@ -45,7 +45,7 @@ void system::update() {
     treatCommands();
 }
 
-void system::treatCommands() {
+void System::treatCommands() {
     // only one command is treated: if the queue contains more, the command will be treated at the next loop
     if (!commands.empty()) {
         auto& cmd = commands.front();
@@ -75,7 +75,7 @@ void system::treatCommands() {
     }
 }
 
-void system::printKernelInfo() {
+void System::printKernelInfo() {
     // general info on chipset
     outputs.println(F(" ----- KERNEL INFORMATION -----"));
     outputs.print(F("Chip Id           : 0x"));
@@ -153,22 +153,30 @@ void system::printKernelInfo() {
     outputs.println(ss + fss);
 }
 
-void system::printSystemInfo() {
+void System::printSystemInfo() {
     printKernelInfo();
     for (const auto& driver : drivers) {
         driver->printInfo();
     }
 }
 
-std::shared_ptr<baseDriver> system::getDriver(const String& name) {
+std::shared_ptr<BaseDriver> System::getDriver(const String& name) {
     auto res = std::find_if(drivers.begin(),drivers.end(),
-                            [name](const std::shared_ptr<obd::core::baseDriver>& b){return b->getName()==name;});
+                            [name](const std::shared_ptr<obd::core::BaseDriver>& b){return b->getName()==name;});
     if (res == drivers.end())
         return nullptr;
     return *res;
 }
 
-void system::printHelp(const String& param) {
+std::shared_ptr<BaseDriver> System::getDriver(const DriverType& type) {
+    auto res = std::find_if(drivers.begin(),drivers.end(),
+                            [type](const std::shared_ptr<obd::core::BaseDriver>& b){return b->getType()==type;});
+    if (res == drivers.end())
+        return nullptr;
+    return *res;
+}
+
+void System::printHelp(const String& param) {
     outputs.println(F("SYSTEM HELP"));
     if (param.isEmpty()) {
         outputs.println(F("please give a subcategory for the specific help."));
@@ -181,14 +189,14 @@ void system::printHelp(const String& param) {
         return;
     }
     if (param == "kernel") {
-        outputs.println(F("dmesg          print all system info"));
+        outputs.println(F("dmesg          print all System info"));
         outputs.println(F("help    <sub>  get help on specific category"));
         outputs.println(F("cfgSave        save configuration to files"));
         outputs.println(F("cfgLoad        load configuration from files"));
         return;
     }
     auto res = std::find_if(drivers.begin(),drivers.end(),
-                            [param](const std::shared_ptr<obd::core::baseDriver>& b){return b->getName()==param;});
+                            [param](const std::shared_ptr<obd::core::BaseDriver>& b){return b->getName()==param;});
     if (res != drivers.end()){
         (*res)->printHelp();
         return;
@@ -203,16 +211,16 @@ void system::printHelp(const String& param) {
 }
 
 
-void system::loadAllConfig() {
-    // load for the system
+void System::loadAllConfig() {
+    // load for the System
     // load for the drivers
     for (const auto& driver : drivers) {
         driver->loadConfigFile();
     }
 }
 
-void system::saveAllConfig() {
-    // save for the system
+void System::saveAllConfig() {
+    // save for the System
     // save for the drivers
     for (const auto& driver : drivers) {
         driver->saveConfigFile();
