@@ -13,7 +13,7 @@ namespace obd::file {
 
 void FileSystem::init() {
     LittleFS.begin();
-    auto cl = getDriverAs<time::Clock>();
+    auto cl = getParent()->getDriver<time::Clock>();
     if (cl != nullptr)
         setTimeCb(cl->getDate);
 }

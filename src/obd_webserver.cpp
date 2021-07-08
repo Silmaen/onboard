@@ -12,7 +12,7 @@ namespace obd::network {
 
 
 void WebServer::init() {
-    fs = getDriverAs<file::FileSystem>(F("FileSystem"));
+    fs = getParent()->getDriver<file::FileSystem>();
     server.onNotFound([=]() { this->fileFb(); });// fallback if not an previous url
     server.begin();
 }
@@ -104,7 +104,7 @@ bool WebServer::handleReadFile(const String& path) {
 }
 
 void WebServer::StrParse(String& toParse) {
-    auto clock = getParent()->getDriverAs<time::Clock>("SystemClock");
+    auto clock = getParent()->getDriver<time::Clock>();
     if (clock != nullptr)
         toParse.replace("{{date}}", clock->getDateFormatted());
 }

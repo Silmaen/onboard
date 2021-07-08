@@ -13,7 +13,7 @@
 namespace obd::time {
 
 void Clock::init() {
-    fs = getDriverAs<file::FileSystem>(F("FileSystem"));
+    fs = getParent()->getDriver<file::FileSystem>();
     // restore time (not the true time but nearer than 1 jan 1970!)
     if (fs != nullptr) {
         if (fs->exists(config::tsSave)){
@@ -79,24 +79,24 @@ void Clock::printHelp() {
 }
 
 void Clock::loadConfigFile() {
-    filesystem::configFile file(getParent());
-    file.loadConfig(getName());
+    file::ConfigFile lfile(getParent());
+    lfile.loadConfig(getName());
     // parameters to load:
-    if (file.hasKey("pool")){
-        poolServerName = file.getKey("pool");
+    if (lfile.hasKey("pool")){
+        poolServerName = lfile.getKey("pool");
     }
-    if (file.hasKey("tz")){
-        timeZone = file.getKey("tz");
+    if (lfile.hasKey("tz")){
+        timeZone = lfile.getKey("tz");
     }
 }
 
 void Clock::saveConfigFile() const {
-    filesystem::configFile file(getParent());
+    file::ConfigFile lfile(getParent());
     // parameter to save
-    file.addConfigParameter("pool", poolServerName);
-    file.addConfigParameter("tz", timeZone);
+    lfile.addConfigParameter("pool", poolServerName);
+    lfile.addConfigParameter("tz", timeZone);
     //
-    file.saveConfig(getName());
+    lfile.saveConfig(getName());
 }
 
 void Clock::printDate() {

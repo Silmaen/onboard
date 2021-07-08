@@ -62,12 +62,6 @@ public:
     void printHelp() override;
 
     /**
-     * @brief get the name of the driver
-     * @return driver name
-     */
-    [[nodiscard]] core::DriverType getType() const override { return core::DriverType::StatusLed; }
-
-    /**
      * @brief load and apply parameters in the config file
      */
     void loadConfigFile() override {}

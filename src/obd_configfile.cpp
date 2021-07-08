@@ -12,7 +12,7 @@ namespace obd::file {
 ConfigFile::ConfigFile(core::System* p) {
     if (p == nullptr)
         return;
-    fs = p->getDriverAs<file::FileSystem>();
+    fs = p->getDriver<file::FileSystem>();
 }
 
 bool ConfigFile::configExists(const String& driverName) const {

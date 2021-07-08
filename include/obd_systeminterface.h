@@ -249,51 +249,6 @@ public:
      */
     void pushCommand(const command& cmd) const;
 
-    /**
-     * @brief get a driver by its name
-     * @param name the name of the driver
-     * @return the driver (nullptr if not exists)
-     */
-    [[nodiscard]] std::shared_ptr<BaseDriver> getDriver(const String& name) const;
-
-    /**
-     * @brief get a driver by its name
-     * @param type the class name of the driver
-     * @return the driver (nullptr if not exists)
-     */
-    [[nodiscard]] std::shared_ptr<BaseDriver> getDriver(const DriverType& type) const;
-
-    /**
-     * @brief get the driver by its name and convert it to desired type
-     * @tparam T the desired output type (must inherit from baseDriver)
-     * @param name the driver name
-     * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
-     */
-    template<class T>
-    [[nodiscard]] std::shared_ptr<T> getDriverAs(const String& name)const{
-        if (!std::is_base_of<BaseDriver, T>::value)
-            return nullptr;
-        std::shared_ptr<BaseDriver> a = getDriver(name);
-        if (a == nullptr)
-            return nullptr;
-        return std::static_pointer_cast<T>(a);
-    }
-
-    /**
-     * @brief get the driver by its name and convert it to desired type
-     * @tparam T the desired output type (must inherit from baseDriver)
-     * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
-     */
-    template<class T>
-    [[nodiscard]] std::shared_ptr<T> getDriverAs() const {
-        if (!std::is_base_of<BaseDriver, T>::value)
-            return nullptr;
-        T tmp{(System*) this};
-        std::shared_ptr<BaseDriver> a = getDriver(tmp.getType());
-        if (a == nullptr)
-            return nullptr;
-        return std::static_pointer_cast<T>(a);
-    }
 private:
     /// pointer to the parent system
     System* parent = nullptr;

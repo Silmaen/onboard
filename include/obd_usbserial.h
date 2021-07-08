@@ -21,14 +21,6 @@ public:
         BaseDriver(p){};
 
     /**
-     * @brief retrieve the name of the driver
-     * @return name of the driver
-     */
-    [[nodiscard]] core::DriverType getType() const override {
-        return core::DriverType::UsbSerial;
-    }
-
-    /**
      * @brief initialize the driver
      */
     void init() override;

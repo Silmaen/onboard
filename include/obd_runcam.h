@@ -13,14 +13,14 @@ namespace obd::video {
 /**
  * @brief class to handle the RunCam device
  */
-class RunCam : public core::baseDriver {
+class RunCam : public core::BaseDriver {
 public:
     /**
      * @brief constructor with parent
      * @param p the parent system
      */
-    explicit RunCam(core::system* p = nullptr) :
-        baseDriver(p){};
+    explicit RunCam(core::System* p = nullptr) :
+        BaseDriver(p){};
 
     /**
      * @brief initialize file system
@@ -49,12 +49,6 @@ public:
      * @brief display command help
      */
     void printHelp() override;
-
-    /**
-     * @brief get the name of the driver
-     * @return driver name
-     */
-    [[nodiscard]] String getName() const override { return F("RunCam"); }
 
     /**
      * @brief load and apply parameters in the config file

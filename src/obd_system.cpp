@@ -16,13 +16,13 @@
 namespace obd::core {
 
 System::System() {
-    drivers.push_back(std::make_shared<core::StatusLed>(this));
-    drivers.push_back(std::make_shared<network::UsbSerial>(this));
-    drivers.push_back(std::make_shared<file::FileSystem>(this));
-    drivers.push_back(std::make_shared<network::WifiDriver>(this));
-    drivers.push_back(std::make_shared<time::Clock>(this));
-    drivers.push_back(std::make_shared<network::WebServer>(this));
-    drivers.push_back(std::make_shared<video::RunCam>(this));
+    drivers.addDriver<core::StatusLed>(this);
+    drivers.addDriver<network::UsbSerial>(this);
+    drivers.addDriver<file::FileSystem>(this);
+    drivers.addDriver<network::WifiDriver>(this);
+    drivers.addDriver<time::Clock>(this);
+    drivers.addDriver<network::WebServer>(this);
+    drivers.addDriver<video::RunCam>(this);
 }
 
 void System::init() {
@@ -158,22 +158,6 @@ void System::printSystemInfo() {
     for (const auto& driver : drivers) {
         driver->printInfo();
     }
-}
-
-std::shared_ptr<BaseDriver> System::getDriver(const String& name) {
-    auto res = std::find_if(drivers.begin(),drivers.end(),
-                            [name](const std::shared_ptr<obd::core::BaseDriver>& b){return b->getName()==name;});
-    if (res == drivers.end())
-        return nullptr;
-    return *res;
-}
-
-std::shared_ptr<BaseDriver> System::getDriver(const DriverType& type) {
-    auto res = std::find_if(drivers.begin(),drivers.end(),
-                            [type](const std::shared_ptr<obd::core::BaseDriver>& b){return b->getType()==type;});
-    if (res == drivers.end())
-        return nullptr;
-    return *res;
 }
 
 void System::printHelp(const String& param) {

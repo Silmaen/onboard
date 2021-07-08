@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include <obd_drivermanager.h>
 #include <obd_basedriver.h>
 #include <obd_multistream.h>
 #include <obd_status_led.h>
@@ -57,51 +58,14 @@ public:
     }
 
     /**
-     * @brief get a driver by its name
-     * @param name the name of the driver class
-     * @return the driver (nullptr if not exists)
-     */
-    std::shared_ptr<BaseDriver> getDriver(const String& name);
-
-    /**
-     * @brief get a driver by its name
-     * @param type the class name of the driver
-     * @return the driver (nullptr if not exists)
-     */
-    std::shared_ptr<BaseDriver> getDriver(const DriverType& type);
-
-    /**
-     * @brief get the driver by its name and convert it to desired type
-     * @tparam T the desired output type (must inherit from baseDriver)
-     * @param name the driver name
-     * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
-     */
-    template<class T>
-    std::shared_ptr<T> getDriverAs(const String& name) {
-        if (!std::is_base_of<BaseDriver, T>::value)
-            return nullptr;
-        std::shared_ptr<BaseDriver> a = getDriver(name);
-        if (a == nullptr)
-            return nullptr;
-        return std::static_pointer_cast<T>(a);
-    }
-
-    /**
      * @brief get the driver by its name and convert it to desired type
      * @tparam T the desired output type (must inherit from baseDriver)
      * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
      */
     template<class T>
-    std::shared_ptr<T> getDriverAs() {
-        if (!std::is_base_of<BaseDriver, T>::value)
-            return nullptr;
-        T tmp{this};
-        std::shared_ptr<BaseDriver> a = getDriver(tmp.getType());
-        if (a == nullptr)
-            return nullptr;
-        return std::static_pointer_cast<T>(a);
+    std::shared_ptr<T> getDriver() {
+        return drivers.getDriver<T>();
     }
-
 
     /**
      * @brief print the kernel information
@@ -155,7 +119,7 @@ private:
     MultiPrint outputs;
 
     /// list of the drivers
-    std::vector<std::shared_ptr<BaseDriver>> drivers;
+    DriverManager drivers;
 
     /// queue of the commands
     std::queue<command> commands;

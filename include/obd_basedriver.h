@@ -23,33 +23,9 @@ public:
 
     /**
      * @brief retrieve the type of the driver
-     * @return type of the driver
-     */
-    [[nodiscard]] virtual DriverType getType() const { return DriverType::Unknown; };
-
-    /**
-     * @brief retrieve the type of the driver
      * @return type of the driver as string
      */
-    [[nodiscard]] String getName() const {
-        switch (getType()) {
-        case DriverType::Unknown:
-            return F("Unknown");
-        case DriverType::StatusLed:
-            return F("StatusLed");
-        case DriverType::UsbSerial:
-            return F("UsbSerial");
-        case DriverType::FileSystem:
-            return F("FileSystem");
-        case DriverType::WifiDriver:
-            return F("WifiDriver");
-        case DriverType::Clock:
-            return F("Clock");
-        case DriverType::WebServer:
-            return F("WebServer");
-        }
-        return F("Error");
-    };
+    [[nodiscard]] String getName() const;
 
     /**
      * @brief initialize the driver

@@ -12,7 +12,7 @@ namespace obd::network {
 WifiDriver::WifiDriver(core::System* p) :
     BaseDriver(p) {
     if (p != nullptr) {
-        statusLed = getDriverAs<core::StatusLed>(F("StatusLed"));
+        statusLed = getParent()->getDriver<core::StatusLed>();
     }
 }
 
@@ -257,20 +257,20 @@ void WifiDriver::printWelcome() {
 }
 
 void WifiDriver::loadConfigFile() {
-    filesystem::configFile file(getParent());
-    file.loadConfig(getName());
+    file::ConfigFile local_file(getParent());
+    local_file.loadConfig(getName());
     // parameters to load:
-    if (file.hasKey("host")) {
-        WiFi.hostname(file.getKey("host").c_str());
+    if (local_file.hasKey("host")) {
+        WiFi.hostname(local_file.getKey("host").c_str());
     }
 }
 
 void WifiDriver::saveConfigFile() const {
-    filesystem::configFile file(getParent());
+    file::ConfigFile local_file(getParent());
     // parameter to save
-    file.addConfigParameter("host", WiFi.hostname());
+    local_file.addConfigParameter("host", WiFi.hostname());
     //
-    file.saveConfig(getName());
+    local_file.saveConfig(getName());
 }
 
 }// namespace obd::network

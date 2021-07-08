@@ -21,6 +21,7 @@ namespace config {
  * @brief namespace for the base system
  */
 namespace core {
+class DriverManager;
 class System;
 class SystemIterface;
 class BaseDriver;

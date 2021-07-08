@@ -183,16 +183,4 @@ void SystemInterface::pushCommand(const command& cmd) const {
     }
 }
 
-std::shared_ptr<BaseDriver> SystemInterface::getDriver(const String& name) const {
-    if (getParent() != nullptr)
-        return getParent()->getDriver(name);
-    return nullptr;
-}
-std::shared_ptr<BaseDriver> SystemInterface::getDriver(const DriverType& type) const {
-    if (getParent() != nullptr)
-        return getParent()->getDriver(type);
-    return nullptr;
-}
-
-
 }// namespace obd::core
