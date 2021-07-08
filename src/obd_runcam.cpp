@@ -72,7 +72,7 @@ bool RunCam::treatCommand(const core::command& cmd) {
         return true;
     }
     if (cmd.isCmd(F("runcamTest"))) {
-        getCameraInfo();
+        getCameraInfo(false);
         printInfo();
         return true;
     }
@@ -116,8 +116,8 @@ void RunCam::loadConfigFile() {
 void RunCam::saveConfigFile() const {
 }
 
-void RunCam::getCameraInfo() {
-    std::vector<uint8_t> response = sendCommand(Command::GET_DEVICE_INFO, std::vector<uint8_t>());
+void RunCam::getCameraInfo(bool silent ) {
+    std::vector<uint8_t> response = sendCommand(Command::GET_DEVICE_INFO, std::vector<uint8_t>(), true, silent);
     if (!isConnected)
         return;
     if (response.size() != 3) {
@@ -204,7 +204,7 @@ void RunCam::cameraRecordingStop() {
 
 }
 
-std::vector<uint8_t> RunCam::sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse) {
+std::vector<uint8_t> RunCam::sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse, bool silent) {
     // only the get info command is allowed if not connected: it allow to determine if the device is connected
     if (!isConnected && (cmd != Command::GET_DEVICE_INFO)) {
         println(F("RunCam sendCommand: no connexion for this command."));
@@ -230,10 +230,12 @@ std::vector<uint8_t> RunCam::sendCommand(Command cmd, const std::vector<uint8_t>
     // wait for a response
     uint64_t start = millis();
     while (uart.available() == 0) {
-        print(F("."));
+        if (!silent)
+            print(F("."));
         if (millis() - start > ResponseTimeout) {
             isConnected = false;
-            print(F(" response timeout."));
+            if (!silent)
+                println(F(" response timeout."));
             return std::vector<uint8_t>();
         }
         delay(10);// 10ms

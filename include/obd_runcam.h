@@ -174,7 +174,7 @@ private:
     /**
      * @brief retrieve camera information throw Serial communication
      */
-    void getCameraInfo();
+    void getCameraInfo(bool silent = true);
 
     /**
      * @brief send command with its parameters, wait for response
@@ -183,7 +183,7 @@ private:
      * @param expectResponse if the command will receive a response
      * @return the content of the response
      */
-    std::vector<uint8_t> sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse = true);
+    std::vector<uint8_t> sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse = true, bool silent = true);
 
 
     /**

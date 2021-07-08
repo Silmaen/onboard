@@ -8,18 +8,26 @@
 
 namespace obd::core {
 
-String BaseDriver::getName() const {
-    //String resu{abi::__cxa_demangle(typeid(*this).name(),nullptr,nullptr, &i)};
-    String resu{typeid(*this).name()};
-    size_t i = 0;
-    while (i < resu.length()) {
-        if (resu[i] < '0' || resu[i] > '9')
-            break;
-        ++i;
+static const String digits{"0123456789"};
+
+int lastDigit(const String& str) {
+    int idx = -1;
+    for (uint16_t i = 0; i < str.length(); ++i) {
+        if (std::any_of(digits.begin(), digits.end(), [str, i](char c) { return str[i] == c; })) {
+            idx = i;
+        }
     }
-    if (i == resu.length())
-        return F("TypeError");
-    return resu.substring(i);
+    return idx;
+}
+
+String BaseDriver::getName() const {
+    String resu{typeid(*this).name()};
+    if (resu.isEmpty())
+        return "";
+    if (resu[0] == 'N') {
+        resu = resu.substring(1, resu.length() - 1);
+    }
+    return resu.substring(lastDigit(resu) + 1, resu.length());
 }
 
 }// namespace obd::core
