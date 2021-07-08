@@ -23,30 +23,30 @@ void RunCam::init() {
 void RunCam::printInfo() {
     println(F(" ----- RUNCAM INFORMATION -----"));
     print(F("Debug print: "));
-    printBool(debugPrint);
+    printlnBool(debugPrint);
     if (isConnected) {
         print(F("RunCam 5Key pad connected: ............. "));
-        printBool(is5keyConnected);
+        printlnBool(is5keyConnected);
         print(F("RunCam Protocol version: ............... "));
         println(DeviceInfo.ProtocolVersion);
         print(F("RunCam Feature Simulate Power Button: .. "));
-        printBool(DeviceInfo.hasFeature(Feature::SIMULATE_POWER_BUTTON));
+        printlnBool(DeviceInfo.hasFeature(Feature::SIMULATE_POWER_BUTTON));
         print(F("RunCam Feature Simulate wifi Button: ... "));
-        printBool(DeviceInfo.hasFeature(Feature::SIMULATE_WIFI_BUTTON));
+        printlnBool(DeviceInfo.hasFeature(Feature::SIMULATE_WIFI_BUTTON));
         print(F("RunCam Feature Change mode: ............ "));
-        printBool(DeviceInfo.hasFeature(Feature::CHANGE_MODE));
+        printlnBool(DeviceInfo.hasFeature(Feature::CHANGE_MODE));
         print(F("RunCam Feature Simulate 5 key osb cable: "));
-        printBool(DeviceInfo.hasFeature(Feature::SIMULATE_5_KEY_OSD_CABLE));
+        printlnBool(DeviceInfo.hasFeature(Feature::SIMULATE_5_KEY_OSD_CABLE));
         print(F("RunCam Feature Device settings access: . "));
-        printBool(DeviceInfo.hasFeature(Feature::DEVICE_SETTINGS_ACCESS));
+        printlnBool(DeviceInfo.hasFeature(Feature::DEVICE_SETTINGS_ACCESS));
         print(F("RunCam Feature display port: ........... "));
-        printBool(DeviceInfo.hasFeature(Feature::DISPLAYP_PORT));
+        printlnBool(DeviceInfo.hasFeature(Feature::DISPLAYP_PORT));
         print(F("RunCam Feature Start recording: ........ "));
-        printBool(DeviceInfo.hasFeature(Feature::START_RECORDING));
+        printlnBool(DeviceInfo.hasFeature(Feature::START_RECORDING));
         print(F("RunCam Feature Stop recording: ......... "));
-        printBool(DeviceInfo.hasFeature(Feature::STOP_RECORDING));
+        printlnBool(DeviceInfo.hasFeature(Feature::STOP_RECORDING));
         print(F("RunCam Feature FC attitude: ............ "));
-        printBool(DeviceInfo.hasFeature(Feature::FC_ATTITUDE));
+        printlnBool(DeviceInfo.hasFeature(Feature::FC_ATTITUDE));
     } else {
         println(F("Device not connected."));
     }
@@ -121,11 +121,87 @@ void RunCam::getCameraInfo() {
     if (!isConnected)
         return;
     if (response.size() != 3) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam GetInfo: bad response length."));
+        println(F("RunCam GetInfo: bad response length."));
+        return;
     }
     DeviceInfo.ProtocolVersion = response[0];
     DeviceInfo.Features        = (response[1] << 8U) | response[2];
+}
+
+void RunCam::simulateWifiBtn() {
+    if (!isConnected)
+        return;
+    if (!DeviceInfo.hasFeature(Feature::SIMULATE_WIFI_BUTTON)) {
+        println(F("RunCam simulateWifiBtn: no feature."));
+        return;
+    }
+    std::vector<uint8_t> response = sendCommand(
+            Command::CAMERA_CONTROL,
+            std::vector<uint8_t>{static_cast<uint8_t>(ControlCommand::SIMULATE_WIFI_BTN)},
+            false);
+    if (!response.empty())
+        println(F("RunCam simulateWifiBtn: bad response length."));
+}
+
+void RunCam::simulatePowerBtn() {
+    if (!isConnected)
+        return;
+    if (!DeviceInfo.hasFeature(Feature::SIMULATE_POWER_BUTTON)) {
+        println(F("RunCam CameraControl: Unable to simulate power Button, no feature."));
+        return;
+    }
+    std::vector<uint8_t> response = sendCommand(
+            Command::CAMERA_CONTROL,
+            std::vector<uint8_t>{static_cast<uint8_t>(ControlCommand::SIMULATE_POWER_BTN)},
+            false);
+    if (!response.empty())
+        println(F("RunCam CameraControl: bad response length."));
+}
+
+void RunCam::cameraChangeMode() {
+    if (!isConnected)
+        return;
+    if (!DeviceInfo.hasFeature(Feature::CHANGE_MODE)) {
+        println(F("RunCam cameraChangeMode: no feature."));
+        return;
+    }
+    std::vector<uint8_t> response = sendCommand(
+            Command::CAMERA_CONTROL,
+            std::vector<uint8_t>{static_cast<uint8_t>(ControlCommand::CHANGE_MODE)},
+            false);
+    if (!response.empty())
+        println(F("RunCam cameraChangeMode: bad response length."));
+}
+
+void RunCam::cameraRecordingStart() {
+    if (!isConnected)
+        return;
+    if (!DeviceInfo.hasFeature(Feature::START_RECORDING)) {
+        println(F("RunCam cameraRecordingStart: no feature."));
+        return;
+    }
+    std::vector<uint8_t> response = sendCommand(
+            Command::CAMERA_CONTROL,
+            std::vector<uint8_t>{static_cast<uint8_t>(ControlCommand::CHANGE_START_RECORDING)},
+            false);
+    if (!response.empty())
+        println(F("RunCam cameraRecordingStart: bad response length."));
+}
+
+void RunCam::cameraRecordingStop() {
+    if (!isConnected)
+        return;
+    if (!DeviceInfo.hasFeature(Feature::STOP_RECORDING)) {
+        println(F("RunCam cameraRecordingStop:  no feature."));
+        return;
+    }
+    std::vector<uint8_t> response = sendCommand(
+            Command::CAMERA_CONTROL,
+            std::vector<uint8_t>{static_cast<uint8_t>(ControlCommand::CHANGE_STOP_RECORDING)},
+            false);
+    if (!response.empty())
+        println(F("RunCam cameraRecordingStop: bad response length."));
+
 }
 
 std::vector<uint8_t> RunCam::sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse) {
@@ -209,63 +285,17 @@ std::vector<uint8_t> RunCam::sendCommand(Command cmd, const std::vector<uint8_t>
     return full_message;
 }
 
-void RunCam::printBool(bool ptr) {
-    if (getParentPrint() == nullptr)
-        return;
-    if (ptr) {
-        println(F("true"));
-    } else {
-        println(F("false"));
-    }
-}
-
-void RunCam::CameraControl(const ControlCommand& command) {
-    if (!isConnected)
-        return;
-    if (command == ControlCommand::SIMULATE_WIFI_BTN && !DeviceInfo.hasFeature(Feature::SIMULATE_WIFI_BUTTON)) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam CameraControl: Unable to simulate Wifi Button, no feature."));
-        return;
-    }
-    if (command == ControlCommand::SIMULATE_POWER_BTN && !DeviceInfo.hasFeature(Feature::SIMULATE_POWER_BUTTON)) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam CameraControl: Unable to simulate power Button, no feature."));
-        return;
-    }
-    if (command == ControlCommand::CHANGE_MODE && !DeviceInfo.hasFeature(Feature::CHANGE_MODE)) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam CameraControl: Unable to change mode, no feature."));
-        return;
-    }
-    if (command == ControlCommand::CHANGE_START_RECORDING && !DeviceInfo.hasFeature(Feature::START_RECORDING)) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam CameraControl: Unable to start camera, no feature."));
-        return;
-    }
-    if (command == ControlCommand::CHANGE_START_RECORDING && !DeviceInfo.hasFeature(Feature::STOP_RECORDING)) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam CameraControl: Unable to stop camera, no feature."));
-        return;
-    }
-
-    std::vector<uint8_t> response = sendCommand(Command::CAMERA_CONTROL, std::vector<uint8_t>{static_cast<uint8_t>(command)}, false);
-    if (!response.empty()) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam CameraControl: bad response length."));
-    }
-}
-
 void RunCam::parseCmd(const String& cmd) {
     if (cmd == F("wifi")) {
-        CameraControl(ControlCommand::SIMULATE_WIFI_BTN);
+        simulateWifiBtn();
     } else if (cmd == F("power")) {
-        CameraControl(ControlCommand::SIMULATE_POWER_BTN);
+        simulatePowerBtn();
     } else if (cmd == F("mode")) {
-        CameraControl(ControlCommand::CHANGE_MODE);
+        cameraChangeMode();
     } else if (cmd == F("start")) {
-        CameraControl(ControlCommand::CHANGE_START_RECORDING);
+        cameraRecordingStart();
     } else if (cmd == F("stop")) {
-        CameraControl(ControlCommand::CHANGE_STOP_RECORDING);
+        cameraRecordingStop();
     }
 }
 
@@ -275,31 +305,30 @@ void RunCam::simulate5keyRemoteControl(const RunCam::key5Control& command) {
     if (!DeviceInfo.hasFeature(Feature::SIMULATE_5_KEY_OSD_CABLE))
         return;
     std::vector<uint8_t> response;
-    if (command == key5Control::SIMULATION_RELEASE) {
+    if (command == key5Control::RELEASE) {
         response = sendCommand(Command::KEY5_SIMULATION_RELEASE, std::vector<uint8_t>{});
     } else {
         if (is5keyConnected)
             response = sendCommand(Command::KEY5_SIMULATION_PRESS, std::vector<uint8_t>{static_cast<uint8_t>(command)});
     }
-    if (!response.empty()) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam parseCmd: bad response length."));
-    }
+    if (!response.empty())
+        println(F("RunCam parseCmd: bad response length."));
+
 }
 
 void RunCam::parse5Key(const String& cmd) {
     if (cmd == F("set")) {
-        simulate5keyRemoteControl(key5Control::SIMULATION_SET);
+        simulate5keyRemoteControl(key5Control::SET);
     } else if (cmd == F("left")) {
-        simulate5keyRemoteControl(key5Control::SIMULATION_LEFT);
+        simulate5keyRemoteControl(key5Control::LEFT);
     } else if (cmd == F("right")) {
-        simulate5keyRemoteControl(key5Control::SIMULATION_RIGHT);
+        simulate5keyRemoteControl(key5Control::RIGHT);
     } else if (cmd == F("up")) {
-        simulate5keyRemoteControl(key5Control::SIMULATION_UP);
+        simulate5keyRemoteControl(key5Control::UP);
     } else if (cmd == F("down")) {
-        simulate5keyRemoteControl(key5Control::SIMULATION_DOWN);
+        simulate5keyRemoteControl(key5Control::DOWN);
     } else if (cmd == F("release")) {
-        simulate5keyRemoteControl(key5Control::SIMULATION_RELEASE);
+        simulate5keyRemoteControl(key5Control::RELEASE);
     } else if (cmd == F("open")) {
         OpenClose(true);
     } else if (cmd == F("close")) {
@@ -315,15 +344,13 @@ void RunCam::OpenClose(bool open) {
     uint8_t cmd                   = open ? 0x01 : 0x02;
     std::vector<uint8_t> response = sendCommand(Command::KEY5_CONNECTION, std::vector<uint8_t>{cmd});
     if (response.size() != 1) {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam OpenClose: bad response length."));
+        println(F("RunCam OpenClose: bad response length."));
         return;
     }
     if (response[0] == ((cmd << 4U) + 1)) {
         is5keyConnected = open;
     } else {
-        if (getParentPrint() != nullptr)
-            println(F("RunCam OpenClose: Unable to complete operation."));
+        println(F("RunCam OpenClose: Unable to complete operation."));
     }
 }
 

@@ -60,30 +60,41 @@ public:
      */
     void saveConfigFile() const override;
 
-    enum struct ControlCommand {
-        SIMULATE_WIFI_BTN      = 0x00,///< Simulation Click the Wi-Fi button
-        SIMULATE_POWER_BTN     = 0x01,///< Simulation Click the Power button
-        CHANGE_MODE            = 0x02,///< Switch the camera mode
-        CHANGE_START_RECORDING = 0x03,///< Control the camera to start recording
-        CHANGE_STOP_RECORDING  = 0x04,///< Control the camera to stop recording
-    };
-
     /**
-     * @brief send a control action to the device
-     * @param command the command to send
+     * @brief simulate a push on the wifi button
      */
-    void CameraControl(const ControlCommand& command);
+    void simulateWifiBtn();
 
     /**
-     * @brief the 5 possible action of the pad
+     * @brief simulate a push on the power button
+     */
+    void simulatePowerBtn();
+
+    /**
+     * @brief try to change camera mode
+     */
+    void cameraChangeMode();
+
+    /**
+     * @brief request a recording start
+     */
+    void cameraRecordingStart();
+
+    /**
+     * @brief request a recording stop
+     */
+    void cameraRecordingStop();
+
+    /**
+     * @brief the 5 possible action of the pad and the release.
      */
     enum struct key5Control {
-        SIMULATION_SET     = 0x01,///< Simulate the confirmation key of the 5 key remote control
-        SIMULATION_LEFT    = 0x02,///< Simulate the left key of the 5 key remote control
-        SIMULATION_RIGHT   = 0x03,///< Simulate the right key of the 5 key remote control
-        SIMULATION_UP      = 0x04,///< Simulate the up key of the 5 key remote control
-        SIMULATION_DOWN    = 0x05,///< Simulate the down key of the 5 key remote control
-        SIMULATION_RELEASE = 0x06,///< Simulate the release of the button
+        SET     = 0x01,///< Simulate the confirmation key of the 5 key remote control
+        LEFT    = 0x02,///< Simulate the left key of the 5 key remote control
+        RIGHT   = 0x03,///< Simulate the right key of the 5 key remote control
+        UP      = 0x04,///< Simulate the up key of the 5 key remote control
+        DOWN    = 0x05,///< Simulate the down key of the 5 key remote control
+        RELEASE = 0x06,///< Simulate the release of the button
     };
 
     /**
@@ -91,6 +102,12 @@ public:
      * @param command the command to send
      */
     void simulate5keyRemoteControl(const key5Control& command);
+
+    /**
+     * @brief try to handshake or disconnect device
+     * @param open true: connexion, false: disconnection
+     */
+    void OpenClose(bool open = true);
 
 private:
     /**
@@ -114,6 +131,14 @@ private:
         START_RECORDING          = 0,///< Control the camera to start recording video
         STOP_RECORDING           = 0,///< Control the camera to stop recording video
         FC_ATTITUDE              = 0,///< If the device support requests attitude of the remote device(like Betaflight flight controller), it should contain this flag when initializing on the remote device.
+    };
+
+    enum struct ControlCommand {
+        SIMULATE_WIFI_BTN      = 0x00,///< Simulation Click the Wi-Fi button
+        SIMULATE_POWER_BTN     = 0x01,///< Simulation Click the Power button
+        CHANGE_MODE            = 0x02,///< Switch the camera mode
+        CHANGE_START_RECORDING = 0x03,///< Control the camera to start recording
+        CHANGE_STOP_RECORDING  = 0x04,///< Control the camera to stop recording
     };
 
     /**
@@ -147,6 +172,11 @@ private:
     SoftwareSerial uart{D5, D6};
 
     /**
+     * @brief retrieve camera information throw Serial communication
+     */
+    void getCameraInfo();
+
+    /**
      * @brief send command with its parameters, wait for response
      * @param cmd the command to send
      * @param params the list of parameter
@@ -155,10 +185,6 @@ private:
      */
     std::vector<uint8_t> sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse = true);
 
-    /**
-     * @brief retrieve camera information throw Serial communication
-     */
-    void getCameraInfo();
 
     /**
      * @brief reset the current crc code
@@ -173,18 +199,6 @@ private:
         current_crc ^= a;
         for (int ii = 0; ii < 8; ++ii) current_crc = ((current_crc & 0x80) != 0) ? (current_crc << 1) ^ 0xD5 : current_crc << 1;
     }
-
-    /**
-     * @brief Print a bool value
-     * @param ptr the bool value
-     */
-    void printBool(bool ptr);
-
-    /**
-     * @brief try to handshake or disconnect device
-     * @param open true: connexion, false: disconnection
-     */
-    void OpenClose(bool open = true);
 
     /**
      * @brief parse a command string into an instruction and send it to camera

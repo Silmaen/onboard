@@ -5,16 +5,21 @@
 
 #include <obd_basedriver.h>
 #include <obd_system.h>
-#include <cxxabi.h>
 
 namespace obd::core {
 
 String BaseDriver::getName() const {
-    int i = 0;
-    String resu(abi::__cxa_demangle(typeid(*this).name(),nullptr,nullptr, &i));
-    if (i != 0)
-        return "TypeError";
-    return resu;
+    //String resu{abi::__cxa_demangle(typeid(*this).name(),nullptr,nullptr, &i)};
+    String resu{typeid(*this).name()};
+    size_t i = 0;
+    while (i < resu.length()) {
+        if (resu[i] < '0' || resu[i] > '9')
+            break;
+        ++i;
+    }
+    if (i == resu.length())
+        return F("TypeError");
+    return resu.substring(i);
 }
 
 }// namespace obd::core

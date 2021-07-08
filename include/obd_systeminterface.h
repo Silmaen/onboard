@@ -39,32 +39,32 @@ public:
     [[nodiscard]] Print* getParentPrint() const;
 
     /**
- * @brief try to print in MultiStream
- * @param in input to display
- * @return number of byte writen
- */
-    size_t print(const __FlashStringHelper* in) const;
+     * @brief try to print in MultiStream
+     * @param in input to display
+     * @return number of byte writen
+     */
+    void print(const __FlashStringHelper* in) const;
 
     /**
      * @brief try to print in MultiStream
      * @param in input to display
      * @return number of byte writen
      */
-    size_t print(const String& in) const;
+    void print(const String& in) const;
 
     /**
      * @brief try to print in MultiStream
      * @param in input to display
      * @return number of byte writen
      */
-    size_t print(const char* in) const;
+    void print(const char* in) const;
 
     /**
      * @brief try to print in MultiStream
      * @param in input to display
      * @return number of byte writen
      */
-    size_t print(char in) const;
+    void print(char in) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -72,7 +72,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(unsigned char in, int format = DEC) const;
+    void print(unsigned char in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -80,7 +80,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(int16_t in, int format = DEC) const;
+    void print(int16_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -88,7 +88,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(uint16_t in, int format = DEC) const;
+    void print(uint16_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -96,7 +96,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(int32_t in, int format = DEC) const;
+    void print(int32_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -104,7 +104,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(uint32_t in, int format = DEC) const;
+    void print(uint32_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -112,7 +112,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(int64_t in, int format = DEC) const;
+    void print(int64_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -120,7 +120,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(uint64_t in, int format = DEC) const;
+    void print(uint64_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -128,14 +128,14 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t print(double in, int format = 2) const;
+    void print(double in, int format = 2) const;
 
     /**
      * @brief try to print in MultiStream with a newline
      * @param in input to display
      * @return number of byte writen
      */
-    size_t print(const Printable& in) const;
+    void print(const Printable& in) const;
 
 
     /**
@@ -143,36 +143,28 @@ public:
      * @param in input to display
      * @return number of byte writen
      */
-    size_t println(const __FlashStringHelper* in) const;
+    void println(const __FlashStringHelper* in) const;
 
     /**
      * @brief try to print in MultiStream with a newline
      * @param in input to display
      * @return number of byte writen
      */
-    size_t println(const String& in) const;
+    void println(const String& in) const;
 
     /**
      * @brief try to print in MultiStream with a newline
      * @param in input to display
      * @return number of byte writen
      */
-    size_t println(const char* in) const;
+    void println(const char* in) const;
 
     /**
      * @brief try to print in MultiStream with a newline
      * @param in input to display
      * @return number of byte writen
      */
-    size_t println(char in) const;
-
-    /**
-     * @brief try to print in MultiStream with a newline
-     * @param in input to display
-     * @param format format of the display
-     * @return number of byte writen
-     */
-    size_t println(unsigned char in, int format = DEC) const;
+    void println(char in) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -180,7 +172,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t println(int16_t in, int format = DEC) const;
+    void println(unsigned char in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -188,7 +180,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t println(uint16_t in, int format = DEC) const;
+    void println(int16_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -196,7 +188,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t println(int32_t in, int format = DEC) const;
+    void println(uint16_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -204,7 +196,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t println(uint32_t in, int format = DEC) const;
+    void println(int32_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -212,7 +204,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t println(int64_t in, int format = DEC) const;
+    void println(uint32_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -220,7 +212,7 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t println(uint64_t in, int format = DEC) const;
+    void println(int64_t in, int format = DEC) const;
 
     /**
      * @brief try to print in MultiStream with a newline
@@ -228,20 +220,28 @@ public:
      * @param format format of the display
      * @return number of byte writen
      */
-    size_t println(double in, int format = 2) const;
+    void println(uint64_t in, int format = DEC) const;
+
+    /**
+     * @brief try to print in MultiStream with a newline
+     * @param in input to display
+     * @param format format of the display
+     * @return number of byte writen
+     */
+    void println(double in, int format = 2) const;
 
     /**
      * @brief try to print in MultiStream with a newline
      * @param in input to display
      * @return number of byte writen
      */
-    size_t println(const Printable& in) const;
+    void println(const Printable& in) const;
 
     /**
      * @brief try to print in MultiStream with a newline
      * @return number of byte writen
      */
-    size_t println() const;
+    void println() const;
 
     /**
      * @brief try to add a command int eh parent
@@ -249,6 +249,17 @@ public:
      */
     void pushCommand(const command& cmd) const;
 
+    /**
+     * @brief Print a bool value as [true, false]
+     * @param ptr the bool value
+     */
+    void printBool(bool ptr) const;
+
+    /**
+     * @brief Print a bool value as [true, false] with a newline
+     * @param ptr the bool value
+     */
+    void printlnBool(bool ptr) const;
 private:
     /// pointer to the parent system
     System* parent = nullptr;
