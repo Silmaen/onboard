@@ -27,13 +27,13 @@ enum class Status {
 /**
  * @brief network driver
  */
-class netDriver : public core::baseDriver {
+class WifiDriver : public core::BaseDriver {
 public:
     /**
      * @brief Constructor with parent
      * @param p the parent system
      */
-    explicit netDriver(core::system* p = nullptr);
+    explicit WifiDriver(core::System* p = nullptr);
 
     /**
      * @brief initialize file system
@@ -62,18 +62,6 @@ public:
      * @brief display help on commands
      */
     void printHelp() override;
-
-    /**
-     * @brief get the name of the driver
-     * @return driver name
-     */
-    [[nodiscard]] String getName() const override { return F("Network"); }
-
-    /**
-     * @brief attach a new parent to this driver
-     * @param p the parent
-     */
-    void attachParent(core::system* p) override;
 
     /**
      * @brief load and apply parameters in the config file

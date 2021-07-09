@@ -7,18 +7,18 @@
 #include <WString.h>
 #include <utility>
 
-namespace obd::filesystem {
+namespace obd::file {
 
 /**
  * @brief class handling path
  */
-class path {
+class Path {
 public:
     /**
      * @brief constructor from String
      * @param from the string from which to initialize
      */
-    explicit path(String from) :
+    explicit Path(String from) :
         _path{std::move(from)} {};
 
     /**
@@ -32,7 +32,7 @@ public:
      * @param app the part to append
      * @return this path
      */
-    path& operator/=(const String& app) {
+    Path& operator/=(const String& app) {
         _path += "/" + app;
         return *this;
     }
@@ -42,8 +42,8 @@ public:
      * @param app the part to append
      * @return the new composed path
      */
-    path operator/(const String& app) {
-        path t(*this);
+    Path operator/(const String& app) {
+        Path t(*this);
         t /= app;
         return t;
     }
@@ -111,4 +111,4 @@ private:
     String _path{"/"};
 };
 
-}// namespace obd::filesystem
+}// namespace obd::file

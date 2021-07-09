@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include <obd_drivermanager.h>
 #include <obd_basedriver.h>
 #include <obd_multistream.h>
 #include <obd_status_led.h>
@@ -15,12 +16,12 @@ namespace obd::core {
 /**
  * @brief implementation of the system
  */
-class system {
+class System {
 public:
     /**
      * @brief default constructor
      */
-    system();
+    System();
 
     /**
      * @brief initialize the system
@@ -57,26 +58,13 @@ public:
     }
 
     /**
-     * @brief get a driver by its name
-     * @param name the name of the driver
-     * @return the driver (nullptr if not exists)
-     */
-    std::shared_ptr<baseDriver> getDriver(const String& name);
-
-    /**
      * @brief get the driver by its name and convert it to desired type
      * @tparam T the desired output type (must inherit from baseDriver)
-     * @param name the driver name
      * @return the driver (nullptr if not exists or if template class does not inherit from baseDriver)
      */
     template<class T>
-    std::shared_ptr<T> getDriverAs(const String& name) {
-        if (!std::is_base_of<baseDriver, T>::value)
-            return nullptr;
-        std::shared_ptr<baseDriver> a = getDriver(name);
-        if (a == nullptr)
-            return nullptr;
-        return std::static_pointer_cast<T>(a);
+    std::shared_ptr<T> getDriver() {
+        return drivers.getDriver<T>();
     }
 
     /**
@@ -131,7 +119,7 @@ private:
     MultiPrint outputs;
 
     /// list of the drivers
-    std::vector<std::shared_ptr<baseDriver>> drivers;
+    DriverManager drivers;
 
     /// queue of the commands
     std::queue<command> commands;

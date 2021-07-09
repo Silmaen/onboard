@@ -34,9 +34,7 @@ void UsbSerial::update(int64_t /*timestamp*/) {
         }
         if (cmd.empty())
             return;
-        if (getParent() != nullptr) {
-            getParent()->pushCommand(cmd);
-        }
+        pushCommand(cmd);
     }
 }
 

@@ -146,18 +146,16 @@ void StatusLed::setState(LedState st) {
 }
 
 void StatusLed::printHelp() {
-    if (getParent() == nullptr)
-        return;
-    getParentPrint()->println(F("Help on led state"));
-    getParentPrint()->println(F("led           Print the current LED status"));
-    getParentPrint()->println(F("led <state>   Change the state of the led. valid state are:"));
-    getParentPrint()->println(F("              off         led off"));
-    getParentPrint()->println(F("              solid       led on"));
-    getParentPrint()->println(F("              blink       led is slowly blinking"));
-    getParentPrint()->println(F("              fastblink   led is blinking twice faster"));
-    getParentPrint()->println(F("              twopulse    led do 2 pulses then wait"));
-    getParentPrint()->println(F("              threepulse  led do 3 pulses then wait"));
-    getParentPrint()->println(F("              fasterblink lest is continuously pulsing"));
+    println(F("Help on led state"));
+    println(F("led           Print the current LED status"));
+    println(F("led <state>   Change the state of the led. valid state are:"));
+    println(F("              off         led off"));
+    println(F("              solid       led on"));
+    println(F("              blink       led is slowly blinking"));
+    println(F("              fastblink   led is blinking twice faster"));
+    println(F("              twopulse    led do 2 pulses then wait"));
+    println(F("              threepulse  led do 3 pulses then wait"));
+    println(F("              fasterblink lest is continuously pulsing"));
 }
 
 void StatusLed::printCurrentState() {
@@ -165,25 +163,25 @@ void StatusLed::printCurrentState() {
         return;
     switch (ledState) {
     case LedState::Off:
-        getParentPrint()->println(F("LED state: off"));
+        println(F("LED state: off"));
         break;
     case LedState::Solid:
-        getParentPrint()->println(F("LED state: solid"));
+        println(F("LED state: solid"));
         break;
     case LedState::Blink:
-        getParentPrint()->println(F("LED state: blink"));
+        println(F("LED state: blink"));
         break;
     case LedState::FastBlink:
-        getParentPrint()->println(F("LED state: fastblink"));
+        println(F("LED state: fastblink"));
         break;
     case LedState::TwoPulse:
-        getParentPrint()->println(F("LED state: twopulse"));
+        println(F("LED state: twopulse"));
         break;
     case LedState::ThreePulses:
-        getParentPrint()->println(F("LED state: threepulse"));
+        println(F("LED state: threepulse"));
         break;
     case LedState::FasterBlink:
-        getParentPrint()->println(F("LED state: fasterblink"));
+        println(F("LED state: fasterblink"));
         break;
     }
 }

@@ -4,26 +4,19 @@
  */
 
 #include <obd_configfile.h>
-#include <obd_network.h>
 #include <obd_system.h>
+#include <obd_wifidriver.h>
 
 namespace obd::network {
 
-netDriver::netDriver(core::system* p) :
-    baseDriver(p) {
+WifiDriver::WifiDriver(core::System* p) :
+    BaseDriver(p) {
     if (p != nullptr) {
-        statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
+        statusLed = getParent()->getDriver<core::StatusLed>();
     }
 }
 
-void netDriver::attachParent(core::system* p) {
-    baseDriver::attachParent(p);
-    if (p != nullptr) {
-        statusLed = p->getDriverAs<core::StatusLed>(F("StatusLed"));
-    }
-}
-
-void netDriver::init() {
+void WifiDriver::init() {
     if (statusLed != nullptr)
         statusLed->setState(core::LedState::FasterBlink);
     WiFi.mode(WIFI_STA);
@@ -32,10 +25,10 @@ void netDriver::init() {
     WiFi.begin();
 }
 
-void netDriver::printInfo() {
+void WifiDriver::printInfo() {
     if (getParentPrint() == nullptr)
         return;
-    getParentPrint()->println(F(" ----- NETWORK INFORMATION -----"));
+    println(F(" ----- NETWORK INFORMATION -----"));
     if (getParentPrint() != nullptr)
         WiFi.printDiag(*getParentPrint());
     const String modes[] = {
@@ -43,30 +36,29 @@ void netDriver::printInfo() {
             F("Station"),
             F("Access Point"),
             F("Both")};
-    getParentPrint()->print(F("Operation Mode    : "));
-    getParentPrint()->println(modes[wifi_get_opmode()]);
+    print(F("Operation Mode    : "));
+    println(modes[wifi_get_opmode()]);
     const String phyModes[] = {
             F(""),
             F("b"),
             F("g"),
             F("n")};
-    getParentPrint()->print(F("PHY mode          : 802.11"));
-    getParentPrint()->println(phyModes[static_cast<int>(wifi_get_phy_mode())]);
+    print(F("PHY mode          : 802.11"));
+    println(phyModes[static_cast<int>(wifi_get_phy_mode())]);
 
-    if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3)) {
-        // access point Infos
-        getParentPrint()->println(F("Access point information"));
-    }
+    // access point Infos
+    if ((wifi_get_opmode() == 2) || (wifi_get_opmode() == 3))
+        println(F("Access point information"));
     if ((wifi_get_opmode() == 1) || (wifi_get_opmode() == 3)) {
         // station Infos
-        getParentPrint()->println(F("Station information"));
-        getParentPrint()->print(F("Access point id   : "));
-        getParentPrint()->println(wifi_station_get_current_ap_id());
-        getParentPrint()->print(F("Access point SSID : "));
-        getParentPrint()->println(WiFi.SSID());
-        getParentPrint()->print(F("Channel           : "));
-        getParentPrint()->println(WiFi.channel());
-        getParentPrint()->print(F("Connexion Status  : "));
+        println(F("Station information"));
+        print(F("Access point id   : "));
+        println(wifi_station_get_current_ap_id());
+        print(F("Access point SSID : "));
+        println(WiFi.SSID());
+        print(F("Channel           : "));
+        println(WiFi.channel());
+        print(F("Connexion Status  : "));
         String connStatus[] = {
                 F("idle"),
                 F("connecting"),
@@ -74,41 +66,38 @@ void netDriver::printInfo() {
                 F("No AP found"),
                 F("Connect fail"),
                 F("got IP")};
-        getParentPrint()->println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
-
-        getParentPrint()->print(F("MAC address       : "));
-        getParentPrint()->println(WiFi.macAddress());
-
-        getParentPrint()->print(F("hostname          : "));
-        getParentPrint()->println(WiFi.hostname());
+        println(connStatus[static_cast<int>(wifi_station_get_connect_status())]);
+        print(F("MAC address       : "));
+        println(WiFi.macAddress());
+        print(F("hostname          : "));
+        println(WiFi.hostname());
         if (WiFi.status() == WL_CONNECTED) {
-            getParentPrint()->print(F("IP address        : "));
-            getParentPrint()->println(WiFi.localIP().toString());
-            getParentPrint()->print(F("Net Mask          : "));
-            getParentPrint()->println(WiFi.subnetMask().toString());
-            getParentPrint()->print(F("Gateway           : "));
-            getParentPrint()->println(WiFi.gatewayIP().toString());
-            getParentPrint()->print(F("Dns               : "));
-            getParentPrint()->println(WiFi.dnsIP().toString());
+            print(F("IP address        : "));
+            println(WiFi.localIP().toString());
+            print(F("Net Mask          : "));
+            println(WiFi.subnetMask().toString());
+            print(F("Gateway           : "));
+            println(WiFi.gatewayIP().toString());
+            print(F("Dns               : "));
+            println(WiFi.dnsIP().toString());
         }
     }
 }
 
-void netDriver::update(int64_t /*delta*/) {
+void WifiDriver::update(int64_t /*delta*/) {
     if (updateStatus()) {
         updateLED();
         // do nothing more if status changed
         return;
     }
     // see if there is a new client or a client quit
-    if (updateClientConnexion()) {
+    if (updateClientConnexion())
         return;
-    }
     // listen to the telnet server
     listenTelnet();
 }
 
-bool netDriver::treatCommand(const core::command& cmd) {
+bool WifiDriver::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("netinfo"))) {
         printInfo();
         return true;
@@ -120,16 +109,16 @@ bool netDriver::treatCommand(const core::command& cmd) {
     return false;
 }
 
-void netDriver::printHelp() {
+void WifiDriver::printHelp() {
     if (getParentPrint() == nullptr)
         return;
-    getParentPrint()->println(F("Help on network interface"));
-    getParentPrint()->println(F("netinfo      print information about network interface"));
-    getParentPrint()->println(F("netstat      print information about network status"));
-    getParentPrint()->println();
+    println(F("Help on network interface"));
+    println(F("netinfo      print information about network interface"));
+    println(F("netstat      print information about network status"));
+    println();
 }
 
-bool netDriver::updateStatus() {
+bool WifiDriver::updateStatus() {
     Status cal = Status::Connecting;
     if (WiFi.status() == WL_IDLE_STATUS) {
         cal = Status::Disabled;
@@ -153,7 +142,7 @@ bool netDriver::updateStatus() {
     return false;
 }
 
-void netDriver::updateServerState() {
+void WifiDriver::updateServerState() {
     if (currentStatus == Status::Connected || currentStatus == Status::Hotspot) {
         getParent()->getOutput()->removePrint(&client);
         if (telnetServer.status() == 0U) {
@@ -167,7 +156,7 @@ void netDriver::updateServerState() {
     }
 }
 
-bool netDriver::updateClientConnexion() {
+bool WifiDriver::updateClientConnexion() {
     if (telnetServer.hasClient() && (!client || (client.connected() == 0U))) {
         if (client) {
             client.stop();
@@ -182,7 +171,7 @@ bool netDriver::updateClientConnexion() {
     return false;
 }
 
-void netDriver::updateLED() {
+void WifiDriver::updateLED() {
     if (statusLed == nullptr)
         return;
     switch (currentStatus) {
@@ -207,7 +196,7 @@ void netDriver::updateLED() {
     }
 }
 
-void netDriver::listenTelnet() {
+void WifiDriver::listenTelnet() {
     if (currentStatus != Status::HotspotClient && currentStatus != Status::ConnectedClient)
         return;
 
@@ -222,39 +211,37 @@ void netDriver::listenTelnet() {
         }
         if (cmd.empty())
             return;
-        if (getParent() != nullptr) {
-            getParent()->pushCommand(cmd);
-        }
+        pushCommand(cmd);
     }
 }
 
-void netDriver::printStatus() {
+void WifiDriver::printStatus() {
     if (getParent() == nullptr)
         return;
-    getParentPrint()->print(F("Network status:    "));
+    print(F("Network status:    "));
     switch (currentStatus) {
     case Status::Disabled:
-        getParentPrint()->println(F("Disabled"));
+        println(F("Disabled"));
         break;
     case Status::Connecting:
-        getParentPrint()->println(F("Connecting"));
+        println(F("Connecting"));
         break;
     case Status::Connected:
-        getParentPrint()->println(F("Station waiting for a client"));
+        println(F("Station waiting for a client"));
         break;
     case Status::ConnectedClient:
-        getParentPrint()->println(F("Station with a client"));
+        println(F("Station with a client"));
         break;
     case Status::Hotspot:
-        getParentPrint()->println(F("Hotspot waiting for client"));
+        println(F("Hotspot waiting for client"));
         break;
     case Status::HotspotClient:
-        getParentPrint()->println(F("hotspot with a client"));
+        println(F("hotspot with a client"));
         break;
     }
 }
 
-void netDriver::printWelcome() {
+void WifiDriver::printWelcome() {
     client.println();
     client.println(F("Welcome on board!"));
     client.println(F("  _______         ______                      __ "));
@@ -269,21 +256,21 @@ void netDriver::printWelcome() {
     client.println(F("--------------------------------------------------"));
 }
 
-void netDriver::loadConfigFile() {
-    filesystem::configFile file(getParent());
-    file.loadConfig(getName());
+void WifiDriver::loadConfigFile() {
+    file::ConfigFile local_file(getParent());
+    local_file.loadConfig(getName());
     // parameters to load:
-    if (file.hasKey("host")) {
-        WiFi.hostname(file.getKey("host").c_str());
+    if (local_file.hasKey("host")) {
+        WiFi.hostname(local_file.getKey("host").c_str());
     }
 }
 
-void netDriver::saveConfigFile() const {
-    filesystem::configFile file(getParent());
+void WifiDriver::saveConfigFile() const {
+    file::ConfigFile local_file(getParent());
     // parameter to save
-    file.addConfigParameter("host", WiFi.hostname());
+    local_file.addConfigParameter("host", WiFi.hostname());
     //
-    file.saveConfig(getName());
+    local_file.saveConfig(getName());
 }
 
 }// namespace obd::network

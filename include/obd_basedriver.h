@@ -4,52 +4,28 @@
  */
 #pragma once
 
-#include "classfwd.h"
-#include "obd_system_cmd.h"
-#include <Print.h>
-#include <memory>
+#include "obd_systeminterface.h"
 
 namespace obd::core {
+
 
 /**
  * @brief base implementation of a system driver
  */
-class baseDriver {
+class BaseDriver : public SystemInterface {
 public:
     /**
      * @brief constructor with parent
      * @param p the parent system
      */
-    explicit baseDriver(system* p = nullptr) :
-        parent{p} {}
+    explicit BaseDriver(System* p = nullptr) :
+        SystemInterface{p} {}
 
     /**
-     * @brief attach a new parent to this driver
-     * @param p the parent
+     * @brief retrieve the type of the driver
+     * @return type of the driver as string
      */
-    virtual void attachParent(system* p) {
-        parent = p;
-    }
-
-    /**
-     * @brief get the parent system
-     * @return the parent
-     */
-    [[nodiscard]] system* getParent() const {
-        return parent;
-    }
-
-    /**
-     * @brief get the outputs from the parent system
-     * @return the output
-     */
-    Print* getParentPrint();
-
-    /**
-     * @brief retrieve the name of the driver
-     * @return name of the driver
-     */
-    [[nodiscard]] virtual String getName() const = 0;
+    [[nodiscard]] String getName() const;
 
     /**
      * @brief initialize the driver
@@ -72,7 +48,7 @@ public:
      * @param cmd the command to treat
      * @return true if the command has been treated
      */
-    virtual bool treatCommand([[maybe_unused]] const core::command& cmd) {
+    virtual bool treatCommand([[maybe_unused]] const command& cmd) {
         return false;
     }
 
@@ -90,10 +66,6 @@ public:
      * @brief save the driver parameter in file
      */
     virtual void saveConfigFile() const = 0;
-
-private:
-    /// pointer to the parent system
-    system* parent = nullptr;
 };
 
 }// namespace obd::core

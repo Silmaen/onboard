@@ -12,9 +12,8 @@
 
 namespace obd::time {
 
-void clock::init() {
-    if (getParent() != nullptr)
-        fs = getParent()->getDriverAs<filesystem::fsDriver>(F("FileSystem"));
+void Clock::init() {
+    fs = getParent()->getDriver<file::FileSystem>();
     // restore time (not the true time but nearer than 1 jan 1970!)
     if (fs != nullptr) {
         if (fs->exists(config::tsSave)){
@@ -29,17 +28,15 @@ void clock::init() {
     configTime(timeZone.c_str(), poolServerName.c_str());
 }
 
-void clock::printInfo() {
-    if (getParentPrint() == nullptr)
-        return;
-    getParentPrint()->println(F(" ----- CLOCK INFORMATION -----"));
-    getParentPrint()->print(F("Pool server       : "));
-    getParentPrint()->println(poolServerName);
-    getParentPrint()->print(F("Time Zone         : "));
-    getParentPrint()->println(timeZone);
+void Clock::printInfo() {
+    println(F(" ----- CLOCK INFORMATION -----"));
+    print(F("Pool server       : "));
+    println(poolServerName);
+    print(F("Time Zone         : "));
+    println(timeZone);
 }
 
-void clock::update(int64_t delta) {
+void Clock::update(int64_t delta) {
     chronometer += delta;
     if (chronometer >= config::saveInterval ) {
         chronometer = 0;
@@ -53,7 +50,7 @@ void clock::update(int64_t delta) {
     }
 }
 
-bool clock::treatCommand(const core::command& cmd) {
+bool Clock::treatCommand(const core::command& cmd) {
     if (cmd.isCmd(F("date"))) {
         printDate();
         return true;
@@ -73,64 +70,60 @@ bool clock::treatCommand(const core::command& cmd) {
     return false;
 }
 
-void clock::printHelp() {
-    if (getParentPrint() == nullptr)
-        return;
-    getParentPrint()->println(F("Help on system time"));
-    getParentPrint()->println(F("date             print date and time of the system"));
-    getParentPrint()->println(F("clockinfo        print time system infos"));
-    getParentPrint()->println(F("clockpool <pool> change the name of the pool server"));
-    getParentPrint()->println(F("clocktz   <tz>   change the time zone (see TZ.h for the format)"));
+void Clock::printHelp() {
+    println(F("Help on system time"));
+    println(F("date             print date and time of the system"));
+    println(F("clockinfo        print time system infos"));
+    println(F("clockpool <pool> change the name of the pool server"));
+    println(F("clocktz   <tz>   change the time zone (see TZ.h for the format)"));
 }
 
-void clock::loadConfigFile() {
-    filesystem::configFile file(getParent());
-    file.loadConfig(getName());
+void Clock::loadConfigFile() {
+    file::ConfigFile lfile(getParent());
+    lfile.loadConfig(getName());
     // parameters to load:
-    if (file.hasKey("pool")){
-        poolServerName = file.getKey("pool");
+    if (lfile.hasKey("pool")){
+        poolServerName = lfile.getKey("pool");
     }
-    if (file.hasKey("tz")){
-        timeZone = file.getKey("tz");
+    if (lfile.hasKey("tz")){
+        timeZone = lfile.getKey("tz");
     }
 }
 
-void clock::saveConfigFile() const {
-    filesystem::configFile file(getParent());
+void Clock::saveConfigFile() const {
+    file::ConfigFile lfile(getParent());
     // parameter to save
-    file.addConfigParameter("pool", poolServerName);
-    file.addConfigParameter("tz", timeZone);
+    lfile.addConfigParameter("pool", poolServerName);
+    lfile.addConfigParameter("tz", timeZone);
     //
-    file.saveConfig(getName());
+    lfile.saveConfig(getName());
 }
 
-void clock::printDate() {
-    if (getParentPrint() == nullptr)
-        return;
-    getParentPrint()->println(getDateFormatted());
+void Clock::printDate() {
+    println(getDateFormatted());
 }
 
-String clock::getDateFormatted() {
+String Clock::getDateFormatted() {
     return formatTime(getDate());
 }
 
-time_t clock::getDate() {
+time_t Clock::getDate() {
     timeval tv{};
     gettimeofday(&tv, nullptr);
     return tv.tv_sec;
 }
 
-void clock::setPoolServer(const String& pool) {
+void Clock::setPoolServer(const String& pool) {
     poolServerName = pool;
     init();
 }
 
-void clock::setTimeZone(const String& tz) {
+void Clock::setTimeZone(const String& tz) {
     timeZone = tz;
     init();
 }
 
-String clock::formatTime(const time_t& time) {
+String Clock::formatTime(const time_t& time) {
     String tStr = ctime(&time);
     tStr.replace("\n", "");
     tStr.replace("\r", "");

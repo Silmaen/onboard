@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <obd_system.h>
 
-static obd::core::system hardware;
+static obd::core::System hardware;
 
 void setup() {
     hardware.init();
