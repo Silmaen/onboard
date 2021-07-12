@@ -34,9 +34,10 @@ void System::init() {
 
 void System::update() {
     // update timestamp
-    int64_t ts = millis();
-    int64_t delta = ts - static_cast<int64_t>(timestamp);
-    timestamp = ts;
+    uint64_t ts    = micros();
+    int64_t delta = static_cast<int64_t>(ts) - static_cast<int64_t>(timestamp);
+    timestamp     = ts;
+    timeData.appendData(delta);
     // update drivers
     for (const auto& driver : drivers) {
         driver->update(delta);
@@ -64,6 +65,8 @@ void System::treatCommands() {
             printSystemInfo();
         } else if (cmd.isCmd(F("help"))) {
             printHelp(cmd.getParams());
+        } else if (cmd.isCmd(F("timeStat"))) {
+            printTimeStat();
         } else if (cmd.isCmd(F("cfgSave"))) {
             saveAllConfig();
         } else if (cmd.isCmd(F("cfgLoad"))) {
@@ -179,9 +182,9 @@ void System::printHelp(const String& param) {
         outputs.println(F("cfgLoad        load configuration from files"));
         return;
     }
-    auto res = std::find_if(drivers.begin(),drivers.end(),
-                            [param](const std::shared_ptr<obd::core::BaseDriver>& b){return b->getName()==param;});
-    if (res != drivers.end()){
+    auto res = std::find_if(drivers.begin(), drivers.end(),
+                            [param](const std::shared_ptr<obd::core::BaseDriver>& b) { return b->getName() == param; });
+    if (res != drivers.end()) {
         (*res)->printHelp();
         return;
     }
@@ -193,7 +196,6 @@ void System::printHelp(const String& param) {
         outputs.println(driver->getName());
     }
 }
-
 
 void System::loadAllConfig() {
     // load for the System
@@ -209,6 +211,30 @@ void System::saveAllConfig() {
     for (const auto& driver : drivers) {
         driver->saveConfigFile();
     }
+}
+
+void System::printTimeStat() {
+    outputs.println(F(" -=| timing statistics |=- "));
+
+    outputs.print(F("L / I: "));
+    outputs.print(timeData.getLength());
+    outputs.print(F(" / "));
+    outputs.println(timeData.getIndex());
+    float fps = 1000000.0F / static_cast<float>(timeData.mean());
+    outputs.print(F("Average fps: "));
+    outputs.println(fps);
+    outputs.print(F("Average timedelta / variance: "));
+    outputs.print(timeData.mean());
+    outputs.print(F(" / "));
+    outputs.println(timeData.variance());
+    outputs.print(F("AverageSQ timedelta / standardDeviation: "));
+    outputs.print(timeData.meanSQ());
+    outputs.print(F(" / "));
+    outputs.println(timeData.standardDeviation());
+    outputs.print(F("min / max: "));
+    outputs.print(timeData.min());
+    outputs.print(F(" / "));
+    outputs.println(timeData.max());
 }
 
 }// namespace obd::core

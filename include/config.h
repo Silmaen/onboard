@@ -19,13 +19,13 @@ constexpr char version[]{"1.0"};
 constexpr uint8_t commandBufferLength = 30;
 
 /// default led state period
-constexpr uint16_t ledPeriod = 2000;
+constexpr uint64_t ledPeriod = 2000000;
 
 /// default name for the device
 constexpr char defaultHostname[]{"Onboard12a85a"};
 
 /// interval between 2 save of the timestamp
-constexpr uint64_t saveInterval = 60000;
+constexpr uint64_t saveInterval = 60000000;
 
 /// name of the file to store time
 constexpr char tsSave[]{"/dev/time"};

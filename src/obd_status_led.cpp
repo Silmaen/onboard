@@ -8,13 +8,13 @@
 #include <obd_system.h>
 
 namespace obd::config {
-constexpr uint16_t ledHalfPeriod         = ledPeriod / 2;    ///< half period time
-constexpr uint16_t ledQuarterPeriod      = ledPeriod / 4;    ///< quarter period time
-constexpr uint16_t ledThreeQuarterPeriod = 3 * ledPeriod / 4;///< 3 quarters period time
-constexpr uint16_t ledEighthPeriod       = ledPeriod / 8;    ///< Eighth period time
-constexpr uint16_t ledThreeEighthPeriod  = 3 * ledPeriod / 8;///< 3 Eighth period time
-constexpr uint16_t ledFiveEighthPeriod   = 5 * ledPeriod / 8;///< 5 Eighth period time
-constexpr uint16_t ledSevenEighthPeriod  = 7 * ledPeriod / 8;///< 7 Eighth period time
+constexpr uint64_t ledHalfPeriod         = ledPeriod / 2;    ///< half period time
+constexpr uint64_t ledQuarterPeriod      = ledPeriod / 4;    ///< quarter period time
+constexpr uint64_t ledThreeQuarterPeriod = 3 * ledPeriod / 4;///< 3 quarters period time
+constexpr uint64_t ledEighthPeriod       = ledPeriod / 8;    ///< Eighth period time
+constexpr uint64_t ledThreeEighthPeriod  = 3 * ledPeriod / 8;///< 3 Eighth period time
+constexpr uint64_t ledFiveEighthPeriod   = 5 * ledPeriod / 8;///< 5 Eighth period time
+constexpr uint64_t ledSevenEighthPeriod  = 7 * ledPeriod / 8;///< 7 Eighth period time
 }// namespace obd::config
 
 namespace obd::core {

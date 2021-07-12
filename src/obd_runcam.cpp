@@ -9,8 +9,8 @@
 namespace obd::video {
 
 constexpr uint8_t RC_HEADER               = 0xCC;///< runCam protocol header
-constexpr uint64_t ResponseTimeout        = 1000;///< timeout for message reception
-constexpr uint64_t ConnexionCheckInterval = 5000;///< interval between 2 checks for device
+constexpr uint64_t ResponseTimeout        = 100;///< timeout for message reception
+constexpr uint64_t ConnexionCheckInterval = 5000000;///< interval between 2 checks for device 5 seconds
 
 void RunCam::init() {
     uart.begin(115200);
