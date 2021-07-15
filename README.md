@@ -5,6 +5,12 @@ Driver for my drone's onboard device.
 An ESP8266 device plugged to TX/RX of the Caddx Loris Camera acts as a communication relay between Camera, 
 flight controller and ground station.
 
+## Needed tools
+
+Build this project you will need [PlatformIO](https://docs.platformio.org/en/latest/).
+
+We ar using the [ESP8266 Arduino Framework](https://arduino-esp8266.readthedocs.io/en/latest/)
+
 ## Device connection
 
 Device support multiple connexion. In that case, the massage will be displayed in
@@ -16,12 +22,19 @@ that display the origin of the command.
 The default connexion to the device is to use the USB cable.
 Then use a serial communication at 115200 bauds.
 
+This is equivalent to plug cable to TX RX pins on the board. but, with the USB, 
+it also provides power to the board.
+
 ### Telnet
 
 If the device network is connected, then the console may also be accessible through a telnet connexion.
 To connect to the device simply connect to its IP port 23 with the Telnet protocol.
 Only one telnet client at a time is supported by the device.
 
+### Wiring
+
+Here is the basic wiring of the Wemos D1 with the other peripherals:
+![](doc/wiring.png)
 
 ## Console command
 
@@ -94,12 +107,87 @@ If the device is connected to the internet, then it internal time can be synchro
 It is possible to plug a device that runs with the runcam protocol.
 Wire the RX pin of the runcam device to the D5 pin of the Wemos and the TX to D6.
 
+#### RunCam Protocols
+
 The RunCam protocol can be found [here](https://support.runcam.com/hc/en-us/articles/360014537794-RunCam-Device-Protocol). 
+
+To summarize what is working with Caddx Loris:
+
+The acknowledgement message is `0xCCA5` so, simply the header and the crc code. 
+We named it `ACK`
+
+| command       | response   | description |
+| ------------- | ---------- | ---------- |
+| `0x00`        | `0x010900` | Get Device informations |
+| `0x0100`  | n/a | in camera mode: no effet // in menu: validate |
+| `0x0101`  | n/a | simulate power button push (in camera mode: start/stop recording // in menu: no effect) |
+| `0x0102`  | n/a | in camera mode: open menu // in menu: move up |
+| `0x0201`  | `ACK` | in camera mode: open menu // in menu: validate |
+| `0x0202`  | `ACK` | in camera mode: no effet // in menu: left |
+| `0x0203`  | `ACK` | in camera mode: no effet // in menu: right |
+| `0x0204`  | `ACK` | in camera mode: no effet // in menu: up |
+| `0x0205`  | `ACK` | in camera mode: no effet // in menu: down |
+| `0x03`  | `ACK` | in camera mode: no effet // in menu: no effect |
+| `0x0401`  | `11` | no effet |
+| `0x0401`  | `21` | no effet |
+
+No other command have effect.
+
+Note that while the camera is recording, it is impossible to go to menu.
+
+The table shows that few commands are available. In particular, 
+it is impossible to access to the camera clock (would have been useful for SD 
+card files management). We do not have access to any settings or status, 
+we can only deduce them.
+
+The response message to device information `0x010900` means that the device protocol is 1;
+the next 2 byte are the component of the 16bit word and are sent in LSB first order. So the 
+real number in hexadecimal is `0x0009` in binary: `0b000000001001`. According to the RunCam
+protocol this means that the only available features are `SIMULATE_POWER_BUTTON` and 
+`SIMULATE_5_KEY_OSD_CABLE`, this corresponds to what has been observed. 
+
+In the camera setting it is then important to setup the 'Auto recording' field to false.
+So the driver can assume that at boot time the recording is off.
+
+#### Device Statuses and functions
+
+We set up different statuses for the camera device:
+
+ | status         |  description |
+ | -------------- |  :---------- |
+ | `DISCONNECTED` |  The device cannot be contacted. |
+ | `READY`        |  Camera mode. |
+ | `RECORDING`    |  Camera mode and recording in progress. |
+ | `MENU`         |  The camera is in menu. |
+ | `MANUAL`       |  The camera is manually controlled. |
+
+As there is no access to any camera information, we need to simulate the navigation 
+through menus. This allows to detect the closing of the menu.
+
+Here are a list of utility functions:
+
+ | status           | Required State | new state   |  description |
+ | ---------------- | -------------- | ----------- | :---------- |
+ | `getDeviceInfo`  | all            | if (timeout) { `DISCONNECTED` } elif ( `DISCONNECTED` & response) { `READY`} else {no change} | send an info request,wait for response. (can be used to check connection) |
+ | `setManual`      | `READY`, `RECORDING` & `MENU` | `MANUAL` | Set the camera to manual mode do not track for any camera change |
+ | `unsetManual`    | `MANUAL`       | `READY`     | Restore Camera in `READY` after manual operations |
+ | `resetState `    | all            | `READY`     | Reset the state of the camera to `READY` state |
+ | `startRecording` | `READY`        | `RECORDING` | Start the video recording. |
+ | `stopRecording`  | `RECORDING`    | `READY`     | Stop the video recording. |
+ | `openMenu`       | `READY`        | `MENU`      | Open the camera menu, begin the track of the menu navigation. |
+ | `moveLeft`       | `MENU`         | no change or `READY` | Navigate left in the menu (similar to validate). |
+ | `moveRight`      | `MENU`         | no change or `READY` | Navigate right in the menu (similar to validate). |
+ | `moveset`        | `MENU`         | no change or `READY` | Navigate set in the menu (similar to validate). |
+ | `moveUp`         | `MENU`         | no change   | Navigate up in the menu. |
+ | `moveDown`       | `MENU`         | no change   | Navigate down in the menu. |
+
+
+#### Device control
 
 The device is automatically detected.
 
  | command       | parameter   | description |
- | ------------- | :---------: | ----------: |
+ | ------------- | :---------: | ---------- |
  | `runcamDebug` | n/a         | Toggle the debug print in the Multi-Stream. |
  | `runcamInfo`  | n/a         | Print informations about the device. |
  | `runcamCmd`   | `<command>` |   Send a command to the connected device. |
