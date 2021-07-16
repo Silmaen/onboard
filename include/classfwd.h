@@ -61,4 +61,11 @@ namespace video {
 class RunCam;
 }// namespace video
 
+/**
+ * @brief Namespace for data management
+ */
+namespace data {
+class Series;
+}// namespace data
+
 }// namespace obd

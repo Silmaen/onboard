@@ -11,7 +11,7 @@
 namespace obd::video {
 
 /**
- * @brief class to handle the RunCam device
+ * @brief Class to handle the RunCam device
  */
 class RunCam : public core::BaseDriver {
 public:
@@ -21,7 +21,7 @@ public:
     enum struct Status {
         DISCONNECTED,///< No camera connected
         READY,       ///< Camera connected, waiting
-        RECORDING,   ///< Camera is recording
+        RECORDING,   ///< Camera recording
         MENU,        ///< Navigation inside Menu
         MANUAL       ///< Manual Mode: No remote control of the camera
     };
@@ -52,7 +52,7 @@ public:
     /**
      * @brief Try to treat the given command
      * @param cmd The command to treat
-     * @return true if the command has been treated
+     * @return True if the command treated
      */
     bool treatCommand(const core::command& cmd) override;
 
@@ -147,15 +147,15 @@ private:
      * @brief List of device features
      */
     enum struct Feature {
-        SIMULATE_POWER_BUTTON    = 0x00,///< If the defice can simultate power button
-        SIMULATE_WIFI_BUTTON     = 0x01,///< If the device can simulate wifi button
-        CHANGE_MODE              = 0x02,///< If the device can change camera mode
-        SIMULATE_5_KEY_OSD_CABLE = 0x03,///< If the device can simulate the 5-key pad
-        DEVICE_SETTINGS_ACCESS   = 0x04,///< If the device gives access to settings
-        DISPLAYP_PORT            = 0x05,///< The device is identified as a DisplayPort device by flying controller and receives the OSD data display from the flight controller
+        SIMULATE_POWER_BUTTON    = 0x00,///< The device can simulate power button
+        SIMULATE_WIFI_BUTTON     = 0x01,///< The device can simulate Wi-Fi button
+        CHANGE_MODE              = 0x02,///< The device can change camera mode
+        SIMULATE_5_KEY_OSD_CABLE = 0x03,///< The device can simulate the 5-key pad
+        DEVICE_SETTINGS_ACCESS   = 0x04,///< The device gives access to settings
+        DISPLAY_PORT             = 0x05,///< Display Port feature. Receives the OSD data display from the flight controller.
         START_RECORDING          = 0x06,///< Control the camera to start recording video
         STOP_RECORDING           = 0x07,///< Control the camera to stop recording video
-        FC_ATTITUDE              = 0x09,///< If the device support requests attitude of the remote device(like Betaflight flight controller), it should contain this flag when initializing on the remote device.
+        FC_ATTITUDE              = 0x09,///< Support requests attitude of the remote device.
     };
 
     /**
@@ -173,9 +173,14 @@ private:
      * @brief Information about camera
      */
     struct RunCamInformation {
-        uint8_t ProtocolVersion = 0;///< version of the protocol
-        uint16_t Features       = 0;///< list of features
+        uint8_t ProtocolVersion = 0;///< Version of the protocol
+        uint16_t Features       = 0;///< List of features
 
+        /**
+         * @brief Test availability of a feature
+         * @param f The feature to request
+         * @return Bool: true means feature available.
+         */
         [[nodiscard]] bool hasFeature(const Feature& f) const {
             return (Features & (1U << static_cast<uint8_t>(f))) != 0;
         }

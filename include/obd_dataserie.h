@@ -11,6 +11,11 @@
 
 namespace obd::data {
 
+/**
+ * @brief Simple class to manage looping data series
+ * @tparam T Value's type stored.
+ * @tparam size the size of the data pool
+ */
 template<typename T, uint8_t size>
 class Series {
 public:
@@ -75,15 +80,26 @@ public:
         return *std::max_element(data.begin(), trueEnd());
     }
 
+    /**
+     * @brief Get the stored data number
+     * @return Stored data number
+     */
     [[nodiscard]] int getLength() const {
         return full ? size : index;
     }
 
+    /**
+     * @brief Get the next item's index
+     * @return Next item's index
+     */
     [[nodiscard]] int getIndex() const {
         return index;
     }
 private:
-
+    /**
+     * @brief Get an iterator to the end of the data
+     * @return Iterator to the end of the data
+     */
     auto trueEnd() const {
         if (full)
             return data.end();
