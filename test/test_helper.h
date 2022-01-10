@@ -7,6 +7,8 @@
  */
 
 #pragma once
-#include "com/Communicator.h"
 #include <native/fakeArduino.h>
 #include <unity.h>
+#include "core/System.h"
+
+inline obd::core::System baseSys;

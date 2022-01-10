@@ -1,55 +1,42 @@
 /**
- * @author Silmaen
- * @date 10/05/2021.
+ * @file System.h
+ * @author argawaen
+ * @date 10/01/2022
+ * Copyright © 2022 All rights reserved.
+ * All modification must get authorization from the author.
  */
+
 #pragma once
 
-#include <obd_drivermanager.h>
-#include <Basedriver.h>
-#include <obd_multistream.h>
-#include <obd_status_led.h>
-#include <obd_system_cmd.h>
-#include <obd_dataserie.h>
+#include "data/Series.h"
+#include "BaseDriver.h"
+#include "DriverManager.h"
+#include "com/MultiOutput.h"
+#include <cstdint>
+#include <memory>
 #include <queue>
 
 namespace obd::core {
 
 /**
- * @brief Implementation of the system
+ * @brief Base system
  */
 class System {
 public:
     /**
-     * @brief default constructor
-     */
+    * @brief default constructor
+    */
     System();
 
     /**
-     * @brief Initialize the system
-     */
+    * @brief Initialize the system
+    */
     void init();
 
     /**
-     * @brief Update the system
-     */
+    * @brief Update the system
+    */
     void update();
-
-    /**
-     * @brief Get the multi stream output
-     * @return The outputs
-     */
-    Print* getPrint() {
-        return &outputs;
-    }
-
-    /**
-     * @brief Add a print to the list
-     * @param p The new Print to add
-     */
-    void addPrint(Print* p) {
-        outputs.addPrint(p);
-    }
-
     /**
      * @brief Get the actual timestamp
      * @return The time stamp
@@ -77,7 +64,7 @@ public:
      * @brief Add a command to the list
      * @param cmd The command to add
      */
-    void pushCommand(const command& cmd) {
+    void pushCommand(const Command& cmd) {
         commands.push(cmd);
     }
 
@@ -85,8 +72,16 @@ public:
      * @brief Return a direct pointer to the outputs list
      * @return The outputs list
      */
-    MultiPrint* getOutput() {
+    com::MultiOutput* getOutput() {
         return &outputs;
+    }
+
+    /**
+     * @brief Add a print to the list
+     * @param p The new Print to add
+     */
+    void addOutput(com::Output* p) {
+        outputs.addOutput(p);
     }
 
     /**
@@ -109,10 +104,10 @@ private:
      * @brief Print the system help
      * @param[in] param The sub category for help
      */
-    void printHelp(const String& param);
+    void printHelp(const std::string& param);
 
     /**
-     * @brief display the statistics about timing
+     * @brief Display the statistics about timing
      */
     void printTimeStat();
 
@@ -122,13 +117,13 @@ private:
     void treatCommands();
 
     /// List of output streams
-    MultiPrint outputs;
+    com::MultiOutput outputs;
 
     /// List of the drivers
     DriverManager drivers;
 
     /// Queue of the commands
-    std::queue<command> commands;
+    std::queue<Command> commands;
 
     /// current timestamp
     uint64_t timestamp = 0;

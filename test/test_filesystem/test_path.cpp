@@ -6,9 +6,9 @@
  * All modification must get authorization from the author.
  */
 #include "../test_helper.h"
-#include "core/Path.h"
+#include "fs/Path.h"
 
-using namespace obd::core;
+using namespace obd::fs;
 
 void test_path() {
   Path p;

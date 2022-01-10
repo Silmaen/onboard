@@ -8,17 +8,13 @@
 
 #pragma once
 
-#include "com/Communicator.h"
-#include "core/FileSystem.h"
 #include "test_helper.h"
 
 void test_all();
 
 void setup() {
-  Port.begin(obd::com::Verbosity::Trace, true);
-  fs.begin();
+  baseSys.init();
   test_all();
-  fs.end();
 }
 
 void loop() {}

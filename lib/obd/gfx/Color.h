@@ -18,57 +18,57 @@ namespace obd::gfx {
  * @brief A simple struct to handle color data
  */
 struct Color {
-  /// red channel
-  uint8_t red = 0;
-  /// green channel
-  uint8_t green = 0;
-  /// blue channel
-  uint8_t blue = 0;
-  /**
+    /// red channel
+    uint8_t red = 0;
+    /// green channel
+    uint8_t green = 0;
+    /// blue channel
+    uint8_t blue = 0;
+    /**
    * @brief Convert this color into rgb565 format.
    * @return The formatted color code.
    */
-  [[nodiscard]] uint16_t toRGB565() const {
-    return (red5()) << 11U | ((green6()) & 0x3f) << 5U | ((blue5()) & 0x1f);
-  }
-  /**
+    [[nodiscard]] uint16_t toRGB565() const {
+        return (red5()) << 11U | ((green6()) & 0x3f) << 5U | ((blue5()) & 0x1f);
+    }
+    /**
    * @brief Convert this color into rgb332 format.
    * @return The formatted color code.
    */
-  [[nodiscard]] uint8_t toRGB332() const {
-    return (red3()) << 5U | ((green3()) & 0b111) << 2U | ((blue2()) & 0b11);
-  }
+    [[nodiscard]] uint8_t toRGB332() const {
+        return (red3()) << 5U | ((green3()) & 0b111) << 2U | ((blue2()) & 0b11);
+    }
 
-  /**
+    /**
    * @brief Convert the red channel into rgb565 format.
    * @return The formatted red channel.
    */
-  [[nodiscard]] uint8_t red5() const { return (red * 0x1f) / 255; }
-  /**
+    [[nodiscard]] uint8_t red5() const { return (red * 0x1f) / 255; }
+    /**
    * @brief Convert the green channel into rgb565 format.
    * @return The formatted green channel.
    */
-  [[nodiscard]] uint8_t green6() const { return (green * 0x3f) / 255; }
-  /**
+    [[nodiscard]] uint8_t green6() const { return (green * 0x3f) / 255; }
+    /**
    * @brief Convert the blue channel into rgb565 format.
    * @return The formatted blue channel.
    */
-  [[nodiscard]] uint8_t blue5() const { return (blue * 0x1f) / 255; }
-  /**
+    [[nodiscard]] uint8_t blue5() const { return (blue * 0x1f) / 255; }
+    /**
    * @brief Convert the red channel into rgb332 format.
    * @return The formatted red channel.
    */
-  [[nodiscard]] uint8_t red3() const { return (red * 0b111) / 255; }
-  /**
+    [[nodiscard]] uint8_t red3() const { return (red * 0b111) / 255; }
+    /**
    * @brief Convert the green channel into rgb332 format.
    * @return The formatted green channel.
    */
-  [[nodiscard]] uint8_t green3() const { return (green * 0b111) / 255; }
-  /**
+    [[nodiscard]] uint8_t green3() const { return (green * 0b111) / 255; }
+    /**
    * @brief Convert the blue channel into rgb332 format.
    * @return The formatted blue channel.
    */
-  [[nodiscard]] uint8_t blue2() const { return (blue * 0b11) / 255; }
+    [[nodiscard]] uint8_t blue2() const { return (blue * 0b11) / 255; }
 };
 
 /// Predefined color red
@@ -106,4 +106,4 @@ constexpr Color grey = {127, 127, 127};
 /// Predefined color dark grey
 constexpr Color darkGrey = {191, 191, 191};
 
-} // namespace cpt::gfx
+}// namespace obd::gfx

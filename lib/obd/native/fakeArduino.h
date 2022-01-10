@@ -14,6 +14,9 @@
 //#include "fakeSerial.h"
 #include "fakeTiming.h"
 
+/// Compatibility: normally put the const string into flash memory
+#define F(x) x
+
 /**
  * @brief Convert a double number into string
  * @param number The number to write

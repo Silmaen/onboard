@@ -9,6 +9,7 @@
 #pragma once
 #include "gfx/Color.h"
 #include "math/Point.h"
+#include "Output.h"
 #include <string>
 /**
  * @namespace obd
@@ -30,16 +31,6 @@ enum struct Verbosity {
   Extra,
   Debug,
   Trace,
-};
-
-/**
- * @brief Output format for integers
- */
-enum struct Format {
-  Auto,
-  Decimal,
-  Hexadecimal,
-  Binary,
 };
 
 /**

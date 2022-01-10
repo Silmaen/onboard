@@ -9,7 +9,7 @@
 namespace obd::video {
 
 /**
- * @brief direction of Action of the 5key par
+ * @brief Direction of Action of the 5key par
  */
 enum struct NavDirection {
     Enter = 0x01, ///< Middle click: Enter

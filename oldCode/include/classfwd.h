@@ -65,6 +65,7 @@ class RunCam;
  * @brief Namespace for data management
  */
 namespace data {
+template<typename T, uint8_t size>
 class Series;
 }// namespace data
 

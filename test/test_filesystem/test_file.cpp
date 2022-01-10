@@ -7,18 +7,19 @@
  */
 
 #include "../test_helper.h"
-#include "core/File.h"
-#include "core/FileSystem.h"
+#include "fs/File.h"
+#include "fs/FileSystem.h"
 
-using namespace obd::core;
+using namespace obd::fs;
 
 void test_file() {
-  TextFile file(Path{"/toto.txt"}, ios::out);
+    std::shared_ptr<FileSystem> hdd = baseSys.getDriver<FileSystem>();
+  TextFile file(hdd.get(),Path{"/toto.txt"}, ios::out);
   file.write("Coucou!!");
   file.write('1');
   file.close();
-  TEST_ASSERT(fs.exists(Path{"/toto.txt"}));
-  TextFile f_read;
+  TEST_ASSERT(hdd->exists(Path{"/toto.txt"}));
+  TextFile f_read(hdd.get());
   TEST_ASSERT(f_read.open(Path{"/toto.txt"}, ios::in))
   TEST_ASSERT_FALSE(f_read.open(Path{"/toto.txt"}, ios::in))
   auto l = f_read.readLine();

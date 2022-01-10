@@ -57,7 +57,7 @@ void RunCam::printInfo() {
         print(F("RunCam Feature Device settings access: . "));
         printlnBool(DeviceInfo.hasFeature(Feature::DEVICE_SETTINGS_ACCESS));
         print(F("RunCam Feature display port: ........... "));
-        printlnBool(DeviceInfo.hasFeature(Feature::DISPLAYP_PORT));
+        printlnBool(DeviceInfo.hasFeature(Feature::DISPLAY_PORT));
         print(F("RunCam Feature Start recording: ........ "));
         printlnBool(DeviceInfo.hasFeature(Feature::START_RECORDING));
         print(F("RunCam Feature Stop recording: ......... "));

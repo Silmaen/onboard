@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "Basedriver.h"
+#include "obd_basedriver.h"
 #include <TZ.h>
 
 namespace obd::time {
@@ -96,7 +96,7 @@ private:
     void printDate();
 
     /// link to filesystem
-    std::shared_ptr<file::FileSystem> fs = nullptr;
+    std::shared_ptr<file::FileSystem> fileSystem = nullptr;
 
     /// the pool server name to query
     String poolServerName = "pool.ntp.org";

@@ -85,7 +85,7 @@ void Communicator::newline(const Verbosity &verbosity) {
     break;
   }
 #ifdef ARDUINO
-  Serial.print(keyword);
+  Serial.print(keyword.c_str());
 #else
   std::cout << keyword;
 #endif
