@@ -8,8 +8,14 @@
 
 namespace obd::core {
 
+/// Definition of digits
 static const String digits{"0123456789"};
 
+/**
+ * @brief Get the last digits of a string
+ * @param str the string
+ * @return the las digits
+ */
 int lastDigit(const String& str) {
     int idx = -1;
     for (uint16_t i = 0; i < str.length(); ++i) {

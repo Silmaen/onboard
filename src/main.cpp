@@ -1,4 +1,5 @@
 
+#if defined(ONBOARD)
 #include <Arduino.h>
 #include <obd_system.h>
 
@@ -11,3 +12,23 @@ void setup() {
 void loop() {
     hardware.update();
 }
+#elif defined(REMOTE)
+void setup() {
+
+}
+
+void loop() {
+
+}
+#elif defined(NATIVE)
+#include "native/fakeArduino.h"
+void setup() {
+
+}
+
+void loop() {
+
+}
+#else
+#error "Unsupported Pio Environment"
+#endif

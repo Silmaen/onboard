@@ -41,8 +41,9 @@ public:
     [[nodiscard]] bool empty() const { return cmdline.isEmpty(); }
 
     /**
-     * @brief add a char to the command
-     * @param c the char to add
+     * @brief Add a char to the command
+     * @param c The char to add
+     * @return True if command succeed.
      */
     bool putChar(char c) {
         cmdline += c;
