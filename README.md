@@ -1,9 +1,19 @@
 # Project onboard
 
-Driver for my drone's onboard device.
+## Introduction
 
-An ESP8266 device plugged to TX/RX of the Caddx Loris Camera acts as a communication relay between Camera, 
-flight controller and ground station.
+### Goals
+
+This project intent to allow more links between the drone and On board peripherals.
+
+It consists in Two modules, one on the drone, the second with the pilot 
+(or any other ground operator).
+
+### Motivation
+
+The first motivation to start this project cames when I added a camera to my drone,
+but was unable to control it (typically start/stop recording). My flight controler 
+does not have enough ports to plug everything.
 
 ## Needed tools 
 
@@ -11,55 +21,50 @@ Build this project you will need [PlatformIO](https://docs.platformio.org/en/lat
 
 This project uses the [ESP8266 Arduino Framework](https://arduino-esp8266.readthedocs.io/en/latest/)
 
-## Device description
+## Devices description
 
 
-### Wiring
+The base of the system is the communication between two modules.
+To do that we will use 2 ESP8266 and their Wi-Fi capabilities.
+
+The device on the drone will be used to control the Camera. 
+The device on the ground will be connected to a touch screen displaying information 
+and use as human interface.
+
+### Wiring the device 'onboard'
 
 Here is the basic wiring of the Wemos D1 with the other peripherals:
 
-![](doc/wiring.png)
+![](srcdoc/wiring.png)
 
 The video transmitter will provide the power supply, using its 5V output.
 
-### Console
+### Writing the device 'controler'
 
-Device support multiple connexion. In that case, the message will be displayed in
-all the connexions. The received command will be echoed to all connexions with a prefix
-that display the origin of the command. See [Console commands](doc/consoleCommands.md) to 
-known how to use it.
+Here is the basic wiring of the Wemos D1 with the other peripherals:
 
-#### USB Serial
+![](srcdoc/wiring_2.png)
 
-The default connexion to the device is to use the USB cable.
-Then use a serial communication at 115200 bauds.
+The power supply will most likely be given by a battery.
 
-This is equivalent to plug cable to TX RX pins on the board. But, with the USB,
-it also provides power to the board.
+## Code architecture
 
-#### Telnet
+The code architecture between the 2 device will be very similar sharing most parts.
 
-If the device network is connected, then the console may also be accessible through a telnet connexion.
-To connect to the device simply connect to its IP port 23 with the Telnet protocol.
-Only one telnet client at a time is supported by the device.
+The detail description is on this page: [Code Architecture](srcdoc/CodeArchitecture.md)
 
-### webserver
-
-If the device network is connected, a simple web server is running on port 80.
+## The hardware devices
 
 ### Runcam Camera
 
 Caddx Loris uart port allow communication to Wemos through D1, D2 pins.
 
-More details about Runcam protocol and Loris specific [here](doc/RuncamProtocol.md).
+More details about Runcam protocol and Loris specific [here](srcdoc/RuncamProtocol.md).
 
-More details about the Driver functions: [here](doc/RuncamDriver.md)
+More details about the Driver functions: [here](srcdoc/RuncamDriver.md)
 
-### Remote control
+### RAIO RA8875
 
-The remote control uses 4 wires to control the device.
+The RA8875 is plugged using the hardware SPI bus.
 
-More details can be found [here](doc/remoteDevice.md)
-
-
-
+More details about the Driver functions: [here](srcdoc/RA8875.md)

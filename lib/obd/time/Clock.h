@@ -12,6 +12,9 @@
 #include "core/BaseDriver.h"
 #include "fs/FileSystem.h"
 
+/**
+ * @brief Function of time manipulation
+ */
 namespace obd::time {
 
 /// basic initialization of time zone

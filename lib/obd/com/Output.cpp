@@ -53,10 +53,10 @@ void Output::print(int8_t data, com::Format format) {
         std::cout << data;
         break;
     case Format::Decimal:
-        oss << static_cast<int>(data);
+        oss << static_cast<int16_t>(data);
         break;
     case Format::Hexadecimal:
-        oss << std::setfill('0') << std::setw(2) << std::hex << data;
+        oss << std::setfill('0') << std::setw(2) << std::hex << static_cast<int16_t>(data);
         break;
     case Format::Binary:
         std::bitset<8> bitset(data);
@@ -77,10 +77,10 @@ void Output::print(uint8_t data, com::Format format) {
         std::cout << data;
         break;
     case Format::Decimal:
-        oss << static_cast<int>(data);
+        oss << static_cast<uint16_t>(data);
         break;
     case Format::Hexadecimal:
-        oss << std::setfill('0') << std::setw(2) << std::hex << data;
+        oss << std::setfill('0') << std::setw(2) << std::hex << static_cast<uint16_t>(data);
         break;
     case Format::Binary:
         std::bitset<8> bitset(data);
@@ -100,14 +100,16 @@ void Output::print(int16_t data, com::Format format) {
     case Format::Auto:
     case Format::Decimal:
         oss << data;
-        print(oss.str());
         break;
     case Format::Hexadecimal:
+        oss << std::setfill('0') << std::setw(4) << std::hex << data;
+        break;
     case Format::Binary:
-        print(static_cast<uint8_t>(data >> 8U), format);
-        print(static_cast<uint8_t>(data & 0xff), format);
+        std::bitset<16> bitset(data);
+        oss << bitset;
         break;
     }
+    print(oss.str());
 }
 void Output::print(uint16_t data, com::Format format) {
 #ifdef ARDUINO
@@ -121,11 +123,14 @@ void Output::print(uint16_t data, com::Format format) {
         print(oss.str());
         break;
     case Format::Hexadecimal:
+        oss << std::setfill('0') << std::setw(4) << std::hex << data;
+        break;
     case Format::Binary:
-        print(static_cast<uint8_t>(data >> 8U), format);
-        print(static_cast<uint8_t>(data & 0xff), format);
+        std::bitset<16> bitset(data);
+        oss << bitset;
         break;
     }
+    print(oss.str());
 }
 void Output::print(int32_t data, com::Format format) {
 #ifdef ARDUINO
@@ -141,10 +146,8 @@ void Output::print(int32_t data, com::Format format) {
         break;
     case Format::Hexadecimal:
     case Format::Binary:
-        print(static_cast<uint8_t>((data >> 24U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 16U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 8U) & 0xff), format);
-        print(static_cast<uint8_t>(data & 0xff), format);
+        print(static_cast<int16_t>((data >> 16U) & 0xffff), format);
+        print(static_cast<int16_t>(data & 0xffff), format);
         break;
     }
 }
@@ -162,10 +165,8 @@ void Output::print(uint32_t data, com::Format format) {
         break;
     case Format::Hexadecimal:
     case Format::Binary:
-        print(static_cast<uint8_t>((data >> 24U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 16U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 8U) & 0xff), format);
-        print(static_cast<uint8_t>(data & 0xff), format);
+        print(static_cast<uint16_t>((data >> 16U) & 0xffff), format);
+        print(static_cast<uint16_t>(data & 0xffff), format);
         break;
     }
 }
@@ -183,14 +184,10 @@ void Output::print(int64_t data, com::Format format) {
         break;
     case Format::Hexadecimal:
     case Format::Binary:
-        print(static_cast<uint8_t>((data >> 56U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 48U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 40U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 32U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 24U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 16U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 8U) & 0xff), format);
-        print(static_cast<uint8_t>(data & 0xff), format);
+        print(static_cast<int16_t>((data >> 48U) & 0xffff), format);
+        print(static_cast<int16_t>((data >> 32U) & 0xffff), format);
+        print(static_cast<int16_t>((data >> 16U) & 0xffff), format);
+        print(static_cast<int16_t>(data & 0xffff), format);
         break;
     }
 }
@@ -208,14 +205,10 @@ void Output::print(uint64_t data, com::Format format) {
         break;
     case Format::Hexadecimal:
     case Format::Binary:
-        print(static_cast<uint8_t>((data >> 56U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 48U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 40U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 32U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 24U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 16U) & 0xff), format);
-        print(static_cast<uint8_t>((data >> 8U) & 0xff), format);
-        print(static_cast<uint8_t>(data & 0xff), format);
+        print(static_cast<uint16_t>((data >> 48U) & 0xffff), format);
+        print(static_cast<uint16_t>((data >> 32U) & 0xffff), format);
+        print(static_cast<uint16_t>((data >> 16U) & 0xffff), format);
+        print(static_cast<uint16_t>(data & 0xffff), format);
         break;
     }
 }

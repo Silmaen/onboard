@@ -9,6 +9,9 @@
 #pragma once
 #include <cstdint>
 
+/**
+ * @brief Configuration parameters
+ */
 namespace obd::config {
 
 /// Base length of a command line

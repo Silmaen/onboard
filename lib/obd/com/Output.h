@@ -10,6 +10,9 @@
 #include "native/fakeArduino.h"
 #include <string>
 
+/**
+ * @brief Function for communication
+ */
 namespace obd::com {
 
 /**

@@ -16,6 +16,13 @@
 #include <memory>
 #include <queue>
 
+/**
+ * @namespace obd
+ * @brief Base Namespace for the project
+ */
+/**
+ * @brief Core functions
+ */
 namespace obd::core {
 
 /**

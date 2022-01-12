@@ -55,16 +55,13 @@ public:
         DM_800x480  /*!< 800x480 Pixel Display */
     };
 
-    bool init();
-    void end();
-
     /**
    * @brief Initialize display
-   * @param dm The display mode
+   * @param displayMode The display mode
    * @return False if something go wrong or display not
    * present
    */
-    bool begin(const Resolution& dm = Resolution::DM_800x480);
+    bool begin(const Resolution& displayMode = Resolution::DM_800x480);
 
     /**
    * @brief Define SPI speed
@@ -114,9 +111,9 @@ public:
 
     /**
    * @brief Change the display mode
-   * @param dm The new display mode
+   * @param displayMode The new display mode
    */
-    void mode(const DisplayMode& dm);
+    void mode(const DisplayMode& displayMode);
 
     /**
    * @brief Fill the screen with desired color
@@ -205,15 +202,15 @@ public:
 
     /**
    * @brief Function to draw triangle
-   * @param p1 Coordinates of the first point
-   * @param p2 Coordinates of the second point
-   * @param p3 Coordinates of the third point
+   * @param point1 Coordinates of the first point
+   * @param point2 Coordinates of the second point
+   * @param point3 Coordinates of the third point
    * @param color The color
    * @param filled If filling curve
    * @return True if execution OK
    */
-    [[nodiscard]] bool drawTriangle(const math::Point& p1, const math::Point& p2,
-                                    const math::Point& p3, const Color& color,
+    [[nodiscard]] bool drawTriangle(const math::Point& point1, const math::Point& point2,
+                                    const math::Point& point3, const Color& color,
                                     bool filled = false) const;
 
     /**
@@ -282,13 +279,13 @@ public:
    * @param center The center of the ellipse
    * @param longAxis The X axis
    * @param shortAxis The Y axis
-   * @param cv Which part of the Ellipse
+   * @param curvePart Which part of the Ellipse
    * @param color The color
    * @param filled If filling curve
    * @return True if execution OK
    */
     [[nodiscard]] bool drawCurve(const math::Point& center, uint16_t longAxis,
-                                 uint16_t shortAxis, const CurvePart& cv,
+                                 uint16_t shortAxis, const CurvePart& curvePart,
                                  const Color& color, bool filled = false) const;
 
     // ----- Touch screen functions ---
@@ -724,13 +721,13 @@ private:
    * @param center The center of the ellipse
    * @param longAxis The X axis of the ellipse
    * @param shortAxis  The Y axis of the ellipse
-   * @param cv The curve part to draw
+   * @param curvePart The curve part to draw
    * @param color The color of the ellipse
    * @param filled If the ellipse should be filled.
    * @return True if execution is OK.
    */
     [[nodiscard]] bool ellipseHelper(const math::Point& center, uint16_t longAxis,
-                                     uint16_t shortAxis, uint8_t cv,
+                                     uint16_t shortAxis, uint8_t curvePart,
                                      const Color& color,
                                      bool filled = false) const;
 };

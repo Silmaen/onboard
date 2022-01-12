@@ -32,10 +32,6 @@ public:
     bool init() override;
 
     /**
-     * @brief End the driver
-     */
-    void end() override{}
-    /**
      * @brief Print the driver infos
      */
     void printInfo() override;
@@ -45,22 +41,6 @@ public:
      * @param delta The time delta from last update
      */
     void update(int64_t delta) override;
-
-    /**
-     * @brief Display driver help on commands
-     */
-    void printHelp() override {}
-
-    /**
-     * @brief Load and apply parameters in the config file
-     */
-    void loadConfigFile() override {}
-
-    /**
-     * @brief Save the driver parameter in file
-     */
-    void saveConfigFile() const override {}
-
 private:
     /// Pointer to the output of this
     Output* _output = nullptr;
