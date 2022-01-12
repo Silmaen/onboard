@@ -6,6 +6,7 @@ Checks: '
     -cppcoreguidelines-avoid-c-arrays,
     -hicpp-avoid-c-arrays,
     -llvmlibc-callee-namespace,
+    -llvmlibc-implementation-in-namespace,
     -fuchsia-default-arguments-calls,
     -fuchsia-default-arguments-declarations,
     -fuchsia-overloaded-operator,

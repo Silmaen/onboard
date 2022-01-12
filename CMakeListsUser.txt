@@ -1,4 +1,57 @@
 
-add_custom_target(Documentation
-                  COMMAND Doxygen Doxyfile
-                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+#
+# ---=== documentation ===---
+#
+find_package(Doxygen
+        REQUIRED dot)
+if (DOXYGEN_FOUND)
+    message(STATUS "found doxygen version: ${DOXYGEN_VERSION}")
+    if (${DOXYGEN_VERSION} VERSION_LESS 1.9.2)
+        message(FATAL_ERROR "Doxygen version 1.9.2 or higher is required")
+    endif ()
+    add_custom_target(documentation
+            COMMAND ${DOXYGEN_EXECUTABLE}
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            COMMENT "Generating API documentation"
+            VERBATIM)
+else (DOXYGEN_FOUND)
+    message(ERROR no doxygen found)
+endif (DOXYGEN_FOUND)
+
+#
+# ---=== Test code coverage ===---
+#
+if ( "${CMAKE_BUILD_TYPE}" STREQUAL "native" )
+    find_program(GCOVR gcovr)
+    if (${GCOVR} STREQUAL GCOVR-NOTFOUND)
+        message(FATAL_ERROR "unable to find gcovr: no coverage report is possible")
+    else ()
+        # Get gcov version
+        execute_process(COMMAND ${GCOVR} --version
+                OUTPUT_VARIABLE GCOVR_VERSION)
+        string(REPLACE "\n" ";" GCOVR_VERSION ${GCOVR_VERSION})
+        list(SUBLIST GCOVR_VERSION 0 1 GCOVR_VERSION)
+        string(REPLACE " " ";" GCOVR_VERSION ${GCOVR_VERSION})
+        list(SUBLIST GCOVR_VERSION 1 1 GCOVR_VERSION)
+
+        message(STATUS "Found gcovr version ${GCOVR_VERSION} at location: ${GCOVR} ")
+        if (${GCOVR_VERSION} VERSION_LESS 5.0)
+            message(FATAL_ERROR "gcovr: Too old version of gcovr, minimum required is 5.0")
+        endif ()
+    endif ()
+    add_custom_target(Generate_test_coverage_report)
+    add_custom_command(TARGET Generate_test_coverage_report POST_BUILD
+            COMMAND pio -c clion test -e ${CMAKE_BUILD_TYPE}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            USES_TERMINAL)
+    set(COVERAGE_RESULT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/Coverage)
+    file(MAKE_DIRECTORY ${COVERAGE_RESULT_DIR})
+    set(COVERAGE_TITLE "${PROJECT_NAME} Coverage Repport")
+    set(COVERAGE_HTML --html --html-details --html-details-syntax-highlighting --html-title ${COVERAGE_TITLE} --source-encoding utf-8)
+    set(COVERAGE_FILTER -e ".*third_party/.*" -e ".*pio.*" -e ".*tmp.*" -e ".*test/.*" -e ".*autogen.*" -e ".*main\.cpp")
+    set(COVERAGE_OPTION -buds -j 4 --exclude-throw-branches --exclude-unreachable-branches --exclude-lines-by-pattern ".*---UNCOVER---.*")
+    add_custom_command(TARGET Generate_test_coverage_report POST_BUILD
+            COMMAND ${GCOVR} ${COVERAGE_OPTION} -r ${CMAKE_SOURCE_DIR} -o ${COVERAGE_RESULT_DIR}/index.html ${COVERAGE_HTML} ${COVERAGE_FILTER} .
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/.pio/build/${CMAKE_BUILD_TYPE}
+            USES_TERMINAL)
+endif()

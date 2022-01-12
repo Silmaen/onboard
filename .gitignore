@@ -1,4 +1,6 @@
 .pio
 CMakeListsPrivate.txt
 CMakeLists.txt
-cmake-build-*/ 
+cmake-build-*/
+doc/html
+doc/Coverage
