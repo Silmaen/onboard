@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "data/Series.h"
 #include "BaseDriver.h"
 #include "DriverManager.h"
 #include "com/MultiOutput.h"
+#include "data/Series.h"
 #include <cstdint>
 #include <memory>
 #include <queue>
@@ -53,6 +53,41 @@ public:
     template<class T>
     std::shared_ptr<T> getDriver() {
         return drivers.getDriver<T>();
+    }
+
+    /**
+     * @brief Add a driver to the system
+     * @tparam T The driver type to add
+     *
+     * @note Will not add the driver if type does not inherit from BaseDriver
+     * @note Will not add the driver if driver type is already in the system.
+     * @return If delete succes
+     */
+    template<class T>
+    bool addDriver() {
+        if (!drivers.addDriver<T>(this)) {
+            outputs.println("ERROR: Unable to add the given driver");
+            return false;
+        }
+        if (initialized) {
+            // if the system is already initialized, it means driver hot plug so: initialize it!
+            drivers.back()->init();
+            drivers.back()->printInfo();
+        }
+        return true;
+    }
+
+    /**
+     * @brief Delete a driver from the system
+     * @tparam T The driver type to delete
+     * @return If delete success
+     */
+    template<class T>
+    bool deleteDriver() {
+        auto driver = getDriver<T>();
+        if (driver != nullptr && initialized)
+            driver->end();
+        return drivers.deleteDriver<T>();
     }
 
     /**
@@ -130,6 +165,9 @@ private:
 
     /// Data to collect statistics about time treatment
     data::Series<int64_t, 20> timeData;
+
+    /// Store information about initialization
+    bool initialized = false;
 };
 
 }// namespace obd::core

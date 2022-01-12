@@ -7,31 +7,37 @@
  */
 #include "Clock.h"
 #include "core/System.h"
+#include "data/DataUtils.h"
 #include "fs/ConfigFile.h"
 #include "native/fakeArduino.h"
 #include <sys/time.h>
-#include "data/DataUtils.h"
 
 namespace obd::time {
 
 
 bool Clock::init() {
+    if (getParent() == nullptr)
+        return false;
     fileSystem = getParent()->getDriver<fs::FileSystem>();
     // restore time (not the true time but nearer than 1 jan 1970!)
-#ifdef ARDUINO
-    if (fileSystem != nullptr) {
-        if (fileSystem->exists(fs::Path(std::string(config::tsSave)))) {
-            fs::TextFile timeFile(fileSystem.get(), fs::Path(config::tsSave), fs::ios::in);
-            time_t ts = atoi(timeFile.readLine().c_str());
-            timeFile.close();
-            timeval tv{ts, 0};
+    if (!fileSystem->initialized() )
+        return core::BaseDriver::init();
+    loadConfigFile();
+    configTime();
+    return core::BaseDriver::init();
+}
 
-            settimeofday(&tv, nullptr);
-        }
+void Clock::configTime() {
+#ifdef ARDUINO
+    if (fileSystem->exists(fs::Path(std::string(config::tsSave)))) {
+        fs::TextFile timeFile(fileSystem.get(), fs::Path(config::tsSave), fs::ios::in);
+        time_t ts = atoi(timeFile.readLine().c_str());
+        timeFile.close();
+        timeval tv{ts, 0};
+        settimeofday(&tv, nullptr);
     }
     configTime(timeZone.c_str(), poolServerName.c_str());
 #endif
-    return true;
 }
 
 void Clock::printInfo() {
@@ -39,7 +45,7 @@ void Clock::printInfo() {
     print(F("Pool server       : "));
     println(poolServerName);
     print(F("Time Zone         : "));
-    println(timeZone);
+    println(_timeZone);
 }
 
 void Clock::update(int64_t delta) {
@@ -48,9 +54,11 @@ void Clock::update(int64_t delta) {
         chronometer = 0;
         // save current time so next boot will be loaded
         if (fileSystem != nullptr) {
-            fs::TextFile timeFile(fileSystem.get(), fs::Path(config::tsSave), fs::ios::out);
+            fs::TextFile timeFile(fileSystem, fs::Path(config::tsSave), fs::ios::out);
             time_t date = getDate();
-            timeFile.write(date);
+            std::stringstream oss;
+            oss << date;
+            timeFile.write(oss.str());
             timeFile.close();
         }
     }
@@ -92,7 +100,7 @@ void Clock::loadConfigFile() {
         poolServerName = configFile.getKey("pool");
     }
     if (configFile.hasKey("tz")) {
-        timeZone = configFile.getKey("tz");
+        _timeZone = configFile.getKey("tz");
     }
 }
 
@@ -100,7 +108,7 @@ void Clock::saveConfigFile() const {
     fs::ConfigFile configFile(fileSystem);
     // parameter to save
     configFile.addConfigParameter("pool", poolServerName);
-    configFile.addConfigParameter("tz", timeZone);
+    configFile.addConfigParameter("tz", _timeZone);
     //
     configFile.saveConfig(getName());
 }
@@ -121,12 +129,12 @@ time_t Clock::getDate() {
 
 void Clock::setPoolServer(const std::string& pool) {
     poolServerName = pool;
-    init();
+    configTime();
 }
 
-void Clock::setTimeZone(const std::string& tz) {
-    timeZone = tz;
-    init();
+void Clock::setTimeZone(const std::string& timeZone) {
+    _timeZone = timeZone;
+    configTime();
 }
 
 std::string Clock::formatTime(const time_t& time) {

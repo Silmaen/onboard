@@ -29,10 +29,9 @@ void ConfigFile::loadConfig(const std::string& driverName) {
         return;
     Path configFilePath{driverName + F(".cfg")};
     configFilePath.makeAbsolute(Path(F("/config")));
-    fs::TextFile file(fs.get(), configFilePath);
+    fs::TextFile file(fs, configFilePath);
     while (file.available()) {
-        std::string line = file.readLine();
-        data::ReplaceAll(line, "\r", "");// just in case of damned Windows format
+        std::string line = file.readLine(255,false);
         if (line.empty())          // empty line
             continue;
         if (line[0] == '#')// comment line
@@ -57,9 +56,10 @@ void ConfigFile::saveConfig(const std::string& driverName) const {
         return;
     Path configFilePath{driverName + F(".cfg")};
     configFilePath.makeAbsolute(Path(F("/config")));
-    fs::TextFile file(fs.get(), configFilePath, ios::out);
-    for (const auto& it : fileContent) {
-        file.write(it.first+"="+it.second+"\n");
+    fs::TextFile file(fs, configFilePath, ios::out);
+    file.write("# Config file for driver: " + driverName +" \n\n");
+    for (const auto& parameter : fileContent) {
+        file.write(parameter.first+"="+ parameter.second+"\n");
     }
     file.close();
 }

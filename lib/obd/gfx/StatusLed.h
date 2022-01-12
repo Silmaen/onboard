@@ -44,16 +44,6 @@ public:
     bool init() override;
 
     /**
-     * @brief End the driver
-     */
-    void end() override{}
-
-    /**
-     * @brief Print the driver infos
-     */
-    void printInfo() override {}
-
-    /**
      * @brief Procedure called each frame
      * @param delta The time delta from last update
      */
@@ -70,16 +60,6 @@ public:
      * @brief Display help on command
      */
     void printHelp() override;
-
-    /**
-     * @brief Load and apply parameters in the config file
-     */
-    void loadConfigFile() override {}
-
-    /**
-     * @brief Save the driver parameter in file
-     */
-    void saveConfigFile() const override {}
 
     /**
      * @brief Define the new state of the led

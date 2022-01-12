@@ -19,10 +19,9 @@ void test_delay() {
   startMilli = millis() - startMilli;
   startMicros = micros() - startMicros;
   startMicros64 = micros64() - startMicros64;
-  std::cout << "Millis  " << startMilli << std::endl;
   TEST_ASSERT_UINT32_WITHIN(1, 1, startMilli);
-  TEST_ASSERT_UINT32_WITHIN(1, 1001, startMicros);
-  TEST_ASSERT_UINT64_WITHIN(1, 1001, startMicros64);
+  TEST_ASSERT_UINT32_WITHIN(10, 1001, startMicros);
+  TEST_ASSERT_UINT64_WITHIN(10, 1001, startMicros64);
 }
 
 void test_all() {

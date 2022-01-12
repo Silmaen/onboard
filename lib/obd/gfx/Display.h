@@ -9,6 +9,7 @@
 #pragma once
 
 #include "Color.h"
+#include "core/BaseDriver.h"
 #include "math/Point.h"
 #include <string>
 #include <vector>
@@ -29,28 +30,33 @@ enum struct SpiSpeed : uint32_t {
 constexpr uint8_t ra8875_id = 0x75;
 
 /**
- * @brief Class handling display
+ * @brief Class handling raw screen
  */
-class Screen {
+class Display : public core::BaseDriver {
 public:
     /**
-   * @brief Constructor
-   * @param cs The Cable Select pin
-   * @param rst The reset pin
-   */
-    explicit Screen(uint8_t cs, uint8_t rst = 255) :
+     * @brief Constructor
+     * @param parent The parent system
+     * @param cs The Cable Select pin
+     * @param rst The reset pin
+     */
+    explicit Display(core::System* parent = nullptr, uint8_t cs = 255, uint8_t rst = 255) :
+        BaseDriver(parent),
         _cs{cs}, _rst{rst} {
     }
 
     /**
-   * @brief Different display mode
-   */
+     * @brief Different display mode
+     */
     enum struct Resolution {
         DM_480x80,  /*!<  480x80 Pixel Display */
         DM_480x128, /*!< 480x128 Pixel Display */
         DM_480x272, /*!< 480x272 Pixel Display */
         DM_800x480  /*!< 800x480 Pixel Display */
     };
+
+    bool init();
+    void end();
 
     /**
    * @brief Initialize display

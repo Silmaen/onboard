@@ -24,24 +24,23 @@ bool FileSystem::init() {
     initialized = LittleFS.begin();
 #endif
 #else
-    initialized = true;
     basePath    = std::filesystem::current_path() / "data";
 #endif
     auto tempClock = getParent()->getDriver<time::Clock>();
     if (tempClock != nullptr)
         setTimeCb(tempClock->getDate);
-    return initialized;
+    return core::BaseDriver::init();;
 }
 
 void FileSystem::end() {
-    initialized = false;
+    core::BaseDriver::end();
 #ifdef ESP8266
     LittleFS.end();
 #endif
 }
 
 bool FileSystem::exists(const Path& path) const {
-    if (!initialized)
+    if (!initialized())
         return false;
 #ifdef ARDUINO
 #ifdef ESP8266
@@ -53,7 +52,7 @@ bool FileSystem::exists(const Path& path) const {
 }
 
 bool FileSystem::isDir(const Path& path) const {
-    if (!initialized)
+    if (!initialized())
         return false;
 #ifdef ARDUINO
 #ifdef ESP8266
@@ -68,7 +67,7 @@ bool FileSystem::isDir(const Path& path) const {
 }
 
 bool FileSystem::isFile(const Path& path) const {
-    if (!initialized)
+    if (!initialized())
         return false;
 #ifdef ARDUINO
 #ifdef ESP8266
@@ -83,7 +82,7 @@ bool FileSystem::isFile(const Path& path) const {
 }
 
 bool FileSystem::mkdir(const Path& path, bool parents, bool existsOk) {
-    if (!initialized) {
+    if (!initialized()) {
         return false;
     }
     if (isFile(path)) {
@@ -133,8 +132,8 @@ bool FileSystem::mkdir(const Path& path, bool parents, bool existsOk) {
 #endif
 }
 
-bool FileSystem::rmdir(const Path& path, bool recurcive, bool notExistsOk) {
-    if (!initialized) {
+bool FileSystem::rmdir(const Path& path, bool recursive, bool notExistsOk) {
+    if (!initialized()) {
         return false;
     }
     if (isFile(path)) {
@@ -170,7 +169,7 @@ bool FileSystem::rmdir(const Path& path, bool recurcive, bool notExistsOk) {
     }
     return true;
 #else
-    if (recurcive)
+    if (recursive)
         return std::filesystem::remove_all(toStdPath(dir));
     if (listDir(dir).empty())
         return std::filesystem::remove(toStdPath(dir));
@@ -184,7 +183,7 @@ std::vector<Path> FileSystem::listDir(const Path& path) const {
     if (path.toString().empty()) {
         work = currentWorkingDir;
     }
-    if (!initialized || !isDir(work)) {
+    if (!initialized() || !isDir(work)) {
         return {};
     }
     std::vector<Path> listFiles;
@@ -207,7 +206,7 @@ std::vector<Path> FileSystem::listDir(const Path& path) const {
 }
 
 bool FileSystem::rm(const Path& path) const {
-    if (!initialized) {
+    if (!initialized()) {
         return false;
     }
     if (!isFile(path)) {
@@ -227,7 +226,7 @@ bool FileSystem::rm(const Path& path) const {
 }
 
 bool FileSystem::cd(const Path& path) {
-    if (!initialized) {
+    if (!initialized()) {
         return false;
     }
     Path newPath = path;
@@ -250,7 +249,7 @@ Path FileSystem::toInternalPath(const std::filesystem::path& path) const {
 }
 
 bool FileSystem::touch(const Path& path){
-    if (!initialized)
+    if (!initialized())
         return false;
     Path absolutePath = path;
     absolutePath.makeAbsolute(currentWorkingDir);
@@ -262,7 +261,7 @@ bool FileSystem::touch(const Path& path){
     if (!isDir(absolutePath.parent())) {
         return false;
     }
-    TextFile touchedFile(this, absolutePath, ios::out);
+    TextFile touchedFile(shared_from_this(), absolutePath, ios::out);
     touchedFile.close();
     return true;
 }
@@ -272,7 +271,7 @@ bool FileSystem::treatCommand([[maybe_unused]]const core::Command& cmd) {
 }
 
 void FileSystem::printInfo() {
-    if (!initialized)
+    if (!initialized())
         return;
     println(F(" ----- FILESYSTEM INFORMATION -----"));
 #ifdef ARDUINO

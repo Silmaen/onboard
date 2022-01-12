@@ -28,7 +28,7 @@ bool Console::init() {
         _output->println();
         _output->println(F("SYSTEM INIT"));
     }
-    return true;
+    return core::BaseDriver::init();
 }
 
 void Console::printInfo() {}

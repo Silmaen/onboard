@@ -19,7 +19,7 @@ namespace obd::fs {
 /**
  * @brief Class to handle interaction with file system
  */
-class FileSystem : public core::BaseDriver {
+class FileSystem : public core::BaseDriver, public std::enable_shared_from_this<FileSystem> {
 public:
     /**
      * @brief Constructor with parent
@@ -47,7 +47,7 @@ public:
      * @brief listen to network for commands
      * @param delta the time delta from last update
      */
-    void update([[maybe_unused]]int64_t delta) override {}
+    void update([[maybe_unused]] int64_t delta) override {}
 
     /**
      * @brief try to treat the given command
@@ -155,7 +155,7 @@ public:
     [[nodiscard]] std::string getInfos() const {
         std::stringstream oss;
         oss << "cwd: " << currentWorkingDir.toString() << std::endl;
-        oss << ((initialized) ? "" : "not ") << "initialized" << std::endl;
+        oss << ((initialized()) ? "" : "not ") << "initialized" << std::endl;
 #ifndef ARDUINO
         oss << "Native base path: " << basePath << std::endl;
 #endif
@@ -186,8 +186,6 @@ public:
 private:
     /// Current working directory
     Path currentWorkingDir;
-    /// If the filesystem is initialized
-    bool initialized = false;
 #ifndef ARDUINO
     /// Base path for native OS
     std::filesystem::path basePath;

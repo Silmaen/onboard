@@ -6,9 +6,9 @@
  * All modification must get authorization from the author.
  */
 
-#include "native/fakeArduino.h"
 #include "StatusLed.h"
 #include "core/System.h"
+#include "native/fakeArduino.h"
 
 namespace obd::config {
 constexpr uint64_t ledHalfPeriod         = ledPeriod / 2;    ///< half period time
@@ -26,10 +26,11 @@ bool StatusLed::init() {
 #ifdef ARDUINO
     pinMode(LED_BUILTIN, OUTPUT);
 #endif
-    return true;
+    return core::BaseDriver::init();
 }
 
-void StatusLed::update(int64_t delta) {if (getParent() == nullptr)
+void StatusLed::update(int64_t delta) {
+    if (!initialized())
         return;
     ledTime += delta;
     uint8_t state{0};
@@ -58,15 +59,16 @@ void StatusLed::update(int64_t delta) {if (getParent() == nullptr)
     digitalWrite(LED_BUILTIN, static_cast<uint8_t>(1U - state));
 #else
     if (state == 1) {
-
     }
 #endif
-    if (ledTime > config::ledPeriod) {
-        ledTime = 0;
+    while (ledTime > config::ledPeriod) {
+        ledTime -= config::ledPeriod;
     }
 }
 
 bool StatusLed::treatCommand(const core::Command& cmd) {
+    if (!initialized())
+        return false;
     if (cmd.isCmd(F("led"))) {
         std::string buf{cmd.getParams()};
         if (buf.empty()) {
@@ -86,9 +88,7 @@ bool StatusLed::treatCommand(const core::Command& cmd) {
         } else if (buf == F("fasterblink")) {
             setState(LedState::FasterBlink);
         } else {
-            if (getParent() != nullptr) {
-                getParentOutput()->println(F("Unknown led state"));
-            }
+            getParentOutput()->println(F("Unknown led state"));
         }
         return true;
     }
@@ -96,6 +96,8 @@ bool StatusLed::treatCommand(const core::Command& cmd) {
 }
 
 void StatusLed::printHelp() {
+    if (!initialized())
+        return;
     println(F("Help on led state"));
     println(F("led           Print the current LED status"));
     println(F("led <state>   Change the state of the led. valid state are:"));
@@ -109,17 +111,15 @@ void StatusLed::printHelp() {
 }
 
 void StatusLed::setState(LedState newState) {
+    if (!initialized())
+        return;
     if (ledState == newState)
         return;
     ledState = newState;
-    if (getParent() == nullptr)
-        return;
     ledTime = getParent()->getTimestamp();
 }
 
 void StatusLed::printCurrentState() {
-    if (getParent() == nullptr)
-        return;
     switch (ledState) {
     case LedState::Off:
         println(F("LED state: off"));

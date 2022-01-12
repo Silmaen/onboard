@@ -7,6 +7,8 @@
  */
 
 #pragma once
+#include <utility>
+
 #include "com/Output.h"
 #include "com/Source.h"
 #include "config.h"
@@ -22,8 +24,17 @@ public:
      * @brief Constructor with source
      * @param src The source of the message
      */
-    Command(const com::Source& src=com::Source::NONE) :
+    explicit Command(const com::Source& src = com::Source::NONE) :
         from{src} { clear(); }
+
+    /**
+     * @brief Constructor with line and source
+     * @param command The command line.
+     * @param src The source of the message
+     */
+    explicit Command(std::string command, const com::Source& src = com::Source::NONE) :
+        from{src}, cmdline{std::move(command)} {
+    }
 
     /**
      * @brief Define the source of the command
@@ -49,7 +60,20 @@ public:
      */
     bool putChar(char character) {
         cmdline += character;
-        return cmdline.length() < config::commandBufferLength;
+        return cmdline.length() <= config::commandBufferLength;
+    }
+
+    /**
+     * @brief Defines the command as a string
+     * @param fullCommand The command
+     * @return True if command succeed.
+     */
+    bool setCommand(const std::string& fullCommand) {
+        clear();
+        if (fullCommand.size() > config::commandBufferLength)
+            return false;
+        cmdline = fullCommand;
+        return true;
     }
 
     /**

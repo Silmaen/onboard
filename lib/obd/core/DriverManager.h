@@ -21,20 +21,31 @@ class System;
  */
 class DriverManager {
 public:
+    /// Driver pointer type
+    using driver = std::shared_ptr<BaseDriver>;
+    /// Driver pointer type
+    using reference = driver&;
+    /// Iterator type
+    using iterator = std::vector<driver>::iterator;
+    /// Constant iterator type
+    using const_iterator = std::vector<driver>::const_iterator;
+
     /**
      * @brief Add a driver into the list
      *
      * The driver type must be unique
      * @tparam T The driver's type to add
      * @param parent The parent system that should be attached to the driver
+     * @return False if the driver is not added.
      */
     template<class T>
-    void addDriver(System* parent) {
+    bool addDriver(System* parent) {
         if (!std::is_base_of<BaseDriver, T>::value)// only class derived from BaseDriver is allowed
-            return;
+            return false;
         if (getDriver<T>() != nullptr)// ensure driver type is unique in the list
-            return;
+            return false;
         drivers.push_back(std::make_shared<T>(parent));
+        return true;
     }
 
     /**
@@ -44,27 +55,71 @@ public:
      */
     template<class T>
     std::shared_ptr<T> getDriver() {
-        auto search = find_if(begin(), end(), [](const std::shared_ptr<BaseDriver>& b) { return typeid(T) == typeid(*b); });
+        auto search = find_if(begin(), end(), [](const driver& driver) { return typeid(T) == typeid(*driver); });
         if (search == end())
             return nullptr;
         return std::static_pointer_cast<T>(*search);
     }
 
     /**
+     * @brief Remove a driver from the list
+     * @tparam T The Driver Type
+     * @return True if the driver has been deleted
+     */
+    template<class T>
+    bool deleteDriver() {
+        auto search = find_if(begin(), end(), [](const driver&  driver) { return typeid(T) == typeid(*driver); });
+        if (search == end())  // no such driver
+            return false;
+        drivers.erase(search);
+        return true;
+    }
+
+    /**
      * @brief Get begin iterator of the driver list
      * @return Begin iterator of the driver list
      */
-    std::vector<std::shared_ptr<BaseDriver>>::iterator begin() { return drivers.begin(); }
+    iterator begin() { return drivers.begin(); }
 
     /**
      * @brief Get end iterator of the driver list
      * @return End iterator of the driver list
      */
-    std::vector<std::shared_ptr<BaseDriver>>::iterator end() { return drivers.end(); }
+    iterator end() { return drivers.end(); }
 
+    /**
+     * @brief Get begin iterator of the driver list
+     * @return Begin iterator of the driver list
+     */
+    [[nodiscard]] const_iterator begin()const { return drivers.begin(); }
+
+    /**
+     * @brief Get end iterator of the driver list
+     * @return End iterator of the driver list
+     */
+    [[nodiscard]] const_iterator end()const { return drivers.end(); }
+    /**
+     * @brief Get begin iterator of the driver list
+     * @return Begin iterator of the driver list
+     */
+    [[nodiscard]] const_iterator cbegin()const { return drivers.cbegin(); }
+
+    /**
+     * @brief Get end iterator of the driver list
+     * @return End iterator of the driver list
+     */
+    [[nodiscard]] const_iterator cend()const { return drivers.cend(); }
+
+    /**
+     * @brief Get a reference to the last driver
+     * @return The last driver of the list
+     */
+    reference back(){
+        return drivers.back();
+    }
 private:
     /// List of the drivers
-    std::vector<std::shared_ptr<BaseDriver>> drivers{};
+    std::vector<driver> drivers{};
 };
 
 }// namespace obd::core

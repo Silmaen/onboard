@@ -14,7 +14,7 @@
 
 namespace obd::gfx {
 
-bool Screen::begin(const Resolution& dm) {
+bool Display::begin(const Resolution& dm) {
     if (dm == Resolution::DM_480x80) {
         resolution.x = 480;
         resolution.y = 80;
@@ -53,7 +53,7 @@ bool Screen::begin(const Resolution& dm) {
     return true;
 }
 
-void Screen::PLLInit() {
+void Display::PLLInit() {
     // System clock value is
     // SYS_CLK = Fin * (PLLDIVN +1)/((PLLDIVM+1)*(2^PLLDIVK))
     // Fin is given by the external cristal
@@ -89,7 +89,7 @@ void Screen::PLLInit() {
     }
 }
 
-void Screen::initialize() {
+void Display::initialize() {
     PLLInit();
     //
     // System Register
@@ -187,7 +187,7 @@ void Screen::initialize() {
 #endif
 }
 
-void Screen::display(bool active, bool sleep) {
+void Display::display(bool active, bool sleep) {
     if (sleep) {
         writeReg(Registers::PWRR, 0x02);
         writeReg(Registers::GPIOX, 0);
@@ -202,7 +202,7 @@ void Screen::display(bool active, bool sleep) {
     }
 }
 
-void Screen::softReset() {
+void Display::softReset() {
     writeCommand(Registers::PWRR);
     uint8_t x = readData();
     writeData(0x01);
@@ -212,7 +212,7 @@ void Screen::softReset() {
 #endif
 }
 
-void Screen::hardReset() {
+void Display::hardReset() {
     if (_rst == 255)
         return;
 #ifdef ARDUINO
@@ -225,7 +225,7 @@ void Screen::hardReset() {
 #endif
 }
 
-void Screen::backlight(uint8_t percent) {
+void Display::backlight(uint8_t percent) {
     if (percent == 0) {
         writeReg(Registers::P1CR, (_pwmClock & 0xF));
         writeReg(Registers::P1DCR, 0);
@@ -235,7 +235,7 @@ void Screen::backlight(uint8_t percent) {
     }
 }
 
-void Screen::mode(const DisplayMode& dm) {
+void Display::mode(const DisplayMode& dm) {
     writeCommand(Registers::MWCR0);
     uint8_t temp = readData();
     switch (dm) {
@@ -266,7 +266,7 @@ constexpr uint16_t RA8875CmdWrite = 0x80;
 /// Message for reading command
 constexpr uint16_t RA8875CmdRead = 0xC0;
 
-void Screen::spiBegin() const {
+void Display::spiBegin() const {
 #ifdef ARDUINO
     digitalWrite(_cs, LOW);
 #ifdef SPI_HAS_TRANSACTION
@@ -276,7 +276,7 @@ void Screen::spiBegin() const {
 #endif
 }
 
-void Screen::spiEnd() const {
+void Display::spiEnd() const {
 #ifdef ARDUINO
 #ifdef SPI_HAS_TRANSACTION
     SPI.endTransaction();
@@ -285,18 +285,18 @@ void Screen::spiEnd() const {
 #endif
 }
 #ifdef ARDUINO
-void Screen::writeCommand(const Registers& c) const {
+void Display::writeCommand(const Registers& c) const {
     spiBegin();
     SPI.transfer(RA8875CmdWrite);
     SPI.transfer(static_cast<uint8_t>(c));
     spiEnd();
 #else
-void Screen::writeCommand(const Registers&) const {
+void Display::writeCommand(const Registers&) const {
 #endif
 }
 
 #ifdef ARDUINO
-void Screen::writeData(const std::vector<uint8_t>& data) const {
+void Display::writeData(const std::vector<uint8_t>& data) const {
     spiBegin();
     SPI.transfer(RA8875DataWrite);
     for (auto& d : data) {
@@ -304,46 +304,46 @@ void Screen::writeData(const std::vector<uint8_t>& data) const {
     }
     spiEnd();
 #else
-void Screen::writeData(const std::vector<uint8_t>&) const {
+void Display::writeData(const std::vector<uint8_t>&) const {
 #endif
 }
 
 #ifdef ARDUINO
-void Screen::writeData(uint8_t data) const {
+void Display::writeData(uint8_t data) const {
     spiBegin();
     SPI.transfer(RA8875DataWrite);
     SPI.transfer(data);
     spiEnd();
 #else
-void Screen::writeData(uint8_t) const {
+void Display::writeData(uint8_t) const {
 #endif
 }
 
 #ifdef ARDUINO
-void Screen::writeData16(uint16_t data) const {
+void Display::writeData16(uint16_t data) const {
     spiBegin();
     SPI.transfer(RA8875DataWrite);
     SPI.transfer(data >> 8);
     SPI.transfer(data);
     spiEnd();
 #else
-void Screen::writeData16(uint16_t) const {
+void Display::writeData16(uint16_t) const {
 #endif
 }
 
-void Screen::writeReg(const Registers& reg,
+void Display::writeReg(const Registers& reg,
                       const std::vector<uint8_t>& data) const {
     writeCommand(reg);
     writeData(data);
 }
 
-void Screen::writeReg(const Screen::Registers& reg, uint8_t data) const {
+void Display::writeReg(const Display::Registers& reg, uint8_t data) const {
     writeCommand(reg);
     writeData(data);
 }
 
 #ifdef ARDUINO
-void Screen::writeReg16(const Screen::Registers& reg, uint16_t data) const {
+void Display::writeReg16(const Display::Registers& reg, uint16_t data) const {
     // writeCommand(reg);
     // writeData((uint8_t)(data & 0xFF));
     // writeData((uint8_t)(data >> 8U));
@@ -364,12 +364,12 @@ void Screen::writeReg16(const Screen::Registers& reg, uint16_t data) const {
     SPI.transfer((uint8_t) (data >> 8U));
     spiEnd();
 #else
-void Screen::writeReg16(const Screen::Registers&, uint16_t) const {
+void Display::writeReg16(const Display::Registers&, uint16_t) const {
 #endif
 }
 
 #ifdef ARDUINO
-void Screen::writeReg(const Registers& reg, const Color& data) const {
+void Display::writeReg(const Registers& reg, const Color& data) const {
     spiBegin();
     SPI.transfer(RA8875CmdWrite);
     SPI.transfer(static_cast<uint8_t>(reg));
@@ -395,11 +395,11 @@ void Screen::writeReg(const Registers& reg, const Color& data) const {
     SPI.transfer(data.blue5());
     spiEnd();
 #else
-void Screen::writeReg(const Registers&, const Color&) const {
+void Display::writeReg(const Registers&, const Color&) const {
 #endif
 }
 
-uint8_t Screen::readStatus() const {
+uint8_t Display::readStatus() const {
 #ifdef ARDUINO
     spiBegin();
     SPI.transfer(RA8875CmdRead);
@@ -411,12 +411,12 @@ uint8_t Screen::readStatus() const {
 #endif
 }
 
-uint8_t Screen::readReg(const Registers& reg) const {
+uint8_t Display::readReg(const Registers& reg) const {
     writeCommand(reg);
     return readData();
 }
 
-uint8_t Screen::readData() const {
+uint8_t Display::readData() const {
 #ifdef ARDUINO
     spiBegin();
     SPI.transfer(RA8875DataRead);
@@ -428,7 +428,7 @@ uint8_t Screen::readData() const {
 #endif
 }
 
-void Screen::setSpiSpeed(const SpiSpeed& spd, uint32_t custom_speed) {
+void Display::setSpiSpeed(const SpiSpeed& spd, uint32_t custom_speed) {
     if (spd == SpiSpeed::SpiCustom) {
         spi_speed = custom_speed;
     } else {
@@ -436,7 +436,7 @@ void Screen::setSpiSpeed(const SpiSpeed& spd, uint32_t custom_speed) {
     }
 }
 
-void Screen::printRegister(const Registers& reg) const {
+void Display::printRegister(const Registers& reg) const {
     auto val = static_cast<uint8_t>(reg);
     Port.newline(com::Verbosity::Message);
     if (!Port.doPrint())
@@ -456,7 +456,7 @@ void Screen::printRegister(const Registers& reg) const {
         Port.print((val & (1 << (7 - i))) ? "1" : "0");
 }
 
-void Screen::printStatusRegisters() const {
+void Display::printStatusRegisters() const {
     Port.newline(com::Verbosity::Message);
     if (!Port.doPrint())
         return;
@@ -494,7 +494,7 @@ void Screen::printStatusRegisters() const {
 }
 
 #ifdef ARDUINO
-bool Screen::waitPoll(const Registers& reg, uint8_t waitFlag,
+bool Display::waitPoll(const Registers& reg, uint8_t waitFlag,
                       uint64_t timeout) const {
     /* Wait for the command to finish */
     uint64_t start = millis();
@@ -505,26 +505,26 @@ bool Screen::waitPoll(const Registers& reg, uint8_t waitFlag,
     }
     return false;
 #else
-bool Screen::waitPoll(const Registers&, uint8_t, uint64_t) const {
+bool Display::waitPoll(const Registers&, uint8_t, uint64_t) const {
     /* Wait for the command to finish */
     return true;
 #endif
 }
 // ==================== Text functions =========================================
 
-void Screen::textSetCursorBlink(uint8_t rate) {
+void Display::textSetCursorBlink(uint8_t rate) {
     writeCommand(Registers::MWCR0);
     writeData(readData() | 0x60);// setting bit 6 & 5
     writeCommand(Registers::BTCR);
     writeData(rate);
 }
 
-void Screen::textSetCursor(const math::Point& pos) {
+void Display::textSetCursor(const math::Point& pos) {
     writeReg16(Registers::F_CURXL, pos.x);
     writeReg16(Registers::F_CURYL, pos.y);
 }
 
-void Screen::textSetColor(const Color& color, bool transparent,
+void Display::textSetColor(const Color& color, bool transparent,
                           const Color& backColor) {
     /* Set Fore Color */
     writeReg(Registers::FGCR0, color);
@@ -541,7 +541,7 @@ void Screen::textSetColor(const Color& color, bool transparent,
     }
 }
 
-void Screen::textSetScale(uint8_t scale) {
+void Display::textSetScale(uint8_t scale) {
     if (scale > 3)
         scale = 3;// highest setting is 3
     /* Set font size flags */
@@ -553,7 +553,7 @@ void Screen::textSetScale(uint8_t scale) {
     writeData(temp);
 }
 
-void Screen::textWrite(const std::string& str) {
+void Display::textWrite(const std::string& str) {
     writeCommand(Registers::MRWC);
     for (auto c : str) {
         writeData(c);
@@ -565,7 +565,7 @@ void Screen::textWrite(const std::string& str) {
 
 // ----- Touch screen functions ---
 
-void Screen::touchEnable(bool enable, const TouchMode& mode) {
+void Display::touchEnable(bool enable, const TouchMode& mode) {
     uint8_t adcClk = 0x02;
 
     if (resolution.y == 480)// match up touch size with LCD size
@@ -596,17 +596,17 @@ void Screen::touchEnable(bool enable, const TouchMode& mode) {
     }
 }
 
-void Screen::clearTouch() {
+void Display::clearTouch() {
     writeReg(Registers::INTC2, readReg(Registers::INTC2) & 0b11110111);
 }
 
-[[nodiscard]] bool Screen::touched() {
+[[nodiscard]] bool Display::touched() {
     if (readReg(Registers::INTC2) & 0x04)
         return true;
     return false;
 }
 
-[[nodiscard]] math::Point Screen::touchRead() {
+[[nodiscard]] math::Point Display::touchRead() {
     if (!touched() || touchMode == TouchMode::off)
         return {-1, -1};
     if (touchMode == TouchMode::Manual) {
@@ -648,16 +648,16 @@ void Screen::clearTouch() {
 
 // ==================== Draw functions =========================================
 
-void Screen::setPosition(const math::Point& pos) const {
+void Display::setPosition(const math::Point& pos) const {
     writeReg16(Registers::CURH0, pos.x);
     writeReg16(Registers::CURV0, pos.y);
 }
 
-bool Screen::fillScreen(const Color& color) const {
+bool Display::fillScreen(const Color& color) const {
     return rectHelper({0, 0}, resolution, color, true);
 }
 
-bool Screen::rectHelper(const math::Point& topLeft,
+bool Display::rectHelper(const math::Point& topLeft,
                         const math::Point& bottomRight, const Color& color,
                         bool filled) const {
     math::Point lower = min(topLeft, bottomRight);
@@ -675,14 +675,14 @@ bool Screen::rectHelper(const math::Point& topLeft,
     return waitPoll(Registers::DCR, 0x80);
 }
 
-void Screen::drawPixel(const math::Point& pos, const Color& color) const {
+void Display::drawPixel(const math::Point& pos, const Color& color) const {
     writeReg16(Registers::CURH0, pos.x);
     writeReg16(Registers::CURV0, pos.y);
     writeCommand(Registers::MRWC);
     writeData16(color.toRGB565());
 }
 
-bool Screen::drawLine(const math::Point& start, const math::Point& end,
+bool Display::drawLine(const math::Point& start, const math::Point& end,
                       const Color& color) const {
     /* Set X */
     writeReg16(Registers::DLHSR0, start.x);
@@ -703,7 +703,7 @@ bool Screen::drawLine(const math::Point& start, const math::Point& end,
     return waitPoll(Registers::DCR, 0x80);
 }
 
-bool Screen::drawTriangle(const math::Point& p1, const math::Point& p2,
+bool Display::drawTriangle(const math::Point& p1, const math::Point& p2,
                           const math::Point& p3, const Color& color,
                           bool filled) const {
     /* Set Point 0 */
@@ -733,13 +733,13 @@ bool Screen::drawTriangle(const math::Point& p1, const math::Point& p2,
     return waitPoll(Registers::DCR, 0x80);
 }
 
-bool Screen::drawRectangle(const math::Point& topLeft,
+bool Display::drawRectangle(const math::Point& topLeft,
                            const math::Point& bottomRight, const Color& color,
                            bool filled) const {
     return rectHelper(topLeft, bottomRight, color, filled);
 }
 
-bool Screen::drawRoundRectangle(const math::Point& topLeft,
+bool Display::drawRoundRectangle(const math::Point& topLeft,
                                 const math::Point& bottomRight, uint16_t radius,
                                 const Color& color, bool filled) const {
     math::Point lower =
@@ -765,7 +765,7 @@ bool Screen::drawRoundRectangle(const math::Point& topLeft,
     return waitPoll(Registers::DECSC, 0x80);
 }
 
-bool Screen::drawCircle(const math::Point& center, uint16_t radius,
+bool Display::drawCircle(const math::Point& center, uint16_t radius,
                         const Color& color, bool filled) const {
 
     Port.newline(com::Verbosity::Debug);
@@ -802,20 +802,20 @@ bool Screen::drawCircle(const math::Point& center, uint16_t radius,
     // return ellipseHelper(center,radius,radius,5,color,filled);
 }
 
-bool Screen::drawEllipse(const math::Point& center, uint16_t longAxis,
+bool Display::drawEllipse(const math::Point& center, uint16_t longAxis,
                          uint16_t shortAxis, const Color& color,
                          bool filled) const {
     return ellipseHelper(center, longAxis, shortAxis, 5, color, filled);
 }
 
-bool Screen::drawCurve(const math::Point& center, uint16_t longAxis,
+bool Display::drawCurve(const math::Point& center, uint16_t longAxis,
                        uint16_t shortAxis, const CurvePart& cv,
                        const Color& color, bool filled) const {
     auto curvePart = static_cast<uint8_t>(cv);
     return ellipseHelper(center, longAxis, shortAxis, curvePart, color, filled);
 }
 
-bool Screen::ellipseHelper(const math::Point& center, uint16_t longAxis,
+bool Display::ellipseHelper(const math::Point& center, uint16_t longAxis,
                            uint16_t shortAxis, uint8_t cv, const Color& color,
                            bool filled) const {
 

@@ -29,10 +29,7 @@ std::string::size_type lastDigit(const std::string& str) {
 
 std::string obd::core::BaseDriver::getName() const {
     std::string result{typeid(*this).name()};
-    if (result.empty())
-        return "";
-    if (result[0] == 'N') {
-        result = result.substr(1, result.length() - 1);
-    }
+    if (result.back()== 'E')
+        result.pop_back();
     return result.substr(lastDigit(result) + 1, result.length());
 }

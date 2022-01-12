@@ -15,7 +15,7 @@
 namespace obd::time {
 
 /// basic initialization of time zone
-const std::string TZ_Europe_Paris = "GMT";
+const std::string TZ_Europe_Paris = "CET-1CEST,M3.5.0,M10.5.0/3";
 
 /**
  * @brief Base driver for the clock
@@ -26,19 +26,14 @@ public:
      * @brief Constructor with parent system
      * @param parent The parent system
      */
-    explicit Clock(core::System* parent = nullptr) :
-        BaseDriver{parent}, timeZone{TZ_Europe_Paris} {}
+    explicit Clock(core::System* parent) :
+        BaseDriver{parent}{}
 
     /**
      * @brief Initialize the driver
      * @return True if everything is ok
      */
     bool init() override;
-
-    /**
-     * @brief End the driver
-     */
-    void end() override{}
 
     /**
      * @brief Print the driver infos
@@ -59,7 +54,7 @@ public:
     bool treatCommand(const core::Command& cmd) override;
 
     /**
-     * @brief display driver help on commands
+     * @brief Display driver help on commands
      */
     void printHelp() override;
 
@@ -100,14 +95,31 @@ public:
 
     /**
      * @brief Define the time zone
-     * @param tz The new time zone
+     * @param timeZone The new time zone
      */
-    void setTimeZone(const std::string& tz);
+    void setTimeZone(const std::string& timeZone);
+
+    /**
+     * @brief Return the pool server
+     * @return The pool server
+     */
+    [[nodiscard]] const std::string& getPoolServer()const{return poolServerName;}
+
+    /**
+     * @brief Return the timezone
+     * @return The timezone
+     */
+    [[nodiscard]] const std::string & getTimeZone()const {return _timeZone;}
 private:
     /**
-     * @brief display the current date and time of the system
+     * @brief Display the current date and time of the system
      */
     void printDate();
+
+    /**
+     * @brief Configure the system time
+     */
+    void configTime();
 
     /// link to filesystem
     std::shared_ptr<fs::FileSystem> fileSystem = nullptr;
@@ -116,7 +128,7 @@ private:
     std::string poolServerName = "pool.ntp.org";
 
     /// Timezone configuration string
-    std::string timeZone;
+    std::string _timeZone = TZ_Europe_Paris;
 
     /// Internal timer
     uint64_t chronometer = 0;

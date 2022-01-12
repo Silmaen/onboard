@@ -14,13 +14,15 @@
 namespace obd::core {
 
 System::System() {
-    drivers.addDriver<gfx::StatusLed>(this);
-    drivers.addDriver<com::Console>(this);
-    drivers.addDriver<fs::FileSystem>(this);
-    drivers.addDriver<time::Clock>(this);
+    // drivers that are always presents
+    addDriver<gfx::StatusLed>();
+    addDriver<com::Console>();
+    addDriver<fs::FileSystem>();
+    addDriver<time::Clock>();
 }
 
 void System::init() {
+    initialized = true;
     for (const auto& driver : drivers) {
         driver->init();
         driver->printInfo();

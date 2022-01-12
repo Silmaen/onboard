@@ -38,7 +38,7 @@ public:
      * @brief Default Constructor
      * @param fileSystem link to the filesystem
      */
-    explicit TextFile(FileSystem* fileSystem);
+    explicit TextFile(std::shared_ptr<FileSystem> fileSystem);
 
     /**
      * @brief Destructor
@@ -46,11 +46,11 @@ public:
     ~TextFile();
     /**
      * @brief Constructor that open the file
-     * @param fileSystem link to the filesystem
+     * @param fileSystem Link to the filesystem
      * @param path The path of the file
      * @param openMode The open mode of the file.
      */
-    TextFile(FileSystem* fileSystem, const Path& path, const ios& openMode = ios::in);
+    TextFile(std::shared_ptr<FileSystem> fileSystem, const Path& path, const ios& openMode = ios::in);
 
     /**
      * @brief Open the file
@@ -78,17 +78,18 @@ public:
     [[nodiscard]] char read();
 
     /**
-     * @brief Is something is available for reading
+     * @brief Something available for reading?
      * @return True if not at EOF
      */
     bool available()const;
 
     /**
      * @brief Read a whole line to the file
-     * @param max_size The maximum number of char to read.
+     * @param max_size The maximum amount of char to read.
+     * @param keepEndLines If keep the end line chars.
      * @return The line read
      */
-    [[nodiscard]] std::string readLine(size_t max_size = 255);
+    [[nodiscard]] std::string readLine(size_t max_size = 255, bool keepEndLines =true);
 
     /**
      * @brief Write a data to the file
@@ -104,10 +105,10 @@ public:
 
 private:
     /// The OpenMode of the file
-    ios _openmode;
+    ios _openMode;
 
     /// Pointer to the file System
-    FileSystem* fs;
+    std::shared_ptr<FileSystem> fs;
 #ifdef ARDUINO
 #ifdef ESP8266
 #endif

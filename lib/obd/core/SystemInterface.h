@@ -7,6 +7,7 @@
  */
 
 #pragma once
+#include <memory>
 #include "com/Output.h"
 #include "native/fakeArduino.h"
 #include "Command.h"
@@ -239,7 +240,7 @@ public:
     void println() const;
 
     /**
-     * @brief Try to add a command int eh parent
+     * @brief Try to add a command in the parent
      * @param cmd Command to add
      */
     void pushCommand(const Command& cmd) const;
