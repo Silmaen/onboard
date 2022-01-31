@@ -8,7 +8,7 @@
 
 #pragma once
 #include "LorisMenu.h"
-#include "core/BaseDriver.h"
+#include "core/driver/Node.h"
 #ifdef ARDUINO
 #include <SoftwareSerial.h>
 #endif
@@ -18,7 +18,7 @@ namespace obd::camera {
 /**
  * @brief Class to handle the RunCam device
  */
-class RunCam : public core::BaseDriver {
+class RunCam : public core::driver::Node {
 public:
     /**
      * @brief Possible Status of the camera
@@ -34,46 +34,26 @@ public:
      * @brief Constructor with parent
      * @param parent The parent system
      */
-    explicit RunCam(core::System* parent = nullptr) :
-        BaseDriver(parent){};
+    explicit RunCam(const std::shared_ptr<Messenger>& parent = nullptr) :
+        Node(parent){};
 
     /**
      * @brief Initialize file system
-     * @return If the initialization succeed
      */
-    bool init() override;
+    void init() override;
 
     /**
-     * @brief Print the system's information in the given stream
+     * @brief Return the driver infos
+     * @return The driver's infos.
      */
-    void printInfo() override;
-    /**
-     * @brief Listen to network for commands
-     * @param delta The time delta from last update
-     */
-    void update([[maybe_unused]] int64_t delta) override;
+    [[nodiscard]] OString info()const override;
 
     /**
      * @brief Try to treat the given command
-     * @param cmd The command to treat
+     * @param message The command to treat
      * @return True if the command treated
      */
-    bool treatCommand(const core::Command& cmd) override;
-
-    /**
-     * @brief Display command help
-     */
-    void printHelp() override;
-
-    /**
-     * @brief Load and apply parameters in the config file
-     */
-    void loadConfigFile() override;
-
-    /**
-     * @brief Save the driver parameter in file
-     */
-    void saveConfigFile() const override;
+    bool treatMessage(const Message& message) override;
 
     /**
      * @brief Retrieve infos from device
@@ -135,6 +115,12 @@ public:
      */
     void moveDown();
 
+    /**
+     * @brief Append some time to the chronometer
+     * @param addedTime The time to add
+     */
+    void accelerateTime(uint64_t addedTime);
+
 private:
     /**
      * @brief List of RunCam device protocol supported functions
@@ -183,12 +169,14 @@ private:
         /**
          * @brief Test availability of a feature
          * @param feature The feature to request
-         * @return Bool: true means feature available.
+         * @return True means feature available.
          */
         [[nodiscard]] bool hasFeature(const Feature& feature) const {
             return (Features & (1U << static_cast<uint8_t>(feature))) != 0;
         }
     } DeviceInfo;
+    /// Internal timestamp
+    uint64_t timestamp = 0;
 
     /// Current status of the camera
     Status status = Status::DISCONNECTED;
@@ -212,6 +200,11 @@ private:
     LorisMenu navMenu;
 
     /**
+     * @brief Listen to network for commands
+     */
+    void preTreatment() override;
+
+    /**
      * @brief Send command with its parameters, wait for response
      * @param cmd The command to send
      * @param params The list of parameter
@@ -220,6 +213,12 @@ private:
      */
     std::vector<uint8_t> sendCommand(Command cmd, const std::vector<uint8_t>& params, bool expectResponse = true);
 
+    /**
+     * @brief Send a message to this driver
+     * @param message The Command message to send
+     * @return True mean command caught.
+     */
+    bool pushCommand(const Message& message)override;
     /**
      * @brief Reset the current crc code
      */
@@ -238,13 +237,13 @@ private:
      * @brief Parse a command string into an instruction and send it to camera
      * @param cmd The command string to parse
      */
-    void parseCmd(const std::string& cmd);
+    void parseCmd(const OString& cmd);
 
     /**
      * @brief Parse a command string into a menu movement
      * @param cmd The command string to parse
      */
-    void parseMenu(const std::string& cmd);
+    void parseMenu(const OString& cmd);
 
     /**
      * @brief Generic function to move into the menu

@@ -6,6 +6,7 @@
  * All modification must get authorization from the author.
  */
 #include "../test_base.h"
+#include "data/Series.h"
 
 void test_series() {
     obd::data::Series<float, 10> data;

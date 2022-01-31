@@ -11,12 +11,13 @@
 #include "Path.h"
 #include "native/fakeArduino.h"
 #include <algorithm>
+#include <iostream>
 #include "data/DataUtils.h"
 
 namespace obd::fs {
 
 
-bool ConfigFile::configExists(const std::string& driverName) const {
+bool ConfigFile::configExists(const OString& driverName) const {
     if (fs == nullptr)
         return false;
     fs::Path pp{driverName + F(".cfg")};
@@ -24,14 +25,14 @@ bool ConfigFile::configExists(const std::string& driverName) const {
     return fs->exists(pp);
 }
 
-void ConfigFile::loadConfig(const std::string& driverName) {
+void ConfigFile::loadConfig(const OString& driverName) {
     if (!configExists(driverName))
         return;
     Path configFilePath{driverName + F(".cfg")};
     configFilePath.makeAbsolute(Path(F("/config")));
     fs::TextFile file(fs, configFilePath);
     while (file.available()) {
-        std::string line = file.readLine(255,false);
+        OString line = file.readLine(255,false);
         if (line.empty())          // empty line
             continue;
         if (line[0] == '#')// comment line
@@ -40,16 +41,16 @@ void ConfigFile::loadConfig(const std::string& driverName) {
         if (idx > 0) {// remove end line comments
             line = line.substr(0, idx);
         }
-        data::ReplaceAll(line, " ", "");// remove all spaces
+        line = data::ReplaceAll(line, " ", "");// remove all spaces
         idx = line.find('=');
-        if (idx == std::string::npos)// invalid line
+        if (idx == OString::npos)// invalid line
             continue;
         addConfigParameter(line.substr(0, idx), line.substr(idx + 1));
     }
     file.close();
 }
 
-void ConfigFile::saveConfig(const std::string& driverName) const {
+void ConfigFile::saveConfig(const OString& driverName) const {
     if (fs == nullptr)
         return;
     if (fileContent.empty())
@@ -57,22 +58,22 @@ void ConfigFile::saveConfig(const std::string& driverName) const {
     Path configFilePath{driverName + F(".cfg")};
     configFilePath.makeAbsolute(Path(F("/config")));
     fs::TextFile file(fs, configFilePath, ios::out);
-    file.write("# Config file for driver: " + driverName +" \n\n");
+    file.write(OString("# Config file for driver: ") + driverName +" \n\n");
     for (const auto& parameter : fileContent) {
         file.write(parameter.first+"="+ parameter.second+"\n");
     }
     file.close();
 }
 
-void ConfigFile::addConfigParameter(const std::string& key, const std::string& val) {
+void ConfigFile::addConfigParameter(const OString& key, const OString& val) {
     fileContent.insert_or_assign(key, val);
 }
 
-bool ConfigFile::hasKey(const std::string& key) const {
+bool ConfigFile::hasKey(const OString& key) const {
     return fileContent.find(key) != fileContent.end();
 }
 
-const std::string& ConfigFile::getKey(const std::string& key) const {
+const OString& ConfigFile::getKey(const OString& key) const {
     if (!hasKey(key))
         return data::emptyString;
     return fileContent.at(key);

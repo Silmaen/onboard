@@ -32,7 +32,7 @@ public:
      * @param command The command line.
      * @param src The source of the message
      */
-    explicit Command(std::string command, const com::Source& src = com::Source::NONE) :
+    explicit Command(OString command, const com::Source& src = com::Source::NONE) :
         from{src}, cmdline{std::move(command)} {
     }
 
@@ -68,7 +68,7 @@ public:
      * @param fullCommand The command
      * @return True if command succeed.
      */
-    bool setCommand(const std::string& fullCommand) {
+    bool setCommand(const OString& fullCommand) {
         clear();
         if (fullCommand.size() > config::commandBufferLength)
             return false;
@@ -81,7 +81,7 @@ public:
      * @param cmp The command to compare
      * @return True if commands matches
      */
-    [[nodiscard]] bool isCmd(const std::string& cmp) const;
+    [[nodiscard]] bool isCmd(const OString& cmp) const;
 
     /**
      * @brief Print in the given output
@@ -93,14 +93,14 @@ public:
      * @brief Get the parameter string
      * @return The parameter string may be null string
      */
-    [[nodiscard]] std::string getParams() const;
+    [[nodiscard]] OString getParams() const;
 
 private:
     /// The source of the command
     com::Source from = com::Source::NONE;
 
     /// The string of the command line
-    std::string cmdline;
+    OString cmdline;
 };
 
 }// namespace obd::core

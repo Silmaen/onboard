@@ -30,32 +30,23 @@ enum struct Format {
  */
 class Output {
 public:
+    Output(const Output&) = delete;
+    Output(Output&&)      = delete;
+    Output& operator=(const Output&) = delete;
+    Output& operator=(Output&&) = delete;
+
     /**
      * @brief Default Constructor
      */
-    Output() =default;
-    /**
-     * @brief no copy of this class
-     */
-    Output(const Output&) = delete;
-    /**
-     * @brief no move of this class
-     */
-    Output(Output&&) = delete;
-#ifdef ARDUINO
-    /**
-     * @brief Build an output based of a Print
-     * @param print The base print
-     */
-    explicit Output(Print* print):_internalPrint{print}{}
-#endif
+    Output() = default;
+
     /// Destructor
     virtual ~Output() = default;
     /**
      * @brief Print a string
      * @param data The String to print
      */
-    void print(const std::string& data);
+    void print(const OString& data);
     /**
      * @brief Print a string
      * @param data The String to print
@@ -115,24 +106,7 @@ public:
      * @param digit The number of digit to print
      */
     void print(double data, int digit = 2);
-#ifdef ARDUINO
-    /**
-     * @brief Try to print in MultiStream with a newline
-     * @param data Input to display
-     */
-    void print(const Printable& data) ;
-    /**
-     * @brief Try to print in MultiStream
-     * @param data Input to display
-     */
-    void print(const __FlashStringHelper* data) ;
 
-    /**
-     * @brief Try to print in MultiStream
-     * @param data Input to display
-     */
-    void print(const String& data) ;
-#endif
     /**
      * @brief Print a new line char
      */
@@ -142,7 +116,7 @@ public:
      * @brief Print a string with end line
      * @param data The String to print
      */
-    void println(const std::string& data);
+    void println(const OString& data);
     /**
      * @brief Print a string with end line
      * @param data The String to print
@@ -202,42 +176,13 @@ public:
      * @param digit The number of digit to print
      */
     void println(double data, int digit = 2);
-#ifdef ARDUINO
-    /**
-     * @brief Try to print in MultiStream with a newline
-     * @param data Input to display
-     */
-    void println(const Printable& data);
-    /**
-     * @brief Try to print in MultiStream
-     * @param data Input to display
-     */
-    void println(const __FlashStringHelper* data);
-
-    /**
-     * @brief Try to print in MultiStream
-     * @param data Input to display
-     */
-    void println(const String& data);
-#endif
-
-
-    /**
-     * @brief Pure virtual method
-     * @param data The Byte to write
-     * @return The amount of data written
-     */
-#ifdef ARDUINO
-    size_t write(uint8_t data);
-#else
-    virtual size_t write(uint8_t data);
-#endif
 
 private:
-#ifdef ARDUINO
-    /// internal Arduino Print
-    Print* _internalPrint;
-#endif
+    /**
+     * @brief Print a string
+     * @param data The String to print
+     */
+    virtual void writeBytes(const OString& data);
 };
 
 

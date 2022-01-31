@@ -26,13 +26,13 @@ static time_point startingPoint;
 
 void initTimer() { startingPoint = internal_clock::now(); }
 
-unsigned long millis() {
+uint32_t millis() {
   return std::chrono::duration_cast<milliseconds>(internal_clock::now() -
                                                   startingPoint)
       .count();
 }
 
-unsigned long micros() { return micros64(); }
+uint32_t micros() { return micros64(); }
 
 uint64_t micros64() {
   return std::chrono::duration_cast<microseconds>(internal_clock::now() -
@@ -40,7 +40,7 @@ uint64_t micros64() {
       .count();
 }
 
-void delay(unsigned long ms) {
+void delay(uint32_t ms) {
   time_point start = internal_clock::now();
   while (std::chrono::duration_cast<milliseconds>(internal_clock::now() - start)
              .count() < ms)

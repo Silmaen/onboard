@@ -9,10 +9,8 @@
 #pragma once
 
 #include "Color.h"
-#include "core/BaseDriver.h"
+#include "core/driver/Node.h"
 #include "math/Point.h"
-#include <string>
-#include <vector>
 
 namespace obd::gfx {
 
@@ -32,7 +30,7 @@ constexpr uint8_t ra8875_id = 0x75;
 /**
  * @brief Class handling raw screen
  */
-class Display : public core::BaseDriver {
+class Display : public core::driver::Node {
 public:
     /**
      * @brief Constructor
@@ -40,8 +38,8 @@ public:
      * @param cs The Cable Select pin
      * @param rst The reset pin
      */
-    explicit Display(core::System* parent = nullptr, uint8_t cs = 255, uint8_t rst = 255) :
-        BaseDriver(parent),
+    explicit Display(std::shared_ptr<Messenger> parent = nullptr, uint8_t cs = 255, uint8_t rst = 255) :
+        Node(parent),
         _cs{cs}, _rst{rst} {
     }
 
@@ -156,7 +154,7 @@ public:
    * @brief Write the given text
    * @param str the text to write
    */
-    void textWrite(const std::string& str);
+    void textWrite(const OString& str);
 
     // ----- status functions -----
     /**

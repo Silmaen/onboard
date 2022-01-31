@@ -7,13 +7,13 @@
  */
 
 #pragma once
-#include <string>
+#include "native/OString.h"
+#include <vector>
 
 namespace obd::data {
 
-/// just an empty string
-static const std::string emptyString;
-
+/// Just an empty string
+static const OString emptyString;
 
 /**
  * @brief
@@ -22,12 +22,36 @@ static const std::string emptyString;
  * @param to
  * @return
  */
-inline std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
-    size_t start_pos = 0;
-    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length();// Handles case where 'to' is a substring of 'from'
-    }
-    return str;
-}
+OString ReplaceAll(OString str, const OString& from, const OString& to);
+
+/**
+ * @brief Split string
+ * @param data The string to split
+ * @param delimiter The delimiter used to split
+ * @return The string components
+ */
+std::vector<OString> split(const OString& data,
+                               const OString& delimiter);
+
+/**
+ * @brief Merge a list of strings
+ * @param from Begin iterator in the string list
+ * @param to End iterator in the string list
+ * @param delimiter The delimiter to add between the parts
+ * @return The merged string
+ */
+OString merge(const std::vector<OString>::const_iterator& from,
+                  const std::vector<OString>::const_iterator& to,
+                  const OString& delimiter);
+
+
+/**
+ * @brief Merge a list of strings
+ * @param strings The list of string
+ * @param delimiter The delimiter to add between the parts
+ * @return The merged string
+ */
+OString merge(const std::vector<OString>& strings,
+                  const OString& delimiter);
+
 }// namespace obd::data

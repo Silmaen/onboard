@@ -89,7 +89,7 @@ public:
      * @param keepEndLines If keep the end line chars.
      * @return The line read
      */
-    [[nodiscard]] std::string readLine(size_t max_size = 255, bool keepEndLines =true);
+    [[nodiscard]] OString readLine(size_t max_size = 255, bool keepEndLines =true);
 
     /**
      * @brief Write a data to the file
@@ -101,7 +101,7 @@ public:
      * @brief Write a data to the file
      * @param data The data to write
      */
-    void write(const std::string& data);
+    void write(const OString& data);
 
 private:
     /// The OpenMode of the file

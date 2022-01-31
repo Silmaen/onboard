@@ -8,13 +8,14 @@
 
 #pragma once
 #include "core/BaseDriver.h"
+#include "ConsoleOutput.h"
 
 namespace obd::com {
 
 /**
  * @brief Class to handle console communication
  *
- * @note on Arduino Platforms it pass through USB Serial
+ * @note On Arduino Platforms it pass through USB Serial
  */
 class Console : public core::BaseDriver {
 public:
@@ -22,7 +23,7 @@ public:
      * @brief Constructor with parent
      * @param parent The parent system
      */
-    explicit Console(core::System* parent) :
+    explicit Console(core::System_old* parent) :
         BaseDriver(parent) {}
 
     /**
@@ -43,7 +44,7 @@ public:
     void update(int64_t delta) override;
 private:
     /// Pointer to the output of this
-    Output* _output = nullptr;
+    std::shared_ptr<ConsoleOutput> _output = nullptr;
 };
 
 }// namespace obd::com

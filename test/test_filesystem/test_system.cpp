@@ -21,18 +21,17 @@ void test_uninitialized() {
     TEST_ASSERT_FALSE(hdd.rmdir(Path("/temp")))
     TEST_ASSERT_FALSE(hdd.cd(Path("/temp")))
     TEST_ASSERT(hdd.listDir().empty())
-    hdd.printInfo();
-    hdd.end();
-    TEST_ASSERT_FALSE(hdd.init())
+    hdd.terminate();
+    hdd.init();
+    TEST_ASSERT_FALSE(hdd.initialized())
 }
 
 void test_filesystem() {
-    auto hdd = baseSys.getDriver<FileSystem>();
-    hdd->update(0);
-    hdd->loadConfigFile();
-    hdd->saveConfigFile();
-    hdd->printHelp();
-    TEST_ASSERT_FALSE(hdd->treatCommand(obd::core::Command()));
+    TEST_ASSERT(baseSys.initialized())
+    auto hdd = baseSys.getNode<FileSystem>();
+    TEST_ASSERT(hdd->initialized())
+    hdd->update();
+    //TEST_ASSERT_FALSE(hdd->treatCommand(obd::core::Command()));
     TEST_ASSERT_EQUAL_STRING("/", hdd->cwd().toString().c_str());
     TEST_ASSERT(hdd->exists(Path("/title.odb")))
     TEST_ASSERT(hdd->isFile(Path("/title.odb")))
@@ -41,7 +40,7 @@ void test_filesystem() {
 }
 
 void test_directories() {
-    auto hdd = baseSys.getDriver<FileSystem>();
+    auto hdd = baseSys.getNode<FileSystem>();
     TEST_ASSERT_FALSE(hdd->touch(Path("/tmp5680234/file.txt")))
     TEST_ASSERT_FALSE(hdd->cd(Path("/tmp5680234")))
     Path tempPath{"/tmp5680234/bob/boby"};
@@ -67,7 +66,7 @@ void test_directories() {
 }
 
 void test_create_destroy() {
-    auto hdd = baseSys.getDriver<FileSystem>();
+    auto hdd = baseSys.getNode<FileSystem>();
     hdd->cd(Path{"/"});
     TEST_ASSERT(hdd->mkdir(Path("tmp5681234")))
     TEST_ASSERT(hdd->mkdir(Path("/tmp5681234/folder")))

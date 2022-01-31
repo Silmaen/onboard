@@ -8,8 +8,13 @@
 
 #pragma once
 #include "File.h"
-#include "core/BaseDriver.h"
+#include "core/driver/Node.h"
+#include <utility>
 #include <vector>
+
+namespace obd::time {
+class Clock;
+}
 
 /**
  * @brief Namespace for core operations
@@ -19,57 +24,24 @@ namespace obd::fs {
 /**
  * @brief Class to handle interaction with file system
  */
-class FileSystem : public core::BaseDriver, public std::enable_shared_from_this<FileSystem> {
+class FileSystem : public core::driver::Node, public std::enable_shared_from_this<FileSystem> {
 public:
     /**
      * @brief Constructor with parent
      * @param parent The parent system
      */
-    explicit FileSystem(core::System* parent) :
-        BaseDriver(parent), currentWorkingDir(Path("/")) {}
+    explicit FileSystem(std::shared_ptr<Messenger> parent) :
+        Node(std::move(parent)), currentWorkingDir(Path("/")) {}
 
     /**
    * @brief Initialize file system
-   * @return True if everything is ok
    */
-    bool init() override;
+    void init() override;
 
     /**
    * @brief Close the filesystem
    */
-    void end() override;
-    /**
-     * @brief print the file system information in the given stream
-     */
-    void printInfo() override;
-
-    /**
-     * @brief listen to network for commands
-     * @param delta the time delta from last update
-     */
-    void update([[maybe_unused]] int64_t delta) override {}
-
-    /**
-     * @brief try to treat the given command
-     * @param cmd the command to treat
-     * @return true if the command has been treated
-     */
-    bool treatCommand(const core::Command& cmd) override;
-
-    /**
-     * @brief display command help
-     */
-    void printHelp() override;
-
-    /**
-     * @brief load and apply parameters in the config file
-     */
-    void loadConfigFile() override {}
-
-    /**
-     * @brief save the driver parameter in file
-     */
-    void saveConfigFile() const override {}
+    void terminate() override;
 
     /**
    * @brief Check if the path exist (either file or dir)
@@ -148,20 +120,6 @@ public:
    */
     bool cd(const Path& path);
 
-    /**
-   * @brief Get information about file system
-   * @return String of information
-   */
-    [[nodiscard]] std::string getInfos() const {
-        std::stringstream oss;
-        oss << "cwd: " << currentWorkingDir.toString() << std::endl;
-        oss << ((initialized()) ? "" : "not ") << "initialized" << std::endl;
-#ifndef ARDUINO
-        oss << "Native base path: " << basePath << std::endl;
-#endif
-        return oss.str();
-    }
-
 #ifndef ARDUINO
     /**
    * @brief Convert to std::path the internal path
@@ -176,20 +134,34 @@ public:
    */
     [[nodiscard]] Path toInternalPath(const std::filesystem::path& path) const;
 #endif
+    /**
+     * @brief Try to link the given node
+     * @param node The node to link to this one
+     * @return True if linked
+     */
+    bool linkNode(const std::shared_ptr<Node>& node) override;
+
+private:
+    /// Current working directory
+    Path currentWorkingDir;
+    /// lin to the clock
+    std::shared_ptr<time::Clock> clock = nullptr;
+#ifndef ARDUINO
+    /// Base path for native OS
+    std::filesystem::path basePath;
+#endif
+
+    /**
+     * @brief Get information about file system
+     * @return String of information
+     */
+    [[nodiscard]] OString info() const override;
 
     /**
      * @brief Set time callback
      * @param callBack The time call back
      */
-    static void setTimeCb(time_t (*callBack)());
-
-private:
-    /// Current working directory
-    Path currentWorkingDir;
-#ifndef ARDUINO
-    /// Base path for native OS
-    std::filesystem::path basePath;
-#endif
+    void setTimeCb();
 };
 
 }// namespace obd::fs

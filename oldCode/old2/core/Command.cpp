@@ -11,7 +11,7 @@
 namespace obd::core {
 
 
-bool Command::isCmd(const std::string& cmp) const {
+bool Command::isCmd(const OString& cmp) const {
     return cmdline.substr(0, cmdline.find(' ')) == cmp;;
 }
 
@@ -21,8 +21,8 @@ void Command::printCmd(com::Output& output) const {
     output.println(F("'"));
 }
 
-std::string Command::getParams() const {
-    if (cmdline.find(' ') == std::string::npos)
+OString Command::getParams() const {
+    if (cmdline.find(' ') == OString::npos)
         return {};
     return cmdline.substr(cmdline.find(' ') + 1);
 }

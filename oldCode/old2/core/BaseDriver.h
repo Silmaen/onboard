@@ -14,7 +14,7 @@
 
 namespace obd::core {
 
-class System;
+class System_old;
 
 /**
  * @brief Base class handling a Driver
@@ -32,14 +32,14 @@ public:
      * @brief Constructor with parent
      * @param parent The parent system
      */
-    explicit BaseDriver(System* parent = nullptr) :
+    explicit BaseDriver(System_old* parent = nullptr) :
         SystemInterface{parent} {}
     /**
      * @brief Initialize the driver
      * @return If well initialized
      */
     virtual bool init() {
-        _initialized = getParent() != nullptr;
+        _initialized = isLinked();
         return _initialized;
     };
     /**
@@ -60,7 +60,7 @@ public:
     * @brief Retrieve the driver's type
     * @return Driver's type as string
     */
-    [[nodiscard]] std::string getName() const;
+    [[nodiscard]] OString getName() const;
 
     /**
      * @brief Print the driver infos

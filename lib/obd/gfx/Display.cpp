@@ -41,8 +41,11 @@ bool Display::begin(const Resolution& displayMode) {
     setSpiSpeed(SpiSpeed::SpiSlow);
     uint8_t idReg = readReg(Registers::RID);
     if (idReg != ra8875_id) {// check if we really have a RA8875 online!!
-        print("ERROR no RA8875 device found: ");
-        println(idReg);
+        Message msg(type(),getConsoleId());
+        msg.print("ERROR no RA8875 device found: ");
+        msg.println(idReg);
+        msg.setType(Message::MessageType::Error);
+        broadcastMessage(msg);
         return false;
     }
     // now initialize the device!
@@ -428,22 +431,26 @@ void Display::setSpiSpeed(const SpiSpeed& spd, uint32_t custom_speed) {
 }
 
 void Display::printRegister(const Registers& reg) const {
+    Message msg(type(),getConsoleId());
     auto val = static_cast<uint8_t>(reg);
-    print("0x");
-    print(val, com::Format::Hexadecimal);
-    print(" : ");
+    msg.print("0x");
+    msg.print(val, Message::Format::Hexadecimal);
+    msg.print(" : ");
     val = readReg(reg);
-    print("0x");
-    print(val, com::Format::Hexadecimal);
-    print("  --  ");
-    println(val, com::Format::Binary);
+    msg.print("0x");
+    msg.print(val, Message::Format::Hexadecimal);
+    msg.print("  --  ");
+    msg.println(val, Message::Format::Binary);
+    broadcastMessage(msg);
 }
 
 void Display::printStatusRegisters() const {
-    print("Status : ");
+    Message msg(type(),getConsoleId());
+    msg.print("Status : ");
     uint8_t val = readStatus();
-    print("0x");
-    println(val, com::Format::Hexadecimal);
+    msg.print("0x");
+    msg.println(val, Message::Format::Hexadecimal);
+    broadcastMessage(msg);
     std::vector<Registers> regs = {
             Registers::RID,
             Registers::PWRR,
@@ -531,7 +538,7 @@ void Display::textSetScale(uint8_t scale) {
     writeData(temp);
 }
 
-void Display::textWrite(const std::string& str) {
+void Display::textWrite(const OString& str) {
     writeCommand(Registers::MRWC);
     for (auto writeChar : str) {
         writeData(writeChar);

@@ -23,7 +23,7 @@ public:
      * @brief Add a print to the list
      * @param str The stream to add
      */
-    void addOutput(Output* str) {
+    void addOutput(const std::shared_ptr<Output>& str) {
         _prints.push_back(str);
     }
 
@@ -31,27 +31,25 @@ public:
      * @brief Remove a print from the list
      * @param str The stream to remove
      */
-    void removeOutput(Output* str) {
+    void removeOutput(const std::shared_ptr<Output>& str) {
         auto iter = std::find(_prints.begin(), _prints.end(), str);
         if (iter != _prints.end()) {
             _prints.erase(iter);
         }
     }
 
+private:
+    /// List of the print implementations
+    std::vector<std::shared_ptr<Output>> _prints = {};
+
     /**
      * @brief Implementation of the write command
      * @param data Byte to write
-     * @return Amount of bytes written
      */
-    size_t write(uint8_t data) override {
-        for (auto* print : _prints)
-            print->write(data);
-        return 1;
+    void writeBytes(const OString& data) override{
+        for (const auto& stream : _prints)
+            stream->print(data);
     }
-
-private:
-    /// List of the print implementations
-    std::vector<Output*> _prints = {};
 };
 
 }// namespace obd::com

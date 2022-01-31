@@ -14,7 +14,7 @@
 
 namespace obd::core {
 
-class System;
+class System_old;
 
 /**
  * @brief Simple class to handle the list of drivers
@@ -39,7 +39,7 @@ public:
      * @return False if the driver is not added.
      */
     template<class T>
-    bool addDriver(System* parent) {
+    bool addDriver(System_old* parent) {
         if (!std::is_base_of<BaseDriver, T>::value)// only class derived from BaseDriver is allowed
             return false;
         if (getDriver<T>() != nullptr)// ensure driver type is unique in the list

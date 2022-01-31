@@ -26,7 +26,7 @@ enum class Source {
  * @param e The input source enum
  * @return The corresponding string
  */
-inline std::string sourceToStrPrompt(const Source& e) {
+inline OString sourceToStrPrompt(const Source& e) {
     switch (e) {
     case Source::NONE:
         return (F(" none   > '"));

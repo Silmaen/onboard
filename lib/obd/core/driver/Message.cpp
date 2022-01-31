@@ -1,56 +1,49 @@
 /**
- * @file Output.cpp
+ * @file Message.cpp
  * @author argawaen
- * @date 10/01/2022
+ * @date 14/01/2022
  * Copyright © 2022 All rights reserved.
  * All modification must get authorization from the author.
  */
-#include "Output.h"
-#ifndef ARDUINO
+
+#include "Message.h"
+#include "data/DataUtils.h"
 #include <bitset>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
-#endif
 
+namespace obd::core::driver {
 
-namespace obd::com {
-
-#ifdef ARDUINO
-int formatToInt(const com::Format& format) {
-    switch (format) {
-    case Format::Auto:
-    case Format::Decimal:
-        return 10;
-    case Format::Hexadecimal:
-        return 16;
-    case Format::Binary:
-        return 2;
-    }
+Message::DataType Message::getBaseCommand() const {
+    Message::DataType result = message.substr(0, message.find(' '));
+    return result;
 }
-#endif
 
-void Output::print(const std::string& data) {
-    for (const auto& inside : data) {
-        write(inside);
-    }
+bool Message::hasParams() const {
+    return message.find(' ') != OString::npos;
 }
-void Output::print(const char* data) {
-#ifdef ARDUINO
-    _internalPrint->print(data);
-    return;
-#endif
-    print(std::string(data));
+
+Message::MultipleData Message::getParams() const {
+    if (message.find(' ') == OString::npos)
+        return {};
+    return data::split(getParamStr(), " ");
 }
-void Output::print(int8_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-    return;
-#endif
+Message::DataType Message::getParamStr() const {
+    return message.substr(message.find(' ') + 1);
+}
+
+void Message::print(const OString& data) {
+    message += data;
+}
+void Message::print(const char* data) {
+    print(OString(data));
+}
+
+void Message::print(int8_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
-        std::cout << data;
+        oss << data;
         break;
     case Format::Decimal:
         oss << static_cast<int16_t>(data);
@@ -63,18 +56,14 @@ void Output::print(int8_t data, com::Format format) {
         oss << bitset;
         break;
     }
-    print(oss.str());
+    print(oss.str().c_str());
 }
 
-void Output::print(uint8_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-    return;
-#endif
+void Message::print(uint8_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
-        std::cout << data;
+        oss << data;
         break;
     case Format::Decimal:
         oss << static_cast<uint16_t>(data);
@@ -87,14 +76,10 @@ void Output::print(uint8_t data, com::Format format) {
         oss << bitset;
         break;
     }
-    print(oss.str());
+    print(oss.str().c_str());
 }
 
-void Output::print(int16_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-    return;
-#endif
+void Message::print(int16_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
@@ -109,18 +94,14 @@ void Output::print(int16_t data, com::Format format) {
         oss << bitset;
         break;
     }
-    print(oss.str());
+    print(oss.str().c_str());
 }
-void Output::print(uint16_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-#endif
+void Message::print(uint16_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
     case Format::Decimal:
         oss << data;
-        print(oss.str());
         break;
     case Format::Hexadecimal:
         oss << std::setfill('0') << std::setw(4) << std::hex << data;
@@ -130,19 +111,15 @@ void Output::print(uint16_t data, com::Format format) {
         oss << bitset;
         break;
     }
-    print(oss.str());
+    print(oss.str().c_str());
 }
-void Output::print(int32_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-    return;
-#endif
+void Message::print(int32_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
     case Format::Decimal:
         oss << data;
-        print(oss.str());
+        print(oss.str().c_str());
         break;
     case Format::Hexadecimal:
     case Format::Binary:
@@ -151,17 +128,13 @@ void Output::print(int32_t data, com::Format format) {
         break;
     }
 }
-void Output::print(uint32_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-    return;
-#endif
+void Message::print(uint32_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
     case Format::Decimal:
         oss << data;
-        print(oss.str());
+        print(oss.str().c_str());
         break;
     case Format::Hexadecimal:
     case Format::Binary:
@@ -170,17 +143,13 @@ void Output::print(uint32_t data, com::Format format) {
         break;
     }
 }
-void Output::print(int64_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-    return;
-#endif
+void Message::print(int64_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
     case Format::Decimal:
         oss << data;
-        print(oss.str());
+        print(oss.str().c_str());
         break;
     case Format::Hexadecimal:
     case Format::Binary:
@@ -191,17 +160,13 @@ void Output::print(int64_t data, com::Format format) {
         break;
     }
 }
-void Output::print(uint64_t data, com::Format format) {
-#ifdef ARDUINO
-    _internalPrint->print(data, formatToInt(format));
-    return;
-#endif
+void Message::print(uint64_t data, Format format) {
     std::stringstream oss;
     switch (format) {
     case Format::Auto:
     case Format::Decimal:
         oss << data;
-        print(oss.str());
+        print(oss.str().c_str());
         break;
     case Format::Hexadecimal:
     case Format::Binary:
@@ -212,100 +177,84 @@ void Output::print(uint64_t data, com::Format format) {
         break;
     }
 }
-void Output::print(double data, int digit) {
-#ifdef ARDUINO
-    _internalPrint->print(data, digit);
-    return;
-#endif
+void Message::print(double data, int digit) {
     std::stringstream oss;
     oss << std::fixed << std::setprecision(digit) << data;
-    print(oss.str());
+    print(oss.str().c_str());
 }
 
-void obd::com::Output::println() {
-    write('\n');
+void Message::println() {
+    print("\n");
 }
 
-void obd::com::Output::println(const std::string& data) {
+void Message::println(const OString& data) {
     print(data + "\n");
 }
 
-void Output::println(const char* data) {
+void Message::println(const char* data) {
     print(data);
     println();
 }
-void Output::println(int8_t data, com::Format format) {
+void Message::println(int8_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(uint8_t data, com::Format format) {
+void Message::println(uint8_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(int16_t data, com::Format format) {
+void Message::println(int16_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(uint16_t data, com::Format format) {
+void Message::println(uint16_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(int32_t data, com::Format format) {
+void Message::println(int32_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(uint32_t data, com::Format format) {
+void Message::println(uint32_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(int64_t data, com::Format format) {
+void Message::println(int64_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(uint64_t data, com::Format format) {
+void Message::println(uint64_t data, Format format) {
     print(data, format);
     println();
 }
-void Output::println(double data, int digit) {
+void Message::println(double data, int digit) {
     print(data, digit);
     println();
 }
-#ifdef ARDUINO
-size_t Output::write(uint8_t data) {
-    return _internalPrint->write(data);
+
+void Message::printBool(bool ptr) {
+    if (ptr) {
+        print("true");
+    } else {
+        print("false");
+    }
 }
 
-void Output::print(const Printable& data) {
-    _internalPrint->print(data);
-}
-
-void Output::print(const __FlashStringHelper* data) {
-    _internalPrint->print(data);
-}
-
-void Output::print(const String& data) {
-    _internalPrint->print(data);
-}
-
-void Output::println(const Printable& data) {
-    print(data);
+void Message::printlnBool(bool ptr) {
+    printBool(ptr);
     println();
 }
-
-void Output::println(const __FlashStringHelper* data) {
-    print(data);
-    println();
+bool Message::isForAll() const {
+    return destinationId == 0;
 }
 
-void Output::println(const String& data) {
-    print(data);
-    println();
-}
-#else
-size_t Output::write(uint8_t data) {
-    std::cout << data;
-    return 1;
-}
-#endif
 
-}// namespace obd::com
+bool Message::isForMe(const size_t& myId) const {
+    if (isForAll())
+        return true;
+    if (destinationId == myId)
+        return true;
+    return false;
+}
+
+}// namespace obd::core::driver

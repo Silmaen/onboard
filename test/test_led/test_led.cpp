@@ -12,75 +12,113 @@ using namespace obd::gfx;
 
 void test_bad_init() {
     StatusLed led(nullptr);
-    TEST_ASSERT_FALSE(led.init())
-    led.printHelp();
-    led.update(15);
-    TEST_ASSERT_FALSE(led.treatCommand(obd::core::Command()))
+    led.init();
+    TEST_ASSERT_FALSE(led.initialized())
+    led.update();
     led.setState(LedState::Solid);
     TEST_ASSERT_FALSE(led.initialized())
 }
 
 void test_solid_blink(){
-    auto led = baseSys.getDriver<StatusLed>();
-    led->printHelp();
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led off"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led"}))
-    led->update(50);
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led solid"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led"}))
-    led->update(50);
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led blink"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led"}))
-    led->update(50);
-    led->update(obd::config::ledPeriod/2);
-    led->update(obd::config::ledPeriod);
-    TEST_ASSERT_FALSE(led->treatCommand(obd::core::Command{"ledi"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led noel"}))
+    using obd::core::driver::Message;
+    auto led = baseSys.getNode<StatusLed>();
+    TEST_ASSERT_NOT_NULL(led);
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led off",Message::MessageType::Command}))
+    led->update();
+    TEST_ASSERT_EQUAL(LedState::Off, led->state());
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led solid",Message::MessageType::Command}))
+    led->update();
+    TEST_ASSERT_EQUAL(LedState::Solid, led->state());
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led blink",Message::MessageType::Command}))
+    led->update();
+    TEST_ASSERT_EQUAL(LedState::Blink, led->state());
+    led->accelerateTime(obd::config::ledPeriod/2);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod);
+    led->update();
+    TEST_ASSERT_FALSE(led->pushMessage(Message{0,led->type(),"ledi",Message::MessageType::Command}))
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led xmas",Message::MessageType::Command}))
+    led->update();
 }
 
 void test_fast_blink(){
-    auto led = baseSys.getDriver<StatusLed>();
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led fastblink"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led"}))
-    led->update(50);
-    led->update(obd::config::ledPeriod/4);
-    led->update(obd::config::ledPeriod/4);
-    led->update(obd::config::ledPeriod/4);
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led fasterblink"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led"}))
-    led->update(50);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
+    using obd::core::driver::Message;
+    auto led = baseSys.getNode<StatusLed>();
+    TEST_ASSERT_NOT_NULL(led);
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led fastblink",Message::MessageType::Command}))
+    led->update();
+    TEST_ASSERT_EQUAL(LedState::FastBlink, led->state());
+    led->accelerateTime(obd::config::ledPeriod/4);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/4);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/4);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/4);
+    led->update();
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led fasterblink",Message::MessageType::Command}))
+    led->update();
+    TEST_ASSERT_EQUAL(LedState::FasterBlink, led->state());
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
 }
 
-
 void test_pulse(){
-    auto led = baseSys.getDriver<StatusLed>();
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led twopulse"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led"}))
-    led->update(50);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led threepulse"}))
-    TEST_ASSERT(led->treatCommand(obd::core::Command{"led"}))
-    led->update(50);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
-    led->update(obd::config::ledPeriod/8);
+    using obd::core::driver::Message;
+    auto led = baseSys.getNode<StatusLed>();
+    TEST_ASSERT_NOT_NULL(led);
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led twopulse",Message::MessageType::Command}))
+    led->update();
+    TEST_ASSERT_EQUAL(LedState::TwoPulse, led->state());
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    TEST_ASSERT(led->pushMessage(Message{0,led->type(),"led threepulse",Message::MessageType::Command}))
+    led->update();
+    TEST_ASSERT_EQUAL(LedState::ThreePulses, led->state());
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
+    led->accelerateTime(obd::config::ledPeriod/8);
+    led->update();
 }
 
 void test_all() {

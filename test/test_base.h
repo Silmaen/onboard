@@ -13,8 +13,9 @@
 void test_all();
 
 void setup() {
-  baseSys.init();
-  test_all();
+    // adding base nodes to the system
+    baseSys.init();
+    test_all();
 }
 
 void loop() {}

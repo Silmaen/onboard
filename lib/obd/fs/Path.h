@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include <string>
+#include "native/OString.h"
 #include <utility>
 #ifndef ARDUINO
 #include <filesystem>
@@ -31,7 +31,7 @@ public:
    * @brief Constructor using a string
    * @param path The initialization string
    */
-    explicit Path(std::string&& path) :
+    explicit Path(OString&& path) :
         internalPath{std::move(path)} {}
     /**
    * @brief Affectation operator
@@ -48,7 +48,7 @@ public:
    * @param path The original string
    * @return this
    */
-    Path& operator=(std::string&& path) {
+    Path& operator=(OString&& path) {
         internalPath = std::move(path);
         return *this;
     }
@@ -83,7 +83,7 @@ public:
    * @param next The path to append
    * @return this
    */
-    Path& operator/=(const std::string& next);
+    Path& operator/=(const OString& next);
     /**
    * @brief Append a path to this one
    * @param next The path to append
@@ -95,7 +95,7 @@ public:
    * @param next The path to append
    * @return The merged paths
    */
-    Path operator/(const std::string& next) const;
+    Path operator/(const OString& next) const;
     /**
    * @brief Compact this path (interpret the ".." & ".")
    */
@@ -109,27 +109,27 @@ public:
    * @brief Get the file name with extension
    * @return File name
    */
-    [[nodiscard]] std::string name() const;
+    [[nodiscard]] OString name() const;
     /**
    * @brief Get the file name without extensions
    * @return File name
    */
-    [[nodiscard]] std::string baseName() const;
+    [[nodiscard]] OString baseName() const;
     /**
    * @brief Get the last suffix of the path
    * @return The last suffix of the path
    */
-    [[nodiscard]] std::string suffix() const;
+    [[nodiscard]] OString suffix() const;
     /**
    * @brief Get all the path's suffixes
    * @return The path's suffixes
    */
-    [[nodiscard]] std::string suffixes() const;
+    [[nodiscard]] OString suffixes() const;
     /**
    * @brief Make this path as a string
    * @return This path
    */
-    [[nodiscard]] const std::string& toString() const { return internalPath; }
+    [[nodiscard]] const OString& toString() const { return internalPath; }
 #ifndef ARDUINO
     /**
    * @brief Make this path as a std::path
@@ -140,7 +140,7 @@ public:
 
 private:
     /// String to store path data
-    std::string internalPath;
+    OString internalPath;
 };
 
 }// namespace obd::fs

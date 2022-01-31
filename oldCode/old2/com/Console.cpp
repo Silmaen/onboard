@@ -7,7 +7,7 @@
  */
 
 #include "Console.h"
-#include "core/System.h"
+#include "core/System_old.h"
 #include "native/fakeArduino.h"
 
 namespace obd::com {
@@ -19,15 +19,11 @@ bool Console::init() {
     if (br != 0U) {
         Serial.updateBaudRate(br);
     }
-    _output = new Output(&Serial);
-#else
-    _output = new Output;
 #endif
-    if (getParent() != nullptr) {
-        getParent()->addOutput(_output);
-        _output->println();
-        _output->println(F("SYSTEM INIT"));
-    }
+    _output = std::make_shared<ConsoleOutput>();
+    addOutput(_output);
+    println();
+    println(F("SYSTEM INIT"));
     return core::BaseDriver::init();
 }
 

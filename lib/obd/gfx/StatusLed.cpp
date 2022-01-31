@@ -7,8 +7,8 @@
  */
 
 #include "StatusLed.h"
-#include "core/System.h"
 #include "native/fakeArduino.h"
+#include "config.h"
 
 namespace obd::config {
 constexpr uint64_t ledHalfPeriod         = ledPeriod / 2;    ///< half period time
@@ -22,17 +22,16 @@ constexpr uint64_t ledSevenEighthPeriod  = 7 * ledPeriod / 8;///< 7 Eighth perio
 
 namespace obd::gfx {
 
-bool StatusLed::init() {
+void StatusLed::init() {
+    Node::init();
 #ifdef ARDUINO
     pinMode(LED_BUILTIN, OUTPUT);
 #endif
-    return core::BaseDriver::init();
 }
 
-void StatusLed::update(int64_t delta) {
-    if (!initialized())
-        return;
-    ledTime += delta;
+void StatusLed::preTreatment() {
+    ledTime += micros() - timestamp;
+    timestamp = micros();
     uint8_t state{0};
     switch (ledState) {
     case LedState::Off:
@@ -66,48 +65,35 @@ void StatusLed::update(int64_t delta) {
     }
 }
 
-bool StatusLed::treatCommand(const core::Command& cmd) {
-    if (!initialized())
-        return false;
-    if (cmd.isCmd(F("led"))) {
-        std::string buf{cmd.getParams()};
-        if (buf.empty()) {
+bool StatusLed::treatMessage(const Message& cmd){
+    if (Node::treatMessage(cmd))
+        return true;
+    if (cmd.getBaseCommand()==F("led")) {
+        if (!cmd.hasParams()) {
             printCurrentState();
-        } else if (buf == F("off")) {
-            setState();
-        } else if (buf == F("solid")) {
-            setState(LedState::Solid);
-        } else if (buf == F("blink")) {
-            setState(LedState::Blink);
-        } else if (buf == F("fastblink")) {
-            setState(LedState::FastBlink);
-        } else if (buf == F("twopulse")) {
-            setState(LedState::TwoPulse);
-        } else if (buf == F("threepulse")) {
-            setState(LedState::ThreePulses);
-        } else if (buf == F("fasterblink")) {
-            setState(LedState::FasterBlink);
         } else {
-            getParentOutput()->println(F("Unknown led state"));
+            OString buf{cmd.getParams()[0]};
+            if (buf == F("off")) {
+                setState();
+            } else if (buf == F("solid")) {
+                setState(LedState::Solid);
+            } else if (buf == F("blink")) {
+                setState(LedState::Blink);
+            } else if (buf == F("fastblink")) {
+                setState(LedState::FastBlink);
+            } else if (buf == F("twopulse")) {
+                setState(LedState::TwoPulse);
+            } else if (buf == F("threepulse")) {
+                setState(LedState::ThreePulses);
+            } else if (buf == F("fasterblink")) {
+                setState(LedState::FasterBlink);
+            } else {
+                console("Unknown led State", Message::MessageType::Error);
+            }
         }
         return true;
     }
     return false;
-}
-
-void StatusLed::printHelp() {
-    if (!initialized())
-        return;
-    println(F("Help on led state"));
-    println(F("led           Print the current LED status"));
-    println(F("led <state>   Change the state of the led. valid state are:"));
-    println(F("              off         led off"));
-    println(F("              solid       led on"));
-    println(F("              blink       led is slowly blinking"));
-    println(F("              fastblink   led is blinking twice faster"));
-    println(F("              twopulse    led do 2 pulses then wait"));
-    println(F("              threepulse  led do 3 pulses then wait"));
-    println(F("              fasterblink lest is continuously pulsing"));
 }
 
 void StatusLed::setState(LedState newState) {
@@ -116,33 +102,35 @@ void StatusLed::setState(LedState newState) {
     if (ledState == newState)
         return;
     ledState = newState;
-    ledTime = getParent()->getTimestamp();
+    ledTime = 0;
 }
 
 void StatusLed::printCurrentState() {
+    Message msg(type(), getConsoleId());
     switch (ledState) {
     case LedState::Off:
-        println(F("LED state: off"));
+        msg.println(F("LED state: off"));
         break;
     case LedState::Solid:
-        println(F("LED state: solid"));
+        msg.println(F("LED state: solid"));
         break;
     case LedState::Blink:
-        println(F("LED state: blink"));
+        msg.println(F("LED state: blink"));
         break;
     case LedState::FastBlink:
-        println(F("LED state: fastblink"));
+        msg.println(F("LED state: fastblink"));
         break;
     case LedState::TwoPulse:
-        println(F("LED state: twopulse"));
+        msg.println(F("LED state: twopulse"));
         break;
     case LedState::ThreePulses:
-        println(F("LED state: threepulse"));
+        msg.println(F("LED state: threepulse"));
         break;
     case LedState::FasterBlink:
-        println(F("LED state: fasterblink"));
+        msg.println(F("LED state: fasterblink"));
         break;
     }
+    broadcastMessage(msg);
 }
 
 uint8_t StatusLed::fastBlinkCb() const {
@@ -195,6 +183,20 @@ uint8_t StatusLed::fasterBlinkCb() const {
     if (ledTime < config::ledSevenEighthPeriod)
         return 1U;
     return 0;
+}
+
+void StatusLed::accelerateTime(uint64_t addedTime) {
+    ledTime += addedTime;
+}
+
+bool StatusLed::pushCommand(const core::driver::Message& message) {
+    if (Node::pushCommand(message))
+        return true;
+    if (message.getBaseCommand() == F("led")) {
+        getMessages().push(message);
+        return true;
+    }
+    return false;
 }
 
 }// namespace obd::gfx

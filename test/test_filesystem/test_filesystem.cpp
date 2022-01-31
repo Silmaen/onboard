@@ -33,9 +33,9 @@ void test_all() {
   RUN_TEST(test_parent_path);
   RUN_TEST(test_make_relative_path);
   // tests on file system
+  RUN_TEST(test_uninitialized);
   RUN_TEST(test_filesystem);
   RUN_TEST(test_directories);
-  RUN_TEST(test_uninitialized);
   RUN_TEST(test_create_destroy);
   // test files
   RUN_TEST(test_file);

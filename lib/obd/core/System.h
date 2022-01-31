@@ -1,180 +1,95 @@
 /**
  * @file System.h
  * @author argawaen
- * @date 10/01/2022
+ * @date 14/01/2022
  * Copyright © 2022 All rights reserved.
  * All modification must get authorization from the author.
  */
 
 #pragma once
 
-#include "BaseDriver.h"
-#include "DriverManager.h"
-#include "com/MultiOutput.h"
-#include "data/Series.h"
-#include <cstdint>
-#include <memory>
-#include <queue>
+#include "driver/Manager.h"
+#include "driver/Messenger.h"
 
-/**
- * @namespace obd
- * @brief Base Namespace for the project
- */
-/**
- * @brief Core functions
- */
 namespace obd::core {
 
 /**
  * @brief Base system
  */
-class System {
+class System : public base::Object{
 public:
+    System(const System&) =delete;
+    System(System&&) =delete;
+    System& operator=(const System&) =delete;
+    System& operator=(System&&) =delete;
     /**
-    * @brief default constructor
-    */
+     * @brief Default constructor.
+     */
     System();
-
     /**
-    * @brief Initialize the system
-    */
-    void init();
-
-    /**
-    * @brief Update the system
-    */
-    void update();
-    /**
-     * @brief Get the actual timestamp
-     * @return The time stamp
+     * @brief Destructor.
      */
-    [[nodiscard]] uint64_t getTimestamp() const {
-        return timestamp;
-    }
+    ~System() override;
 
     /**
-     * @brief Get the driver by its name and convert it to desired type
-     * @tparam T The desired output type (must inherit from baseDriver)
-     * @return The driver (nullptr if not exists or if template class does not inherit from baseDriver)
+     * @brief Initialisation
      */
-    template<class T>
-    std::shared_ptr<T> getDriver() {
-        return drivers.getDriver<T>();
-    }
+    void init()override;
 
     /**
-     * @brief Add a driver to the system
-     * @tparam T The driver type to add
-     *
-     * @note Will not add the driver if type does not inherit from BaseDriver
-     * @note Will not add the driver if driver type is already in the system.
-     * @return If delete succes
+     * @brief Actualization frame
+     */
+    void update()override;
+
+    /**
+     * @brief Do a full system check
+     * @return True if everything ok
+     */
+    [[nodiscard]] bool check()override;
+
+    /**
+     * @brief Add a node
+     * @tparam T The node's type to add
+     * @return True if the node truly added
      */
     template<class T>
-    bool addDriver() {
-        if (!drivers.addDriver<T>(this)) {
-            outputs.println("ERROR: Unable to add the given driver");
+    bool addNode(){
+        if (!std::is_base_of<driver::Node, T>::value)// only class derived from Node is allowed
             return false;
-        }
-        if (initialized) {
-            // if the system is already initialized, it means driver hot plug so: initialize it!
-            drivers.back()->init();
-            drivers.back()->printInfo();
-        }
-        return true;
+        auto temp = std::make_shared<T>(messenger);
+        return manager->addNode(temp);
     }
 
     /**
-     * @brief Delete a driver from the system
-     * @tparam T The driver type to delete
-     * @return If delete success
+     * @brief Add a link between two nodes
+     * @param node The node where to create link
+     * @param link The other node to link with node
+     * @return True if link successfully created
+     */
+    bool linkNodes(const size_t& node, const size_t& link);
+
+    /**
+     * @brief Get a node
+     * @tparam T Node type
+     * @return The node
      */
     template<class T>
-    bool deleteDriver() {
-        auto driver = getDriver<T>();
-        if (driver != nullptr && initialized)
-            driver->end();
-        return drivers.deleteDriver<T>();
+    std::shared_ptr<T> getNode(){
+        if (!std::is_base_of<driver::Node, T>::value)// only class derived from Node is allowed
+            return nullptr;
+        return manager->getDriver<T>();
     }
 
     /**
-     * @brief Print the kernel information
+     * @brief Get the messenger
+     * @return The messenger
      */
-    void printKernelInfo();
-
-    /**
-     * @brief Add a command to the list
-     * @param cmd The command to add
-     */
-    void pushCommand(const Command& cmd) {
-        commands.push(cmd);
-    }
-
-    /**
-     * @brief Return a direct pointer to the outputs list
-     * @return The outputs list
-     */
-    com::MultiOutput* getOutput() {
-        return &outputs;
-    }
-
-    /**
-     * @brief Add a print to the list
-     * @param p The new Print to add
-     */
-    void addOutput(com::Output* p) {
-        outputs.addOutput(p);
-    }
-
-    /**
-     * @brief Load and apply parameters from config files
-     */
-    void loadAllConfig();
-
-    /**
-     * @brief Save config in files
-     */
-    void saveAllConfig();
-
+    std::shared_ptr<driver::Messenger> getMessenger(){return messenger;}
 private:
-    /**
-     * @brief Print the system information
-     */
-    void printSystemInfo();
-
-    /**
-     * @brief Print the system help
-     * @param[in] param The sub category for help
-     */
-    void printHelp(const std::string& param);
-
-    /**
-     * @brief Display the statistics about timing
-     */
-    void printTimeStat();
-
-    /**
-     * @brief Treat the command queue
-     */
-    void treatCommands();
-
-    /// List of output streams
-    com::MultiOutput outputs;
-
-    /// List of the drivers
-    DriverManager drivers;
-
-    /// Queue of the commands
-    std::queue<Command> commands;
-
-    /// current timestamp
-    uint64_t timestamp = 0;
-
-    /// Data to collect statistics about time treatment
-    data::Series<int64_t, 20> timeData;
-
-    /// Store information about initialization
-    bool initialized = false;
+    /// The driver manager
+    std::shared_ptr<driver::Manager> manager=nullptr;
+    /// The message manager
+    std::shared_ptr<driver::Messenger> messenger= nullptr;
 };
 
 }// namespace obd::core

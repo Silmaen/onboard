@@ -26,7 +26,7 @@ TextFile::TextFile(std::shared_ptr<FileSystem> fileSystem, const Path& path, con
     open(path, openMode);
 }
 
-bool TextFile::open(const Path& path, const ios& openMode) {
+bool TextFile::open([[maybe_unused]]const Path& path, [[maybe_unused]]const ios& openMode) {
     if (_openMode != ios::none)
         return false;
 #ifdef ARDUINO
@@ -71,12 +71,12 @@ char TextFile::read() {
 #endif
 }
 
-std::string TextFile::readLine(size_t max_size, bool keepEndLines) {
+OString TextFile::readLine([[maybe_unused]]size_t max_size,[[maybe_unused]] bool keepEndLines) {
     if (_openMode != ios::in)
         return {};
-    std::string result;
+    OString result;
 #ifdef ARDUINO
-    return std::strnig();
+
 #else
     size_t count = 0;
     do {
@@ -90,20 +90,20 @@ std::string TextFile::readLine(size_t max_size, bool keepEndLines) {
     return result;
 }
 
-void TextFile::write(const char data) {
+void TextFile::write([[maybe_unused]] const char data) {
     if (_openMode != ios::out && _openMode != ios::app)
         return;
 #ifdef ARDUINO
-    return 0;
+
 #else
     fileStream.put(data);
 #endif
 }
-void TextFile::write(const std::string& data) {
+void TextFile::write([[maybe_unused]]const OString& data) {
     if (_openMode != ios::out && _openMode != ios::app)
         return;
 #ifdef ARDUINO
-    return 0;
+
 #else
     for (auto writeChar : data)
         fileStream.put(writeChar);

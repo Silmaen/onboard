@@ -9,7 +9,8 @@
 #pragma once
 
 #include <memory>
-#include "core/BaseDriver.h"
+#include <utility>
+#include "core/driver/Node.h"
 #include "fs/FileSystem.h"
 
 /**
@@ -18,71 +19,53 @@
 namespace obd::time {
 
 /// basic initialization of time zone
-const std::string TZ_Europe_Paris = "CET-1CEST,M3.5.0,M10.5.0/3";
+const OString TZ_Europe_Paris = "CET-1CEST,M3.5.0,M10.5.0/3";
 
 /**
  * @brief Base driver for the clock
  */
-class Clock : public core::BaseDriver {
+class Clock : public core::driver::Node {
 public:
     /**
      * @brief Constructor with parent system
      * @param parent The parent system
      */
-    explicit Clock(core::System* parent) :
-        BaseDriver{parent}{}
+    explicit Clock(std::shared_ptr<Messenger> parent) :
+        Node{std::move(parent)}{}
 
     /**
      * @brief Initialize the driver
-     * @return True if everything is ok
      */
-    bool init() override;
+    void init() override;
 
     /**
-     * @brief Print the driver infos
+     * @brief Return the driver infos
+     * @return The driver's infos.
      */
-    void printInfo() override;
-
-    /**
-     * @brief Procedure called each frame
-     * @param delta The current timestamp of the device
-     */
-    void update(int64_t delta) override;
-
-    /**
-     * @brief Try to treat the given command
-     * @param cmd The command to treat
-     * @return True if the command has been treated
-     */
-    bool treatCommand(const core::Command& cmd) override;
-
-    /**
-     * @brief Display driver help on commands
-     */
-    void printHelp() override;
+    [[nodiscard]] OString info()const override;
 
     /**
      * @brief Load and apply parameters in the config file
      */
-    void loadConfigFile() override;
+    void loadConfig() override;
 
     /**
      * @brief Save the driver parameter in file
      */
-    void saveConfigFile() const override;
+    void saveConfig() const override;
 
     /**
      * @brief Formatting a given time
      * @param time The time to format
      * @return The formatted string
      */
-    static std::string formatTime(const time_t& time);
+    static OString formatTime(const time_t& time);
 
     /**
      * @brief Get the date as a string
      * @return The time as string
      */
-    static std::string getDateFormatted();
+    static OString getDateFormatted();
 
     /**
      * @brief Get the current time as posix time
@@ -94,44 +77,72 @@ public:
      * @brief Define the pool driver
      * @param pool The new pool driver
      */
-    void setPoolServer(const std::string& pool);
+    void setPoolServer(const OString& pool);
 
     /**
      * @brief Define the time zone
      * @param timeZone The new time zone
      */
-    void setTimeZone(const std::string& timeZone);
+    void setTimeZone(const OString& timeZone);
 
     /**
      * @brief Return the pool server
      * @return The pool server
      */
-    [[nodiscard]] const std::string& getPoolServer()const{return poolServerName;}
+    [[nodiscard]] const OString& getPoolServer()const{return poolServerName;}
 
     /**
      * @brief Return the timezone
      * @return The timezone
      */
-    [[nodiscard]] const std::string & getTimeZone()const {return _timeZone;}
-private:
+    [[nodiscard]] const OString & getTimeZone()const {return _timeZone;}
+
     /**
-     * @brief Display the current date and time of the system
+     * @brief Append some time to the chronometer
+     * @param addedTime The time to add
      */
-    void printDate();
+    void accelerateTime(uint64_t addedTime);
+
+private:
+
+    /**
+     * @brief What to do before message treatment
+     */
+    void preTreatment() override;
 
     /**
      * @brief Configure the system time
      */
     void configTime();
+    /**
+     * @brief Send a message to this driver
+     * @param message The Command message to send
+     * @return True mean command caught.
+     */
+    bool pushCommand(const Message& message) override;
+    /**
+     * @brief Try to treat the given command
+     * @param cmd The command to treat
+     * @return True if the command has been treated
+     */
+    bool treatMessage(const Message& message) override;
 
     /// link to filesystem
     std::shared_ptr<fs::FileSystem> fileSystem = nullptr;
+    /**
+     * @brief check if the is a ready file system
+     * @return
+     */
+    [[nodiscard]] bool checkFs() const;
 
     /// The pool server name to query
-    std::string poolServerName = "pool.ntp.org";
+    OString poolServerName = "pool.ntp.org";
 
     /// Timezone configuration string
-    std::string _timeZone = TZ_Europe_Paris;
+    OString _timeZone = TZ_Europe_Paris;
+
+    /// Internal timestamp
+    uint64_t timestamp = 0;
 
     /// Internal timer
     uint64_t chronometer = 0;

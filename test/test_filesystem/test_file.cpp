@@ -14,7 +14,7 @@
 using namespace obd::fs;
 
 void test_file() {
-    std::shared_ptr<FileSystem> hdd = baseSys.getDriver<FileSystem>();
+    std::shared_ptr<FileSystem> hdd = baseSys.getNode<FileSystem>();
     TextFile file(hdd, Path{"/toto.txt"}, ios::out);
     file.write("Coucou!!");
     file.write('1');
@@ -46,14 +46,14 @@ void test_file() {
 }
 
 void test_file_read() {
-    std::shared_ptr<FileSystem> hdd = baseSys.getDriver<FileSystem>();
+    std::shared_ptr<FileSystem> hdd = baseSys.getNode<FileSystem>();
     TextFile file(hdd, Path{"/toto.txt"}, ios::in);
     TEST_ASSERT(file.available());
     file.close();
 }
 
 void test_config_file(){
-    auto hdd = baseSys.getDriver<FileSystem>();
+    auto hdd = baseSys.getNode<FileSystem>();
     // testing bad things
     ConfigFile bad_config(nullptr);
     bad_config.saveConfig("TestDriver");
@@ -65,9 +65,9 @@ void test_config_file(){
     // populate fake parameters
     config.addConfigParameter("parameter1", "Value1");
     config.addConfigParameter("parameter2", "Value2");
-    config.addConfigParameter("parameter3", "Value3");
+    config.addConfigParameter("parameter3", "Value3   ");
     TEST_ASSERT_EQUAL_STRING("",config.getKey("parameter4").c_str());
-    TEST_ASSERT_EQUAL_STRING("Value3",config.getKey("parameter3").c_str());
+    TEST_ASSERT_EQUAL_STRING("Value3   ",config.getKey("parameter3").c_str());
     config.saveConfig("TestDriver");
     config.clear();
     config.loadConfig("TestDriver");

@@ -1,142 +1,66 @@
 /**
  * @file System.cpp
  * @author argawaen
- * @date 10/01/2022
+ * @date 14/01/2022
  * Copyright © 2022 All rights reserved.
  * All modification must get authorization from the author.
  */
+
 #include "System.h"
-#include "com/Console.h"
 #include "gfx/StatusLed.h"
-#include "fs/FileSystem.h"
-#include "time/Clock.h"
+//#include "fs/FileSystem.h"
+//#include "time/Clock.h"
+#include "com/Shell.h"
+#include "com/Stdout.h"
 
 namespace obd::core {
 
-System::System() {
-    // drivers that are always presents
-    addDriver<gfx::StatusLed>();
-    addDriver<com::Console>();
-    addDriver<fs::FileSystem>();
-    addDriver<time::Clock>();
-}
+System::System() :
+    manager{std::make_shared<driver::Manager>()},
+    messenger{std::make_shared<driver::Messenger>(manager)}{}
+
+System::~System() = default;
 
 void System::init() {
-    initialized = true;
-    for (const auto& driver : drivers) {
-        driver->init();
-        driver->printInfo();
-    }
+    Object::init();
+    messenger->init();
+    addNode<gfx::StatusLed>();
+    addNode<com::Shell>();
+
+    addNode<com::Stdout>();
+    manager->getDriver<com::Shell>()->addOutput(code<com::Stdout>());
+
+
+    //    addNode<fs::FileSystem>();
+    //    addNode<time::Clock>();
+    //    linkNodes(code<obd::time::Clock>(), code<obd::fs::FileSystem>());
+    //    linkNodes(code<obd::fs::FileSystem>(), code<obd::time::Clock>());
+
+    manager->init();
 }
 
 void System::update() {
-    // update timestamp
-    uint64_t timeStamp = micros();
-    int64_t delta = static_cast<int64_t>(timeStamp) - static_cast<int64_t>(timestamp);
-    timestamp     = timeStamp;
-    timeData.appendData(delta);
-    // update drivers
-    for (const auto& driver : drivers) {
-        driver->update(delta);
-    }
-    // treat the command queue
-    treatCommands();
-}
-
-void System::printKernelInfo() {
-}
-
-void System::loadAllConfig() {
-    // load for the System
-    // load for the drivers
-    for (const auto& driver : drivers) {
-        driver->loadConfigFile();
-    }
-}
-
-void System::saveAllConfig() {
-    // save for the System
-    // save for the drivers
-    for (const auto& driver : drivers) {
-        driver->saveConfigFile();
-    }
-}
-
-void System::printSystemInfo() {
-    printKernelInfo();
-    for (const auto& driver : drivers) {
-        driver->printInfo();
-    }
-}
-
-void System::printHelp(const std::string& param) {
-    outputs.println(F("SYSTEM HELP"));
-    if (param.empty()) {
-        outputs.println(F("please give a subcategory for the specific help."));
-        outputs.println(F("valid categories are:"));
-        outputs.println(F(" - kernel"));
-        for (const auto& driver : drivers) {
-            outputs.print(F(" - "));
-            outputs.println(driver->getName());
-        }
+    if (!initialized()) {
         return;
     }
-    if (param == "kernel") {
-        outputs.println(F("dmesg          print all System info"));
-        outputs.println(F("help    <sub>  get help on specific category"));
-        outputs.println(F("cfgSave        save configuration to files"));
-        outputs.println(F("cfgLoad        load configuration from files"));
-        return;
-    }
-    auto res = std::find_if(drivers.begin(), drivers.end(),
-                            [param](const std::shared_ptr<obd::core::BaseDriver>& b) { return b->getName() == param; });
-    if (res != drivers.end()) {
-        (*res)->printHelp();
-        return;
-    }
-    outputs.println(F("invalid category given."));
-    outputs.println(F("valid categories are:"));
-    outputs.println(F(" - kernel"));
-    for (const auto& driver : drivers) {
-        outputs.print(F(" - "));
-        outputs.println(driver->getName());
-    }
+    messenger->update();
+    manager->update();
 }
 
-void System::printTimeStat() {
+bool System::check() {
+    if (!initialized())
+        return false;
+    return true;
 }
 
-void System::treatCommands() {
-    // only one command is treated: if the queue contains more, the command will be treated at the next loop
-    if (!commands.empty()) {
-        auto& cmd = commands.front();
-        cmd.printCmd(outputs);
-        bool treated = false;
-        for (const auto& driver : drivers) {
-            treated = driver->treatCommand(cmd);
-            if (treated)
-                break;
-        }
-        if (treated) {
-            commands.pop();
-            return;
-        }
-        if (cmd.isCmd(F("dmesg"))) {
-            printSystemInfo();
-        } else if (cmd.isCmd(F("help"))) {
-            printHelp(cmd.getParams());
-        } else if (cmd.isCmd(F("timeStat"))) {
-            printTimeStat();
-        } else if (cmd.isCmd(F("cfgSave"))) {
-            saveAllConfig();
-        } else if (cmd.isCmd(F("cfgLoad"))) {
-            loadAllConfig();
-        } else {
-            outputs.println(F("Unknown command"));
-        }
-        commands.pop();
-    }
+bool System::linkNodes(const size_t& node, const size_t& link) {
+    auto n_node = manager->getNode(node);
+    if (n_node == nullptr)
+        return false;
+    auto n_link = manager->getNode(link);
+    if (n_link == nullptr)
+        return false;
+    return n_node->linkNode(n_link);
 }
-
 
 }// namespace obd::core

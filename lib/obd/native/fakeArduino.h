@@ -10,6 +10,9 @@
 
 #ifdef ARDUINO
 #include <Arduino.h>
+#ifdef ESP8266
+#include <LittleFS.h>
+#endif
 #else
 //#include "fakeSerial.h"
 #include "fakeTiming.h"
